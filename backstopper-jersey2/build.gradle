@@ -1,0 +1,19 @@
+evaluationDependsOn(':')
+
+dependencies {
+    compile(
+            project(":backstopper-servlet-api"),
+            project(":backstopper-jackson"),
+            "org.glassfish.jersey.core:jersey-server:$jersey2Version",
+    )
+    testCompile(
+            project(":backstopper-core").sourceSets.test.output,
+            "junit:junit:$junitVersion",
+            "org.mockito:mockito-core:$mockitoVersion",
+            "ch.qos.logback:logback-classic:$logbackVersion",
+            "org.assertj:assertj-core:$assertJVersion",
+            "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
+            "org.hamcrest:hamcrest-all:$hamcrestVersion",
+            "org.glassfish.jersey.media:jersey-media-json-jackson:$jersey2Version"
+    )
+}

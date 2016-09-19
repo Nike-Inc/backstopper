@@ -1,0 +1,25 @@
+
+Backstopper
+===========
+
+Licenses for individual components of this project can be found in a
+LICENSE.<component>.txt file, located in the 'license' directory at the
+root of the project. See those files for the terms of the license for
+each component.
+
+-------------------------------------------------------------------------------
+
+This product contains a modified portion of software
+provided by Munroe Enterprises, Inc.:
+
+  * LICENSE:
+    * license/LICENSE.errorhandling.txt (ISC License)
+
+
+This product contains a modified portion of 'Apache Commons Lang', a Java
+library, which can be obtained at:
+
+  * LICENSE:
+    * license/LICENSE.apache_commons_lang.txt (Apache License 2.0)
+  * HOMEPAGE:
+    * https://commons.apache.org/proper/commons-lang/

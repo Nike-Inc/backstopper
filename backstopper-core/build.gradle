@@ -1,0 +1,21 @@
+evaluationDependsOn(':')
+
+dependencies {
+    compile(
+            project(":nike-internal-util"),
+            "org.slf4j:slf4j-api:$slf4jVersion",
+            "javax.inject:javax.inject:$javaxInjectVersion",
+            "javax.validation:validation-api:$javaxValidationVersion"
+    )
+    testCompile(
+            "junit:junit:$junitVersion",
+            "org.mockito:mockito-core:$mockitoVersion",
+            "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
+            "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
+            "ch.qos.logback:logback-classic:$logbackVersion",
+            "org.assertj:assertj-core:$assertJVersion",
+            "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
+            "org.hamcrest:hamcrest-all:$hamcrestVersion",
+            "org.hibernate:hibernate-validator:$hibernateValidatorVersion"
+    )
+}

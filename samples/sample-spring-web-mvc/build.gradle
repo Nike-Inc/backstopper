@@ -1,0 +1,29 @@
+evaluationDependsOn(':')
+
+dependencies {
+    compile(
+            project(":backstopper-spring-web-mvc"),
+            project(":backstopper-custom-validators"),
+            "ch.qos.logback:logback-classic:$logbackVersion",
+            "org.hibernate:hibernate-validator:$hibernateValidatorVersion",
+            "org.eclipse.jetty:jetty-webapp:$jettyVersion"
+    )
+    testCompile(
+            project(":backstopper-reusable-tests"),
+            "junit:junit:$junitVersion",
+            "org.mockito:mockito-core:$mockitoVersion",
+            "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
+            "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
+            "ch.qos.logback:logback-classic:$logbackVersion",
+            "org.assertj:assertj-core:$assertJVersion",
+            "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
+            "io.rest-assured:rest-assured:$restAssuredVersion"
+    )
+}
+
+apply plugin: "application"
+mainClassName = "com.nike.backstopper.springsample.Main"
+
+run {
+    systemProperties = System.getProperties()
+}

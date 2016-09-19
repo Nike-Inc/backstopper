@@ -1,0 +1,23 @@
+evaluationDependsOn(':')
+
+dependencies {
+    compile(
+            project(":backstopper-core"),
+            project(":backstopper-custom-validators"),
+            "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
+            "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
+            "org.slf4j:slf4j-api:$slf4jVersion",
+            "javax.inject:javax.inject:$javaxInjectVersion",
+            "javax.validation:validation-api:$javaxValidationVersion",
+            "junit:junit:$junitVersion",
+            "org.mockito:mockito-core:$mockitoVersion",
+            "ch.qos.logback:logback-classic:$logbackVersion",
+            "org.assertj:assertj-core:$assertJVersion",
+            "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
+            "org.hamcrest:hamcrest-all:$hamcrestVersion",
+            "org.reflections:reflections:$orgReflectionsVersion",
+            "org.javassist:javassist:$javassistVersion"
+    )
+    testCompile(
+    )
+}

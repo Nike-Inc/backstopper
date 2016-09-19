@@ -1,0 +1,17 @@
+evaluationDependsOn(':')
+
+dependencies {
+    compile(
+            project(":backstopper-core"),
+            "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
+            "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+    )
+    testCompile(
+            "junit:junit:$junitVersion",
+            "org.mockito:mockito-core:$mockitoVersion",
+            "ch.qos.logback:logback-classic:$logbackVersion",
+            "org.assertj:assertj-core:$assertJVersion",
+            "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
+            "org.hamcrest:hamcrest-all:$hamcrestVersion"
+    )
+}

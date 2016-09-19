@@ -1,0 +1,21 @@
+evaluationDependsOn(':')
+
+dependencies {
+    compile(
+            project(":backstopper-servlet-api"),
+            project(":backstopper-jackson"),
+            "org.springframework:spring-web:$springVersion",
+            "org.springframework:spring-webmvc:$springVersion",
+    )
+    testCompile(
+            project(":backstopper-core").sourceSets.test.output,
+            "junit:junit:$junitVersion",
+            "org.mockito:mockito-core:$mockitoVersion",
+            "ch.qos.logback:logback-classic:$logbackVersion",
+            "org.assertj:assertj-core:$assertJVersion",
+            "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
+            "org.hamcrest:hamcrest-all:$hamcrestVersion",
+            "org.springframework:spring-test:$springVersion",
+            "org.hibernate:hibernate-validator:$hibernateValidatorVersion"
+    )
+}
