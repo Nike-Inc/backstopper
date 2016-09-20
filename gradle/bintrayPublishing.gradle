@@ -1,4 +1,12 @@
-configure(subprojects.findAll { !it.name.startsWith("samples/") }) {
+configure(subprojects.findAll {
+    if (it.name.startsWith("samples/"))
+        return false
+
+    if ("true" == System.getProperty("publishNikeInternalUtil"))
+        return it.name == "nike-internal-util"
+
+    return it.name != "nike-internal-util"
+}) {
     apply plugin: 'maven'
     apply plugin: 'maven-publish'
     apply plugin: 'com.jfrog.bintray'
@@ -7,6 +15,7 @@ configure(subprojects.findAll { !it.name.startsWith("samples/") }) {
         def isNikeInternalUtilProject = project.getName() == "nike-internal-util"
         createPomOutputLocation = "${project.buildDir}/libs/pom.xml"
         descriptionForPom = (isNikeInternalUtilProject) ? "Nike internal utilities library" : "Backstopper module ${project.getName()}"
+        bintrayPackage = (isNikeInternalUtilProject) ? "internal" : "backstopper"
     }
 
     task createPom << {
@@ -70,7 +79,7 @@ configure(subprojects.findAll { !it.name.startsWith("samples/") }) {
         publications = ['mavenInfo']
         pkg {
             repo = 'maven'
-            name = 'backstopper'
+            name = bintrayPackage
             userOrg = 'nike'
             licenses = ['Apache-2.0']
             websiteUrl = 'https://github.com/Nike-Inc/backstopper'
