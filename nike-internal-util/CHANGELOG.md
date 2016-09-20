@@ -6,15 +6,24 @@ Note that the `backstopper-*` libraries are version-independent even though they
 
 #### 0.x Releases
 
-- `0.9.x` Releases - [0.9.0](#090)
+- `0.9.x` Releases - [0.9.0.1](#0901), [0.9.0](#090)
 
-## [0.9.0](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.9.0)
+## [0.9.0.1](https://github.com/Nike-Inc/backstopper/releases/tag/nike-internal-util-v0.9.0.1)
+
+Released on 2016-09-20.
+
+### Fixed
+
+- Version 0.9.0 was unable to be published in bintray, so `nike-internal-util` bintray publishing was split into its own package separate from the backstopper libraries. No functional code changes. 
+    - Fixed by [Nic Munroe][contrib_nicmunroe].
+
+## [0.9.0](https://github.com/Nike-Inc/backstopper/releases/tag/nike-internal-util-v0.9.0)
 
 Released on 2016-09-20.
 
 ### Added
 
-- Initial open source code drop for `nike-internal-util`.
+- Initial open source code drop for `nike-internal-util`. NOTE: This release never made it to bintray or maven central. Please use 0.9.0.1 instead.
 	- Added by [Nic Munroe][contrib_nicmunroe].
 	
 
