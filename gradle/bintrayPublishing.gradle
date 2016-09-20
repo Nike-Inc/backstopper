@@ -6,14 +6,13 @@ configure(subprojects.findAll { !it.name.startsWith("samples/") }) {
     ext {
         def isNikeInternalUtilProject = project.getName() == "nike-internal-util"
         createPomOutputLocation = "${project.buildDir}/libs/pom.xml"
-        groupIdForPom = (isNikeInternalUtilProject) ? "com.nike.internal" : groupId
-        descriptionForPom = (isNikeInternalUtilProject) ? "Nike internal utilities library" : "Backstopper module $artifactId"
+        descriptionForPom = (isNikeInternalUtilProject) ? "Nike internal utilities library" : "Backstopper module ${project.getName()}"
     }
 
     task createPom << {
         pom {
             project {
-                groupId groupIdForPom
+                groupId groupId
                 artifactId artifactId
                 version version
                 name artifactId

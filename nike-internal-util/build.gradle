@@ -1,6 +1,8 @@
 evaluationDependsOn(':')
 
 version=nikeInternalUtilVersion
+groupId = nikeInternalUtilGroupId
+group = nikeInternalUtilGroupId
 
 dependencies {
     compile(
