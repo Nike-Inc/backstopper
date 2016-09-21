@@ -439,8 +439,9 @@ public MyFrameworkResponseObj frameworkErrorHandlingBottleneck(Throwable ex,
     try {
         ErrorResponseInfo<MyFrameworkPayloadObj> errorResponseInfo =
             knownExceptionHandler.maybeHandleException(ex, request);
-
-        return convertErrorResponseInfoToFrameworkResponse(errorResponseInfo);
+        
+        if (errorResponseInfo != null)
+            return convertErrorResponseInfoToFrameworkResponse(errorResponseInfo);
     }
     catch (UnexpectedMajorExceptionHandlingError unexpectedEx) {
         logger.error("An UnexpectedMajorExceptionHandlingError error occurred. This means "
