@@ -4,7 +4,7 @@ This is a small utilities library that provides some reusable helper methods and
 
 ## Backstopper Info
 
-This library may move into its own repository at some point. For now it's piggybacking on the Backstopper repository. See the [base project README.md](../README.md) and Backstopper repository source code and javadocs for Backstopper information. 
+This library may move into its own repository at some point. For now it's piggybacking on the Backstopper repository. See the [base project README.md](../README.md), [User Guide](../USER_GUIDE.md), and Backstopper repository source code and javadocs for Backstopper information. 
 
 ## License
 
