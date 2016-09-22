@@ -8,20 +8,20 @@
 
 ## TL;DR
 
+Backstopper guarantees that a consistent error contract which you can define will be sent to callers *no matter the source of the error* when properly integrated into your API framework. No chance of undesired information leaking to the caller like stack traces, and callers can always rely on an error contract they can programmatically process.  
+
 If you prefer hands-on exploration rather than readmes and user guides, the [sample applications](#samples) provide concrete examples of using Backstopper that are simple, compact, and straightforward. 
 
 The rest of this readme is intended to get you oriented and running quickly, and the [User Guide](USER_GUIDE.md) contains more in-depth details.
 
 <a name="overview"></a>
-## Features Overview
+## Additional Features Overview
 
-* Backstopper guarantees that a consistent error contract which you can define will be sent to callers *no matter the source of the error* when properly integrated into your API framework. No chance of undesired information leaking to the caller like stack traces, and callers can always rely on an error contract they can programmatically process.  
-* It trivializes the task of creating and throwing errors that will include the desired information when shown to the caller, and allows you to gather all of your project-specific API error definitions in one place (e.g. as an enum) for easy access, modification, and addition.
-* All API errors returned to the caller are logged in the application logs with as many details about the request and the error as possible along with a UUID, and the default error contract shown to the caller includes that UUID so you can instantly connect an individual error response with the application log message containing full details about that specific error and the context under which it occurred. This makes the usual tedious process of debugging why an API error was shown to the caller simple and straightforward.
+* Backstopper trivializes the task of creating and throwing errors that will be sent to the caller with the desired error contract, and allows you to gather all of your project-specific API error definitions in one place (e.g. as an enum) for easy access, modification, and addition.
+* All errors are logged with full request context and error debugging info along with a UUID. The caller is sent the same UUID in the error response payload so you can instantly connect an individual error response with the application log message containing full debugging details. This makes the usual tedious process of debugging why an API error was shown to the caller simple and straightforward.
 * Includes optional support for defining a common set of "core API errors" that can be shared via jar library so that all projects in your organization use the same set of API errors for common error cases. Individual projects are then free to focus on their project-specific API errors.
-* It has optional integration support for Java's JSR 303 Bean Validation system (`@NotNull`, `@Max`, etc) so that validation errors occurring due to invalid payloads sent by callers (for example) will be automatically converted to your predefined set of project API errors.
-* Backstopper is geared primarily towards HTTP-based APIs, but could be used in other circumstances if desired and without polluting your project with unwanted HTTP API dependencies.
-* Integration libraries are included for several API frameworks already, and adding support for other frameworks is a relatively straightforward process.
+* Contains optional integration support for Java's JSR 303 Bean Validation system (`@NotNull`, `@Max`, etc) so that validation errors occurring due to invalid payloads sent by callers (among other use cases) will be automatically converted to your predefined set of project API errors.
+* Integration libraries are included for several API frameworks already, and adding support for other frameworks is a relatively straightforward process. Backstopper is geared primarily towards HTTP-based APIs, but could be used in other circumstances if desired and without polluting your project with unwanted HTTP API dependencies.
 
 ### Barebones Example (assumes [framework integration](#quickstart_integration) is already done)
 
