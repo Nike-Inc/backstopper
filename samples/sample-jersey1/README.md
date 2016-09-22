@@ -34,7 +34,7 @@ As you are doing the following you should check the logs that are output by the 
 
 ## More Info
 
-See the [base project README.md](../../README.md) and Backstopper repository source code and javadocs for all further information.
+See the [base project README.md](../../README.md), [User Guide](../../USER_GUIDE.md), and Backstopper repository source code and javadocs for all further information.
 
 ## License
 

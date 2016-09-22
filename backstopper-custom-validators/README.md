@@ -23,7 +23,7 @@ public final String rgb_color;
 
 ## More Info
 
-See the [base project README.md](../README.md) and Backstopper repository source code and javadocs for all further information.
+See the [base project README.md](../README.md), [User Guide](../USER_GUIDE.md), and Backstopper repository source code and javadocs for all further information.
 
 ## License
 
