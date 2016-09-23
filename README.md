@@ -2,6 +2,7 @@
 
 [ ![Download](https://api.bintray.com/packages/nike/maven/backstopper/images/download.svg) ](https://bintray.com/nike/maven/backstopper/_latestVersion)
 [![][travis img]][travis]
+[![Code Coverage](https://img.shields.io/codecov/c/github/Nike-Inc/backstopper/master.svg)](https://codecov.io/github/Nike-Inc/backstopper?branch=master)
 [![][license img]][license]
 
 **Backstopper is a framework-agnostic API error handling and (optional) model validation solution for Java 7 and greater.** 
