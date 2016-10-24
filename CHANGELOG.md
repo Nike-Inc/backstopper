@@ -10,7 +10,16 @@ Backstopper is used heavily and is stable internally at Nike, however the wider 
 
 #### 0.x Releases
 
-- `0.9.x` Releases - [0.9.0.1](#0901), [0.9.0](#090)
+- `0.9.x` Releases - [0.9.1](#091), [0.9.0.1](#0901), [0.9.0](#090)
+
+## [0.9.1](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.9.1)
+
+Released on 2016-10-24.
+
+### Fixed
+
+- `ApiExceptionHandlerUtils.DEFAULT_IMPL` was not being initialized correctly, resulting in the "mask sensitive headers" functionality being turned off for `DEFAULT_IMPL`. `DEFAULT_IMPL` will now correctly mask the default set of sensitive headers. 
+    - Fixed by [Nic Munroe][contrib_nicmunroe].
 
 ## [0.9.0.1](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.9.0.1)
 
