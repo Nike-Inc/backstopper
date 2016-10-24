@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
 
+import static com.nike.backstopper.handler.ApiExceptionHandlerUtils.DEFAULT_IMPL;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -43,11 +44,20 @@ public class ApiExceptionHandlerUtilsTest {
     private RequestInfoForLogging reqMock;
 
     private static final ProjectApiErrors testProjectApiErrors = ProjectApiErrorsForTesting.withProjectSpecificData(null, null);
-    private ApiExceptionHandlerUtils impl = ApiExceptionHandlerUtils.DEFAULT_IMPL;
+    private ApiExceptionHandlerUtils impl = DEFAULT_IMPL;
     
     @Before
     public void setupMethod() {
         MockitoAnnotations.initMocks(this);
+    }
+
+    @Test
+    public void default_impl_has_expected_default_properties_set() {
+        // expect
+        assertThat(DEFAULT_IMPL.maskSensitiveHeaders, is(true));
+        assertThat(DEFAULT_IMPL.sensitiveHeaderKeysForMasking, is(ApiExceptionHandlerUtils.DEFAULT_MASKED_HEADER_KEYS));
+        assertThat(DEFAULT_IMPL.distributedTraceIdHeaderKey,
+                   is(ApiExceptionHandlerUtils.DEFAULT_DISTRIBUTED_TRACE_ID_HEADER_KEY));
     }
 
     @Test

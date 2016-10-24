@@ -30,13 +30,6 @@ import javax.inject.Singleton;
 public class ApiExceptionHandlerUtils {
 
     /**
-     * The default implementation of {@link ApiExceptionHandlerUtils} that masks {@link #DEFAULT_MASKED_HEADER_KEYS}
-     * and uses {@link #DEFAULT_DISTRIBUTED_TRACE_ID_HEADER_KEY} when extracting trace ID for the logs. You can override
-     * this class and its methods if you need alternate behavior.
-     */
-    public static final ApiExceptionHandlerUtils DEFAULT_IMPL = new ApiExceptionHandlerUtils();
-
-    /**
      * Constant for the Authorization header key.
      */
     public static final String AUTH_HEADER_KEY = "Authorization";
@@ -55,6 +48,14 @@ public class ApiExceptionHandlerUtils {
      * the current trace ID without pulling in any other library dependencies.
      */
     protected static final String TRACE_ID_MDC_KEY = "traceId";
+
+    /**
+     * The default implementation of {@link ApiExceptionHandlerUtils} that masks {@link #DEFAULT_MASKED_HEADER_KEYS}
+     * and uses {@link #DEFAULT_DISTRIBUTED_TRACE_ID_HEADER_KEY} when extracting trace ID for the logs. You can override
+     * this class and its methods if you need alternate behavior.
+     */
+    public static final ApiExceptionHandlerUtils DEFAULT_IMPL =
+        new ApiExceptionHandlerUtils(true, DEFAULT_MASKED_HEADER_KEYS, DEFAULT_DISTRIBUTED_TRACE_ID_HEADER_KEY);
 
     /**
      * Set to true if you want to mask any of the {@link #sensitiveHeaderKeysForMasking} headers, false if all headers
