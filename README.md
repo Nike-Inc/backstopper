@@ -262,5 +262,3 @@ Backstopper is released under the [Apache License, Version 2.0](http://www.apach
 
 [license]:LICENSE.txt
 [license img]:https://img.shields.io/badge/License-Apache%202-blue.svg
-
-[toc]:#table_of_contents
