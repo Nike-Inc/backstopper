@@ -10,7 +10,16 @@ Backstopper is used heavily and is stable internally at Nike, however the wider 
 
 #### 0.x Releases
 
-- `0.9.x` Releases - [0.9.1.1](#0911), [0.9.1](#091), [0.9.0.1](#0901), [0.9.0](#090)
+- `0.9.x` Releases - [0.9.2](#092), [0.9.1.1](#0911), [0.9.1](#091), [0.9.0.1](#0901), [0.9.0](#090)
+
+## [0.9.2](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.9.2)
+
+Released on 2016-11-04.
+
+### Fixed
+
+- Fixed a bug with `ApiErrorWithMetadata` where it wasn't including the delegate's metadata. 
+    - Fixed by [Nic Munroe][contrib_nicmunroe].
 
 ## [0.9.1.1](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.9.1.1)
 
