@@ -90,7 +90,7 @@ ext {
     // Anything in this jacocoExclusions list will be excluded from coverage reports.
     jacocoExclusions = []
     jacocoCoverageThresholdSetup = {
-        configure(subprojects.findAll { !it.name.startsWith("samples/") }) {
+        configure(subprojects.findAll { !it.name.startsWith("sample") }) {
             jacocoCoverage {
                 // Enforce minimum code coverage. See https://github.com/palantir/gradle-jacoco-coverage for the full list of options.
                 reportThreshold 0.9, INSTRUCTION

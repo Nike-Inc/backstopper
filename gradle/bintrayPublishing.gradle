@@ -1,5 +1,5 @@
 configure(subprojects.findAll {
-    if (it.name.startsWith("samples/"))
+    if (it.name.startsWith("sample"))
         return false
 
     if ("true" == System.getProperty("publishNikeInternalUtil"))
