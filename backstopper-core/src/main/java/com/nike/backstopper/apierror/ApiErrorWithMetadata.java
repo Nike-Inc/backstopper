@@ -19,8 +19,22 @@ public class ApiErrorWithMetadata implements ApiError {
     protected final Map<String, Object> comboMetadata;
 
     public ApiErrorWithMetadata(ApiError delegate, Map<String, Object> extraMetadata) {
+        if (delegate == null)
+            throw new IllegalArgumentException("ApiError delegate cannot be null");
+
         this.delegate = delegate;
-        this.comboMetadata = Collections.unmodifiableMap(new HashMap<>(extraMetadata));
+
+        Map<String, Object> delegateMetadata = delegate.getMetadata();
+        if (delegateMetadata == null)
+            delegateMetadata = Collections.emptyMap();
+
+        if (extraMetadata == null)
+            extraMetadata = Collections.emptyMap();
+
+        Map<String, Object> unprotectedCombo = new HashMap<>(delegateMetadata);
+        unprotectedCombo.putAll(extraMetadata);
+
+        this.comboMetadata = Collections.unmodifiableMap(unprotectedCombo);
     }
 
     @Override
