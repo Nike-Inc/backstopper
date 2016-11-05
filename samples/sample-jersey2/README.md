@@ -10,7 +10,7 @@ This submodule contains a sample application based on Jersey 2 that fully integr
  
 ## Things to try
  
-All examples here assume the sample app is running on port 8080, so you would hit each path by going to `http://localhost:8080/[endpoint-path]`. It's recommended that you use a REST client like [Postman](https://www.getpostman.com/) for making the requests so you can easily specify HTTP method, paylaods, headers, etc, and fully inspect the response.
+All examples here assume the sample app is running on port 8080, so you would hit each path by going to `http://localhost:8080/[endpoint-path]`. It's recommended that you use a REST client like [Postman](https://www.getpostman.com/) for making the requests so you can easily specify HTTP method, payloads, headers, etc, and fully inspect the response.
 
 Also note that all the following things to try are verified in a component test: `VerifyExpectedErrorsAreReturnedComponentTest`. If you prefer to experiment via code you can run, debug, and otherwise explore that test. 
 
