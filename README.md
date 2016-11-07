@@ -1,3 +1,5 @@
+<img src="backstopper_logo.png" />
+
 # Backstopper - Keep Your API Errors in the Field of Play
 
 [ ![Download](https://api.bintray.com/packages/nike/maven/backstopper/images/download.svg) ](https://bintray.com/nike/maven/backstopper/_latestVersion)
