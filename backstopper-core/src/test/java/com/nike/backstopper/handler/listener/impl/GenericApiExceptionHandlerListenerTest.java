@@ -6,6 +6,7 @@ import com.nike.backstopper.exception.ApiException;
 import com.nike.backstopper.handler.listener.ApiExceptionHandlerListenerResult;
 import com.nike.internal.util.Pair;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -42,6 +43,26 @@ public class GenericApiExceptionHandlerListenerTest extends ListenerTestBase {
         ApiException ex = ApiException.newBuilder().withApiErrors(error).withExtraDetailsForLogging(extraLogInfo).build();
         ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
         assertThat(result.extraDetailsForLogging, is(extraLogInfo));
+    }
+
+    @Test
+    public void should_add_response_headers_from_ApiException() {
+        // given
+        ApiError error = BarebonesCoreApiErrorForTesting.NOT_FOUND;
+        List<Pair<String, List<String>>> extraHeaders = Arrays.asList(
+            Pair.of("key1", singletonList("val1")),
+            Pair.of("key2", Arrays.asList("val2.1", "val2.2"))
+        );
+        ApiException ex = ApiException.newBuilder()
+                                      .withApiErrors(error)
+                                      .withExtraResponseHeaders(extraHeaders)
+                                      .build();
+
+        // when
+        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
+
+        // then
+        Assertions.assertThat(result.extraResponseHeaders).isEqualTo(extraHeaders);
     }
 
     @Test

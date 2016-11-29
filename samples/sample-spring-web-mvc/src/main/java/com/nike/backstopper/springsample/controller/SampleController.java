@@ -17,11 +17,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 import javax.validation.Valid;
 
 import static com.nike.backstopper.springsample.controller.SampleController.SAMPLE_PATH;
+import static java.util.Collections.singletonList;
 
 /**
  * Contains some sample endpoints. In particular {@link #postSampleModel(SampleModel)} is useful for showing the
@@ -79,6 +81,10 @@ public class SampleController {
                               .withExceptionMessage("Manual error throw was requested")
                               .withApiErrors(SampleProjectApiError.MANUALLY_THROWN_ERROR)
                               .withExtraDetailsForLogging(Pair.of("rgb_color_value", model.rgb_color))
+                              .withExtraResponseHeaders(
+                                  Pair.of("rgbColorValue", singletonList(model.rgb_color)),
+                                  Pair.of("otherExtraMultivalueHeader", Arrays.asList("foo", "bar"))
+                              )
                               .build();
         }
 

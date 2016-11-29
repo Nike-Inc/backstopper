@@ -178,7 +178,8 @@ public abstract class ApiExceptionHandlerBase<T> {
             ApiExceptionHandlerListenerResult result = shouldHandleApiException(ex);
 
             if (result.shouldHandleResponse)
-                return doHandleApiException(result.errors, result.extraDetailsForLogging, ex, request);
+                return doHandleApiException(result.errors, result.extraDetailsForLogging, result.extraResponseHeaders,
+                                            ex, request);
         }
         catch(Exception ohNoException) {
             throw new UnexpectedMajorExceptionHandlingError(
@@ -199,8 +200,8 @@ public abstract class ApiExceptionHandlerBase<T> {
      *          {@link ApiExceptionHandlerListenerResult#errors} and
      *          {@link ApiExceptionHandlerListenerResult#extraDetailsForLogging} must be filled in appropriately and
      *          ready for passing in to
-     *          {@link #doHandleApiException(SortedApiErrorSet, List, Throwable, RequestInfoForLogging)}. If it is false
-     *          then the given exception will be ignored by this class (and should therefore ultimately be handled
+     *          {@link #doHandleApiException(SortedApiErrorSet, List, List, Throwable, RequestInfoForLogging)}. If it is
+     *          false then the given exception will be ignored by this class (and should therefore ultimately be handled
      *          by this project's implementation of {@link UnhandledExceptionHandlerBase}).
      */
     protected ApiExceptionHandlerListenerResult shouldHandleApiException(Throwable ex) {
@@ -258,15 +259,16 @@ public abstract class ApiExceptionHandlerBase<T> {
      * of logging the appropriate request info, converting the errors into an {@link DefaultErrorContractDTO}, and using
      * {@link #prepareFrameworkRepresentation(DefaultErrorContractDTO, int, Collection, Throwable,
      * RequestInfoForLogging)} to generate the appropriate response for the client.
-     *
-     * @param clientErrors The ApiErrors that the originalException converted into.
+     *  @param clientErrors The ApiErrors that the originalException converted into.
      * @param extraDetailsForLogging Any extra details that should be logged along with the usual request/error info.
+     * @param extraResponseHeaders
      * @param originalException The original exception that we are handling.
      * @param request The incoming request.
      */
     protected ErrorResponseInfo<T> doHandleApiException(
-        SortedApiErrorSet clientErrors, List<Pair<String, String>> extraDetailsForLogging, Throwable originalException,
-        RequestInfoForLogging request
+      SortedApiErrorSet clientErrors, List<Pair<String, String>> extraDetailsForLogging,
+      List<Pair<String, List<String>>> extraResponseHeaders, Throwable originalException,
+      RequestInfoForLogging request
     ) {
         Throwable coreException = unwrapAndFindCoreException(originalException);
 
@@ -329,14 +331,21 @@ public abstract class ApiExceptionHandlerBase<T> {
             errorContractDTO, highestPriorityStatusCode, filteredClientErrors, originalException, request
         );
 
-        // Get any extra headers desired for the response.
-        Map<String, List<String>> extraHeadersForResponse = extraHeadersForResponse(
-            frameworkRepresentation, errorContractDTO, highestPriorityStatusCode, filteredClientErrors,
-            originalException, request
-        );
+        // Setup the final additional response headers that should be sent back to the caller.
         Map<String, List<String>> finalHeadersForResponse = new HashMap<>();
-        if (extraHeadersForResponse != null)
-            finalHeadersForResponse.putAll(extraHeadersForResponse);
+        // Start with any extra headers that came into this method.
+        if (extraResponseHeaders != null) {
+            for (Pair<String, List<String>> addMe : extraResponseHeaders) {
+                finalHeadersForResponse.put(addMe.getLeft(), addMe.getRight());
+            }
+        }
+        // Then add any from the extraHeadersForResponse() method from this class.
+        Map<String, List<String>> evenMoreExtraHeadersForResponse = extraHeadersForResponse(
+          frameworkRepresentation, errorContractDTO, highestPriorityStatusCode, filteredClientErrors,
+          originalException, request
+        );
+        if (evenMoreExtraHeadersForResponse != null)
+            finalHeadersForResponse.putAll(evenMoreExtraHeadersForResponse);
         // Always add the error_uid header that matches the errorId that was generated.
         finalHeadersForResponse.put("error_uid", Collections.singletonList(errorId));
 

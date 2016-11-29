@@ -57,6 +57,7 @@ public class Payload {
 throw ApiException.newBuilder()
                   .withApiErrors(MyProjectError.INVALID_EMAIL_ADDRESS)
                   .withExceptionMessage("Error validating email field.")
+                  .withExtraResponseHeaders(Pair.of("received-email", singletonList(payload.email)))
                   .withExtraDetailsForLogging(Pair.of("received_email", payload.email))
                   .build();
 ```  
@@ -208,7 +209,7 @@ public enum MyProjectApiError implements ApiError {
 Backstopper needs a `ProjectApiErrors` defined for each project in order to work. If possible you should create an abstract base class that is setup with the core errors for your organization - see `SampleProjectApiErrorsBase` for an example. Then each individual project would simply need to extend the base class and fill in the project-specific set of `ApiError`s and the error range it's using. See any of the [sample application](#samples) `SampleProjectApiErrorsImpl` classes for an example. The javadocs for `ProjectApiErrors` contains in-depth information as well.
 
 <a name="quickstart_usage_throw_api_exception"></a>
-##### Manually throwing an arbitrary error with full control over the resulting error contract and logging info
+##### Manually throwing an arbitrary error with full control over the resulting error contract, response headers, and logging info
 
 ``` java
 // The only requirement is that you have at least one ApiError. Everything else is optional.
@@ -216,8 +217,14 @@ throw ApiException.newBuilder()
                   .withApiErrors(MyProjectApiError.FOO_ERROR, MyProjectApiError.BAD_THING_HAPPENED)
                   .withExceptionMessage("Useful message for exception in the logs")
                   .withExceptionCause(originalCause)
-                  .withExtraDetailsForLogging(Pair.of("important_info", "foo"), 
-                                              Pair.of("also_important", "bar"))
+                  .withExtraResponseHeaders(
+                      Pair.of("useful-single-header-for-caller", singletonList("thing1")),
+                      Pair.of("also-useful-multivalue-header", Arrays.asList("thing2", "thing3"))
+                  )
+                  .withExtraDetailsForLogging(
+                      Pair.of("important_info", "foo"),
+                      Pair.of("also_important", "bar")
+                  )
                   .build();
 ```
 
@@ -239,7 +246,13 @@ public static class MyFrameworkExceptionHandlerListener implements ApiExceptionH
                 Pair.of("important_foo_info", myEx.foo()),
                 Pair.of("important_bar_info", myEx.bar())
             );
-            return ApiExceptionHandlerListenerResult.handleResponse(apiErrors, extraDetailsForLogging);
+            List<Pair<String, List<String>>> extraResponseHeaders = Arrays.asList(
+                Pair.of("foo-info", myEx.foo()),
+                Pair.of("bar-info", myEx.bar())
+            );
+            return ApiExceptionHandlerListenerResult.handleResponse(
+                apiErrors, extraDetailsForLogging, extraResponseHeaders
+            );
         }
 
         // The exception wasn't a MyFrameworkException, so this listener should ignore it.

@@ -12,7 +12,9 @@ import com.nike.backstopper.exception.network.ServerTimeoutException;
 import com.nike.backstopper.exception.network.ServerUnknownHttpStatusCodeException;
 import com.nike.backstopper.exception.network.ServerUnreachableException;
 import com.nike.backstopper.service.ClientDataValidationService;
+import com.nike.internal.util.Pair;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpStatus;
@@ -45,6 +47,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 
+import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -103,6 +106,8 @@ public class ClientfacingErrorITest extends BaseSpringEnabledValidationTestCase 
                         .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
         verifyErrorResponse(result, projectApiErrors, projectApiErrors.getTemporaryServiceProblemApiError(), ApiException.class);
+        Assertions.assertThat(result.getResponse().getHeaders("foo1")).isEqualTo(singletonList("bar"));
+        Assertions.assertThat(result.getResponse().getHeaders("foo2")).isEqualTo(Arrays.asList("bar2.1", "bar2.2"));
     }
 
     @Test
@@ -115,6 +120,8 @@ public class ClientfacingErrorITest extends BaseSpringEnabledValidationTestCase 
                         .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
         verifyErrorResponse(result, projectApiErrors, errors, ApiException.class);
+        Assertions.assertThat(result.getResponse().getHeaders("foo1")).isEqualTo(singletonList("bar"));
+        Assertions.assertThat(result.getResponse().getHeaders("foo2")).isEqualTo(Arrays.asList("bar2.1", "bar2.2"));
     }
 
     @Test
@@ -337,7 +344,12 @@ public class ClientfacingErrorITest extends BaseSpringEnabledValidationTestCase 
 
         @RequestMapping("/throwSpecificValidationExceptions")
         public void throwSpecificValidationExceptions(@RequestBody List<BarebonesCoreApiErrorForTesting> errorsToThrow) {
-            throw ApiException.newBuilder().withApiErrors(new ArrayList<ApiError>(errorsToThrow)).build();
+            throw ApiException.newBuilder()
+                              .withApiErrors(new ArrayList<ApiError>(errorsToThrow))
+                              .withExtraResponseHeaders(Pair.of("foo1", singletonList("bar")),
+                                                        Pair.of("foo2", Arrays.asList("bar2.1", "bar2.2"))
+                              )
+                              .build();
         }
 
         @RequestMapping("/throwTooManyRequestsException")

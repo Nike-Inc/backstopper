@@ -15,7 +15,8 @@ import javax.inject.Singleton;
 
 /**
  * Handles generic {@link ApiException} errors by simply setting {@link ApiExceptionHandlerListenerResult#errors} to
- * {@link ApiException#apiErrors} and adding any {@link ApiException#extraDetailsForLogging}.
+ * {@link ApiException#apiErrors} and adding any {@link ApiException#extraDetailsForLogging} and/or
+ * {@link ApiException#extraResponseHeaders}.
  */
 @Named
 @Singleton
@@ -36,10 +37,14 @@ public class GenericApiExceptionHandlerListener implements ApiExceptionHandlerLi
         List<Pair<String, String>> messages = new ArrayList<>();
         messages.addAll(apiException.getExtraDetailsForLogging());
 
+        // Add all the extra response headers from the exception.
+        List<Pair<String, List<String>>> headers = new ArrayList<>();
+        headers.addAll(apiException.getExtraResponseHeaders());
+
         // Include the ApiException's message as a logged key/value pair.
         if (StringUtils.isNotBlank(ex.getMessage()))
             messages.add(Pair.of("api_exception_message", ex.getMessage()));
 
-        return ApiExceptionHandlerListenerResult.handleResponse(errors, messages);
+        return ApiExceptionHandlerListenerResult.handleResponse(errors, messages, headers);
     }
 }
