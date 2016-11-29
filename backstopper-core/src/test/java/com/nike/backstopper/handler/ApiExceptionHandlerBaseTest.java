@@ -2,6 +2,7 @@ package com.nike.backstopper.handler;
 
 import com.nike.backstopper.apierror.ApiError;
 import com.nike.backstopper.apierror.ApiErrorBase;
+import com.nike.backstopper.apierror.SortedApiErrorSet;
 import com.nike.backstopper.apierror.projectspecificinfo.ProjectApiErrors;
 import com.nike.backstopper.apierror.projectspecificinfo.ProjectSpecificErrorCodeRange;
 import com.nike.backstopper.apierror.testutil.BarebonesCoreApiErrorForTesting;
@@ -40,6 +41,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import static com.nike.backstopper.apierror.SortedApiErrorSet.singletonSortedSetOf;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.sameInstance;
@@ -47,11 +49,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -107,6 +111,87 @@ public class ApiExceptionHandlerBaseTest {
                 returnList.add(error);
         }
         return returnList;
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructor_throws_IllegalArgumentException_if_passed_null_projectApiErrors() {
+        // expect
+        new ApiExceptionHandlerBase(null, singletonList(new GenericApiExceptionHandlerListener()), ApiExceptionHandlerUtils.DEFAULT_IMPL) {
+            @Override
+            protected Object prepareFrameworkRepresentation(
+                DefaultErrorContractDTO errorContractDTO, int httpStatusCode, Collection rawFilteredApiErrors,
+                Throwable originalException, RequestInfoForLogging request) {
+                return null;
+            }
+        };
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructor_throws_IllegalArgumentException_if_passed_null_listener_list() {
+        // expect
+        new ApiExceptionHandlerBase(mock(ProjectApiErrors.class), null, ApiExceptionHandlerUtils.DEFAULT_IMPL) {
+            @Override
+            protected Object prepareFrameworkRepresentation(
+                DefaultErrorContractDTO errorContractDTO, int httpStatusCode, Collection rawFilteredApiErrors,
+                Throwable originalException, RequestInfoForLogging request) {
+                return null;
+            }
+        };
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructor_throws_IllegalArgumentException_if_passed_null_apiExceptionHandlerUtils() {
+        // expect
+        new ApiExceptionHandlerBase(mock(ProjectApiErrors.class), singletonList(new GenericApiExceptionHandlerListener()), null) {
+            @Override
+            protected Object prepareFrameworkRepresentation(
+                DefaultErrorContractDTO errorContractDTO, int httpStatusCode, Collection rawFilteredApiErrors,
+                Throwable originalException, RequestInfoForLogging request) {
+                return null;
+            }
+        };
+    }
+
+    @DataProvider(value = {
+        "true",
+        "false"
+    })
+    @Test
+    public void maybeHandleException_should_call_doHandleApiException_with_results_of_shouldHandleApiException_and_return_result_of_doHandleApiException(
+        boolean shouldHandle
+    ) throws UnexpectedMajorExceptionHandlingError {
+        // given
+        Throwable ex = new RuntimeException("kaboom");
+        ApiExceptionHandlerBase handlerSpy = spy(new TestApiExceptionHandler());
+
+        ApiExceptionHandlerListenerResult listenerResultMock =
+            (shouldHandle)
+            ? ApiExceptionHandlerListenerResult.handleResponse(
+                singletonSortedSetOf(mock(ApiError.class)),
+                singletonList(Pair.of("foo", UUID.randomUUID().toString())),
+                singletonList(Pair.of("bar", singletonList(UUID.randomUUID().toString())))
+              )
+            : ApiExceptionHandlerListenerResult.ignoreResponse();
+        doReturn(listenerResultMock).when(handlerSpy).shouldHandleApiException(ex);
+
+        ErrorResponseInfo errorResponseInfoMock = mock(ErrorResponseInfo.class);
+        doReturn(errorResponseInfoMock).when(handlerSpy).doHandleApiException(
+            any(SortedApiErrorSet.class), any(List.class), any(List.class), any(Throwable.class),
+            any(RequestInfoForLogging.class)
+        );
+
+        // when
+        ErrorResponseInfo result = handlerSpy.maybeHandleException(ex, reqMock);
+
+        // then
+        if (shouldHandle) {
+            verify(handlerSpy).doHandleApiException(listenerResultMock.errors, listenerResultMock.extraDetailsForLogging,
+                                                    listenerResultMock.extraResponseHeaders, ex, reqMock);
+            Assertions.assertThat(result).isSameAs(errorResponseInfoMock);
+        }
+        else {
+            Assertions.assertThat(result).isNull();
+        }
     }
 
     @Test
@@ -199,15 +284,17 @@ public class ApiExceptionHandlerBaseTest {
     @Test
     public void handleExceptionShouldAddConnectionTypeToLoggingDetailsWhenPassedANetworkException() {
         List<Pair<String, String>> extraDetailsForLogging = new ArrayList<>();
-        handler.doHandleApiException(singletonSortedSetOf(CUSTOM_API_ERROR), extraDetailsForLogging, new ServerTimeoutException(null, "FOO"),
-                reqMock);
+        handler.doHandleApiException(singletonSortedSetOf(CUSTOM_API_ERROR), extraDetailsForLogging,
+                                     null, new ServerTimeoutException(null, "FOO"),
+                                     reqMock);
         assertThat(extraDetailsForLogging.contains(Pair.of("connection_type", "FOO")), is(true));
     }
 
     @Test
     public void handleExceptionShouldGracefullyHandleNullConnectionTypeWhenPassedANetworkException() {
         List<Pair<String, String>> extraDetailsForLogging = new ArrayList<>();
-        handler.doHandleApiException(singletonSortedSetOf(CUSTOM_API_ERROR), extraDetailsForLogging, new ServerTimeoutException(null, null), reqMock);
+        handler.doHandleApiException(singletonSortedSetOf(CUSTOM_API_ERROR), extraDetailsForLogging,
+                                     null, new ServerTimeoutException(null, null), reqMock);
         assertThat(extraDetailsForLogging.contains(Pair.of("connection_type", (String) null)), is(true));
     }
 
@@ -221,7 +308,8 @@ public class ApiExceptionHandlerBaseTest {
         ApiExceptionHandlerBase<TestDTO> handler = spy(new TestApiExceptionHandler(mockProjectApiErrors));
 
         List<Pair<String, String>> extraDetailsForLogging = new ArrayList<>();
-        ErrorResponseInfo<TestDTO> testDto = handler.doHandleApiException(singletonSortedSetOf(CUSTOM_API_ERROR), extraDetailsForLogging, new Exception(), reqMock);
+        ErrorResponseInfo<TestDTO> testDto = handler.doHandleApiException(singletonSortedSetOf(CUSTOM_API_ERROR), extraDetailsForLogging,
+                                                                          null, new Exception(), reqMock);
         assertThat(testDto.frameworkRepresentationObj.erv.errors.size(), is(1));
         assertThat(testDto.frameworkRepresentationObj.erv.errors.get(0).code, is(mockProjectApiErrors.getGenericServiceError().getErrorCode()));
     }
@@ -236,7 +324,8 @@ public class ApiExceptionHandlerBaseTest {
         ApiExceptionHandlerBase<TestDTO> handler = spy(new TestApiExceptionHandler(mockProjectApiErrors));
 
         List<Pair<String, String>> extraDetailsForLogging = new ArrayList<>();
-        ErrorResponseInfo<TestDTO> testDto = handler.doHandleApiException(singletonSortedSetOf(CUSTOM_API_ERROR), extraDetailsForLogging, new Exception(), reqMock);
+        ErrorResponseInfo<TestDTO> testDto = handler.doHandleApiException(singletonSortedSetOf(CUSTOM_API_ERROR), extraDetailsForLogging,
+                                                                          null, new Exception(), reqMock);
         assertThat(testDto.frameworkRepresentationObj.erv.errors.size(), is(1));
         assertThat(testDto.frameworkRepresentationObj.erv.errors.get(0).code, is(mockProjectApiErrors.getGenericServiceError().getErrorCode()));
     }
@@ -244,7 +333,8 @@ public class ApiExceptionHandlerBaseTest {
     @Test
     public void handleExceptionShouldAddErrorIdToResponseHeader() {
         ApiExceptionHandlerBase<TestDTO> handler = new TestApiExceptionHandler();
-        ErrorResponseInfo<TestDTO> result = handler.doHandleApiException(singletonSortedSetOf(CUSTOM_API_ERROR), new ArrayList<Pair<String, String>>(), new Exception(), reqMock);
+        ErrorResponseInfo<TestDTO> result = handler.doHandleApiException(singletonSortedSetOf(CUSTOM_API_ERROR), new ArrayList<Pair<String, String>>(),
+                                                                         null, new Exception(), reqMock);
         assertThat(result.headersToAddToResponse.get("error_uid"), is(Arrays.asList(result.frameworkRepresentationObj.erv.error_id)));
     }
 
@@ -252,7 +342,7 @@ public class ApiExceptionHandlerBaseTest {
     public void doHandleApiException_should_add_headers_from_extraHeadersForResponse_to_ErrorResponseInfo() {
         // given
         final Map<String, List<String>> baseExtraHeaders = MapBuilder
-            .builder("foo", Collections.singletonList(UUID.randomUUID().toString()))
+            .builder("foo", singletonList(UUID.randomUUID().toString()))
             .put("bar", Arrays.asList(UUID.randomUUID().toString(), UUID.randomUUID().toString()))
             .build();
         ApiExceptionHandlerBase<TestDTO> handler = new TestApiExceptionHandler() {
@@ -266,11 +356,75 @@ public class ApiExceptionHandlerBaseTest {
         };
 
         // when
-        ErrorResponseInfo<TestDTO> result = handler.doHandleApiException(singletonSortedSetOf(CUSTOM_API_ERROR), new ArrayList<Pair<String, String>>(), new Exception(), reqMock);
+        ErrorResponseInfo<TestDTO> result = handler.doHandleApiException(singletonSortedSetOf(CUSTOM_API_ERROR), new ArrayList<Pair<String, String>>(),
+                                                                         null, new Exception(), reqMock);
 
         // then
         Map<String, List<String>> expectedExtraHeaders = new HashMap<>(baseExtraHeaders);
-        expectedExtraHeaders.put("error_uid", Collections.singletonList(result.frameworkRepresentationObj.erv.error_id));
+        expectedExtraHeaders.put("error_uid", singletonList(result.frameworkRepresentationObj.erv.error_id));
+        Assertions.assertThat(result.headersToAddToResponse).isEqualTo(expectedExtraHeaders);
+    }
+
+    @Test
+    public void doHandleApiException_should_add_headers_from_passed_in_extra_headers_to_ErrorResponseInfo() {
+        // given
+        final List<Pair<String, List<String>>> extraHeadersArg = Arrays.asList(
+            Pair.of("foo", singletonList(UUID.randomUUID().toString())),
+            Pair.of("bar", Arrays.asList(UUID.randomUUID().toString(), UUID.randomUUID().toString()))
+        );
+        ApiExceptionHandlerBase<TestDTO> handler = new TestApiExceptionHandler();
+
+        // when
+        ErrorResponseInfo<TestDTO> result = handler.doHandleApiException(
+            singletonSortedSetOf(CUSTOM_API_ERROR), new ArrayList<Pair<String, String>>(), extraHeadersArg,
+            new Exception(), reqMock
+        );
+
+        // then
+        Map<String, List<String>> expectedExtraHeaders = new HashMap<>();
+        for (Pair<String, List<String>> headerPair : extraHeadersArg) {
+            expectedExtraHeaders.put(headerPair.getLeft(), headerPair.getRight());
+        }
+        expectedExtraHeaders.put("error_uid", singletonList(result.frameworkRepresentationObj.erv.error_id));
+        Assertions.assertThat(result.headersToAddToResponse).isEqualTo(expectedExtraHeaders);
+    }
+
+    @Test
+    public void doHandleApiException_should_let_headers_from_extraHeadersForResponse_method_override_passed_in_extra_headers_arg() {
+        // given
+        List<String> fooHeaderValueFromExtraHeadersMethod = singletonList(UUID.randomUUID().toString());
+        List<String> barHeaderValueFromExtraHeadersArg = Arrays.asList(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+        List<String> thirdThingHeaderValueFromExtraHeadersMethod = Arrays.asList(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+        final List<Pair<String, List<String>>> extraHeadersArg = Arrays.asList(
+            Pair.of("foo", singletonList(UUID.randomUUID().toString())),
+            Pair.of("bar", barHeaderValueFromExtraHeadersArg)
+        );
+        final Map<String, List<String>> extraHeadersFromMethod = MapBuilder
+            .builder("foo", fooHeaderValueFromExtraHeadersMethod)
+            .put("thirdThing", thirdThingHeaderValueFromExtraHeadersMethod)
+            .build();
+        ApiExceptionHandlerBase<TestDTO> handler = new TestApiExceptionHandler() {
+            @Override
+            protected Map<String, List<String>> extraHeadersForResponse(TestDTO frameworkRepresentation, DefaultErrorContractDTO errorContractDTO,
+                                                                        int httpStatusCode, Collection<ApiError> rawFilteredApiErrors,
+                                                                        Throwable originalException,
+                                                                        RequestInfoForLogging request) {
+                return extraHeadersFromMethod;
+            }
+        };
+
+        // when
+        ErrorResponseInfo<TestDTO> result = handler.doHandleApiException(
+            singletonSortedSetOf(CUSTOM_API_ERROR), new ArrayList<Pair<String, String>>(), extraHeadersArg,
+            new Exception(), reqMock
+        );
+
+        // then
+        Map<String, List<String>> expectedExtraHeaders = new HashMap<>();
+        expectedExtraHeaders.put("foo", fooHeaderValueFromExtraHeadersMethod);
+        expectedExtraHeaders.put("bar", barHeaderValueFromExtraHeadersArg);
+        expectedExtraHeaders.put("thirdThing", thirdThingHeaderValueFromExtraHeadersMethod);
+        expectedExtraHeaders.put("error_uid", singletonList(result.frameworkRepresentationObj.erv.error_id));
         Assertions.assertThat(result.headersToAddToResponse).isEqualTo(expectedExtraHeaders);
     }
 
@@ -278,7 +432,7 @@ public class ApiExceptionHandlerBaseTest {
     public void doHandleApiException_should_not_allow_error_uid_from_extraHeadersForResponse_to_override_true_error_uid() {
         // given
         final Map<String, List<String>> baseExtraHeaders = MapBuilder
-            .builder("error_uid", Collections.singletonList(UUID.randomUUID().toString()))
+            .builder("error_uid", singletonList(UUID.randomUUID().toString()))
             .build();
         ApiExceptionHandlerBase<TestDTO> handler = new TestApiExceptionHandler() {
             @Override
@@ -291,12 +445,33 @@ public class ApiExceptionHandlerBaseTest {
         };
 
         // when
-        ErrorResponseInfo<TestDTO> result = handler.doHandleApiException(singletonSortedSetOf(CUSTOM_API_ERROR), new ArrayList<Pair<String, String>>(), new Exception(), reqMock);
+        ErrorResponseInfo<TestDTO> result = handler.doHandleApiException(singletonSortedSetOf(CUSTOM_API_ERROR), new ArrayList<Pair<String, String>>(),
+                                                                         null, new Exception(), reqMock);
 
         // then
         Assertions.assertThat(result.headersToAddToResponse.get("error_uid"))
                   .isNotEqualTo(baseExtraHeaders.get("error_uid"))
-                  .isEqualTo(Collections.singletonList(result.frameworkRepresentationObj.erv.error_id));
+                  .isEqualTo(singletonList(result.frameworkRepresentationObj.erv.error_id));
+    }
+
+    @Test
+    public void doHandleApiException_should_not_allow_error_uid_from_passed_in_extra_headers_to_override_true_error_uid() {
+        // given
+        final List<Pair<String, List<String>>> extraHeadersArg = singletonList(
+            Pair.of("error_uid", singletonList(UUID.randomUUID().toString()))
+        );
+        ApiExceptionHandlerBase<TestDTO> handler = new TestApiExceptionHandler();
+
+        // when
+        ErrorResponseInfo<TestDTO> result = handler.doHandleApiException(
+            singletonSortedSetOf(CUSTOM_API_ERROR), new ArrayList<Pair<String, String>>(), extraHeadersArg,
+            new Exception(), reqMock
+        );
+
+        // then
+        Assertions.assertThat(result.headersToAddToResponse.get("error_uid"))
+                  .isNotEqualTo(extraHeadersArg.get(0).getRight())
+                  .isEqualTo(singletonList(result.frameworkRepresentationObj.erv.error_id));
     }
 
     // DEFAULT_WRAPPER_EXCEPTION_CLASS_NAMES should contain at least WrapperException, ExecutionException, CompletionException
@@ -433,7 +608,7 @@ public class ApiExceptionHandlerBaseTest {
     }
 
     private static final ProjectApiErrors testProjectApiErrors = ProjectApiErrorsForTesting.withProjectSpecificData(
-        Collections.singletonList(CUSTOM_API_ERROR),
+        singletonList(CUSTOM_API_ERROR),
         ProjectSpecificErrorCodeRange.ALLOW_ALL_ERROR_CODES
     );
 

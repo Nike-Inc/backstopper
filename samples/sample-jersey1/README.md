@@ -23,6 +23,7 @@ As you are doing the following you should check the logs that are output by the 
     * Set the value of the `rgb_color` field to something besides `RED`, `GREEN`, or `BLUE`, or omit it entirely. Note that the validation and deserialization of this enum field is done in a case insensitive manner - i.e. you can pass `red`, `Green`, or `bLuE` if you want and it will not throw an error.
     * Set two or more invalid values for `foo`, `range_0_to_42`, and `rgb_color` to invalid values all at once - notice you get back all relevant errors at once in the same error contract.
     * Set `throw_manual_error` to true to trigger a manual exception to be thrown inside the normal `POST /sample` endpoint.
+        * Note the extra response headers that are included when you do this, and how they relate to the `.withExtraResponseHeaders(...)` method call on the builder of the exception that is thrown.
     * Pass in an empty JSON payload - you should receive a `"Missing expected content"` error back.
     * Pass in a junk payload that is not valid JSON - you should receive a `"Malformed request"` error back.
 * `GET /sample/coreErrorWrapper` - Triggers an error to be thrown that appears to the caller like a normal generic service exception, but the `SOME_MEANINGFUL_ERROR_NAME` name from the `ApiError` it represents shows up in the logs to help you disambiguate what the true cause was.

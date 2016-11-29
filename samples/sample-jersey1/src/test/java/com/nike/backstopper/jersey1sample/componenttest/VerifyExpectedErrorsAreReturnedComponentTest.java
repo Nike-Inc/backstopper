@@ -25,6 +25,7 @@ import org.junit.runner.RunWith;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,7 @@ import static com.nike.backstopper.jersey1sample.resource.SampleResource.nextRan
 import static com.nike.backstopper.jersey1sample.resource.SampleResource.nextRangeInt;
 import static io.restassured.RestAssured.given;
 import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -266,6 +268,9 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
                 .extract();
 
         verifyErrorReceived(response, SampleProjectApiError.MANUALLY_THROWN_ERROR);
+        // This code path also should add some custom headers to the response
+        assertThat(response.headers().getValues("rgbColorValue")).isEqualTo(singletonList(requestPayload.rgb_color));
+        assertThat(response.headers().getValues("otherExtraMultivalueHeader")).isEqualTo(Arrays.asList("foo", "bar"));
     }
 
     @Test

@@ -106,11 +106,9 @@ public class Jersey2ApiExceptionHandler extends ApiExceptionHandlerServletApiBas
 
         Response.ResponseBuilder responseBuilder = exceptionHandled.frameworkRepresentationObj
             .header("Content-Type", MediaType.APPLICATION_JSON);
-        for (Map.Entry<String, List<String>> headerEntry : exceptionHandled.headersToAddToResponse.entrySet()) {
-            for (String headerValue : headerEntry.getValue()) {
-                responseBuilder = responseBuilder.header(headerEntry.getKey(), headerValue);
-            }
-        }
+
+        // NOTE: We don't have to add headers to the response here - it's already been done in the
+        //      ApiExceptionHandlerServletApiBase.processServletResponse(...) method.
 
         return responseBuilder.build();
     }

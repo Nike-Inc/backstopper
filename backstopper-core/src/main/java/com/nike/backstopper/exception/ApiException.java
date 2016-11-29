@@ -6,6 +6,7 @@ import com.nike.internal.util.Pair;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static java.util.Collections.singletonList;
@@ -31,6 +32,11 @@ public class ApiException extends RuntimeException {
      * NOTE: This will always be a mutable list so it can be modified at any time.
      */
     private final List<Pair<String, String>> extraDetailsForLogging;
+    /**
+     * Any extra headers you want sent to the caller when this error is handled. Will never be null, but might be empty.
+     * NOTE: This will always be a mutable list so it can be modified at any time.
+     */
+    private final List<Pair<String, List<String>>> extraResponseHeaders;
 
     /**
      * Handles the simple common case where you just want to throw a single {@link ApiError} and nothing else.
@@ -41,6 +47,7 @@ public class ApiException extends RuntimeException {
             throw new IllegalArgumentException("error cannot be null");
         this.apiErrors = new ArrayList<>(singletonList(error));
         this.extraDetailsForLogging = new ArrayList<>();
+        this.extraResponseHeaders = new ArrayList<>();
     }
 
     /**
@@ -52,16 +59,33 @@ public class ApiException extends RuntimeException {
      * {@link ApiException.Builder} instead.
      */
     public ApiException(List<ApiError> apiErrors, List<Pair<String, String>> extraDetailsForLogging, String message) {
+        this(apiErrors, extraDetailsForLogging, null, message);
+    }
+
+    /**
+     * Creates an instance on top of {@link Exception#Exception(String)} super constructor. You can safely pass in null
+     * for message if you have no message. If another exception caused this to be thrown then you'll want
+     * {@link #ApiException(List, List, List, String, Throwable)} instead so that the proper super constructor is used.
+     *
+     * <p>NOTE: Most of the time you wouldn't want to use this constructor directly - use the
+     * {@link ApiException.Builder} instead.
+     */
+    public ApiException(List<ApiError> apiErrors, List<Pair<String, String>> extraDetailsForLogging,
+                        List<Pair<String, List<String>>> extraResponseHeaders, String message) {
         super(message);
 
         if (apiErrors == null || apiErrors.isEmpty())
             throw new IllegalArgumentException("apiErrors cannot be null or empty");
 
         if (extraDetailsForLogging == null)
-            extraDetailsForLogging = new ArrayList<>();
+            extraDetailsForLogging = Collections.emptyList();
+
+        if (extraResponseHeaders == null)
+            extraResponseHeaders = Collections.emptyList();
 
         this.apiErrors = new ArrayList<>(apiErrors);
         this.extraDetailsForLogging = new ArrayList<>(extraDetailsForLogging);
+        this.extraResponseHeaders = new ArrayList<>(extraResponseHeaders);
     }
 
     /**
@@ -74,16 +98,33 @@ public class ApiException extends RuntimeException {
      */
     public ApiException(List<ApiError> apiErrors, List<Pair<String, String>> extraDetailsForLogging, String message,
                         Throwable cause) {
+        this(apiErrors, extraDetailsForLogging, null, message, cause);
+    }
+
+    /**
+     * Creates an instance on top of {@link Exception#Exception(String, Throwable)} super constructor. You can safely
+     * pass in null for message if you have no message. If another exception did *not* cause this to be thrown then
+     * you'll want {@link #ApiException(List, List, List, String)} instead so that the proper super constructor is used.
+     *
+     * <p>NOTE: Most of the time you wouldn't want to use this constructor directly - use the
+     * {@link ApiException.Builder} instead.
+     */
+    public ApiException(List<ApiError> apiErrors, List<Pair<String, String>> extraDetailsForLogging,
+                        List<Pair<String, List<String>>> extraResponseHeaders, String message, Throwable cause) {
         super(message, cause);
 
         if (apiErrors == null || apiErrors.isEmpty())
             throw new IllegalArgumentException("apiErrors cannot be null or empty");
 
         if (extraDetailsForLogging == null)
-            extraDetailsForLogging = new ArrayList<>();
+            extraDetailsForLogging = Collections.emptyList();
+
+        if (extraResponseHeaders == null)
+            extraResponseHeaders = Collections.emptyList();
 
         this.apiErrors = new ArrayList<>(apiErrors);
         this.extraDetailsForLogging = new ArrayList<>(extraDetailsForLogging);
+        this.extraResponseHeaders = new ArrayList<>(extraResponseHeaders);
     }
 
     /**
@@ -108,12 +149,20 @@ public class ApiException extends RuntimeException {
     }
 
     /**
+     * Any extra headers you want sent to the caller when this error is handled. Will never be null, but might be empty.
+     */
+    public List<Pair<String, List<String>>> getExtraResponseHeaders() {
+        return extraResponseHeaders;
+    }
+
+    /**
      * Builder for {@link ApiException}.
      */
     @SuppressWarnings("WeakerAccess")
     public static class Builder {
         private List<ApiError> apiErrors = new ArrayList<>();
         private List<Pair<String, String>> extraDetailsForLogging = new ArrayList<>();
+        private List<Pair<String, List<String>>> extraResponseHeaders = new ArrayList<>();
         private String message;
         private Throwable cause;
 
@@ -155,6 +204,22 @@ public class ApiException extends RuntimeException {
         }
 
         /**
+         * Adds the given response headers to what will ultimately become {@link ApiException#extraResponseHeaders}.
+         */
+        public Builder withExtraResponseHeaders(Collection<Pair<String, List<String>>> extraResponseHeaders) {
+            this.extraResponseHeaders.addAll(extraResponseHeaders);
+            return this;
+        }
+
+        /**
+         * Adds the given response headers to what will ultimately become {@link ApiException#extraResponseHeaders}.
+         */
+        @SafeVarargs
+        public final Builder withExtraResponseHeaders(Pair<String, List<String>>... extraResponseHeaders) {
+            return withExtraResponseHeaders(Arrays.asList(extraResponseHeaders));
+        }
+
+        /**
          * The given message will be used as part of the {@link Exception#Exception(String)} or
          * {@link Exception#Exception(String, Throwable)} super constructor. Could be used as context for what went
          * wrong if the API Errors aren't self explanatory.
@@ -179,9 +244,9 @@ public class ApiException extends RuntimeException {
          */
         public ApiException build() {
             if (this.cause == null)
-                return new ApiException(apiErrors, extraDetailsForLogging, message);
+                return new ApiException(apiErrors, extraDetailsForLogging, extraResponseHeaders, message);
             else
-                return new ApiException(apiErrors, extraDetailsForLogging, message, cause);
+                return new ApiException(apiErrors, extraDetailsForLogging, extraResponseHeaders, message, cause);
         }
     }
 }

@@ -10,6 +10,7 @@ import com.nike.internal.util.Pair;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 import javax.ws.rs.Consumes;
@@ -22,6 +23,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import static com.nike.backstopper.jersey1sample.resource.SampleResource.SAMPLE_PATH;
+import static java.util.Collections.singletonList;
 
 /**
  * Contains some sample endpoints. In particular {@link #postSampleModel(SampleModel)} is useful for showing the
@@ -87,6 +89,10 @@ public class SampleResource {
                               .withExceptionMessage("Manual error throw was requested")
                               .withApiErrors(SampleProjectApiError.MANUALLY_THROWN_ERROR)
                               .withExtraDetailsForLogging(Pair.of("rgb_color_value", model.rgb_color))
+                              .withExtraResponseHeaders(
+                                  Pair.of("rgbColorValue", singletonList(model.rgb_color)),
+                                  Pair.of("otherExtraMultivalueHeader", Arrays.asList("foo", "bar"))
+                              )
                               .build();
         }
 
