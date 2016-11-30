@@ -2,7 +2,7 @@
 
 Backstopper is a framework-agnostic API error handling and (optional) model validation solution for Java 7 and greater.
 
-This readme focuses specifically on the Backstopper Jersey 2 integration. If you are looking for a different framework integration check out the [relevant section](../README.md#framework_modules) of the base readme to see if one already exists. The [base project README.md](../README.md) and [User Guide](../USER_GUIDE.md) contain the main bulk of information regarding Backstopper. 
+This readme focuses specifically on the Backstopper Jersey 2 integration, which builds upon the JAX-RS integration. If you are looking for a different framework integration check out the [relevant section](../README.md#framework_modules) of the base readme to see if one already exists. The [base project README.md](../README.md) and [User Guide](../USER_GUIDE.md) contain the main bulk of information regarding Backstopper. 
 
 **NOTE: There is a [Jersey 2 sample application](../samples/sample-jersey2/) that provides a simple concrete example of the information covered in this readme.**
 

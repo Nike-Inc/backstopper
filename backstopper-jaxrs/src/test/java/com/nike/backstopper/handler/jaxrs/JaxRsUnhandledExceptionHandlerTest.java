@@ -1,4 +1,4 @@
-package com.nike.backstopper.handler.jersey2;
+package com.nike.backstopper.handler.jaxrs;
 
 import com.nike.backstopper.apierror.ApiError;
 import com.nike.backstopper.apierror.ApiErrorBase;
@@ -11,30 +11,29 @@ import com.nike.backstopper.handler.RequestInfoForLogging;
 import com.nike.backstopper.model.DefaultErrorContractDTO;
 import com.nike.backstopper.model.util.JsonUtilWithDefaultErrorContractDTOSupport;
 import com.nike.internal.util.MapBuilder;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Response;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 /**
- * Tests the functionality of {@link Jersey2UnhandledExceptionHandler }
+ * Tests the functionality of {@link JaxRsUnhandledExceptionHandler }
  *
- * Created by dsand7 on 9/25/14.
+ * @author dsand7
+ * @author Michael Irwin
  */
-public class Jersey2UnhandledExceptionHandlerTest {
+public class JaxRsUnhandledExceptionHandlerTest {
 
-    private static Jersey2UnhandledExceptionHandler handler;
+    private static JaxRsUnhandledExceptionHandler handler;
     private static final ApiError EXPECTED_ERROR = new ApiErrorBase("test", 99008, "test", 8);
 
     private static final ProjectApiErrors testProjectApiErrors = ProjectApiErrorsForTesting.withProjectSpecificData(
@@ -43,7 +42,7 @@ public class Jersey2UnhandledExceptionHandlerTest {
 
     @BeforeClass
     public static void doBeforeClass() {
-        handler = new Jersey2UnhandledExceptionHandler(testProjectApiErrors, ApiExceptionHandlerUtils.DEFAULT_IMPL);
+        handler = new JaxRsUnhandledExceptionHandler(testProjectApiErrors, ApiExceptionHandlerUtils.DEFAULT_IMPL);
     }
 
     @Test
