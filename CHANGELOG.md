@@ -9,8 +9,18 @@ Note that the `nike-internal-util` library is technically version-independent ev
 Backstopper is used heavily and is stable internally at Nike, however the wider community may have needs or use cases that we haven't considered. Therefore Backstopper will live at a sub-1.0 version for a short time after its initial open source release to give it time to respond quickly to the open source community without ballooning the version numbers. Once its public APIs have stabilized again as an open source project it will be switched to the normal post-1.0 semantic versioning system.
 
 #### 0.x Releases
-
+                     
+- `0.10.x` Releases - [0.10.0](#0100)                     
 - `0.9.x` Releases - [0.9.2](#092), [0.9.1.1](#0911), [0.9.1](#091), [0.9.0.1](#0901), [0.9.0](#090)
+
+## [0.10.0](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.10.0)
+
+Released on 2016-11-29.
+
+### Added
+
+- Added the ability to specify extra response headers that should be returned to the caller with the response. These can be set in `ApiExceptionHandlerListenerResult`, so listeners can specify them, and `ApiException` has been modified to support them directly as well.
+    - Added by [Nic Munroe][contrib_nicmunroe].
 
 ## [0.9.2](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.9.2)
 
