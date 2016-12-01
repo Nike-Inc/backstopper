@@ -2,11 +2,11 @@
 
 Backstopper is a framework-agnostic API error handling and (optional) model validation solution for Java 7 and greater.
 
-This readme focuses specifically on the Backstopper JAX-RS integration. If you are looking for a different framework integration check out the [relevant section](../README.md#framework_modules) of the base readme to see if one already exists. The [base project README.md](../README.md) and [User Guide](../USER_GUIDE.md) contain the main bulk of information regarding Backstopper. 
+This readme focuses specifically on the integration of Backstopper in non-Jersey JAX-RS applications (there are [Jersey 1](../backstopper-jersey1) and [Jersey 2](../backstopper-jersey2) specific modules for applications in those environments). If you are looking for a different framework integration check out the [relevant section](../README.md#framework_modules) of the base readme to see if one already exists. The [base project README.md](../README.md) and [User Guide](../USER_GUIDE.md) contain the main bulk of information regarding Backstopper. 
 
 ## Setup
 
-The `JaxRsApiExceptionHandler` is annotated as a JAX-RS `@Provider`, so configures itself as an `ExceptionHandler` automatically.
+The `JaxRsApiExceptionHandler` is annotated as a JAX-RS `@Provider`, so configures itself as an `ExceptionHandler` automatically. Note that this should be the *only* `ExceptionHandler` in your application for Backstopper to work properly.
 
 ## More Info
 
