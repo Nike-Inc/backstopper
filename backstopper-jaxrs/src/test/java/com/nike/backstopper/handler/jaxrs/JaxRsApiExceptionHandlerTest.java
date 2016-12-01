@@ -1,4 +1,4 @@
-package com.nike.backstopper.handler.jersey2;
+package com.nike.backstopper.handler.jaxrs;
 
 import com.nike.backstopper.apierror.ApiError;
 import com.nike.backstopper.apierror.ApiErrorBase;
@@ -10,25 +10,21 @@ import com.nike.backstopper.exception.ApiException;
 import com.nike.backstopper.handler.ApiExceptionHandlerUtils;
 import com.nike.backstopper.handler.ErrorResponseInfo;
 import com.nike.backstopper.handler.UnexpectedMajorExceptionHandlingError;
-import com.nike.backstopper.handler.jaxrs.JaxRsUnhandledExceptionHandler;
-import com.nike.backstopper.handler.jersey2.config.Jersey2BackstopperConfigHelper;
-import com.nike.backstopper.handler.jersey2.config.Jersey2BackstopperConfigHelper.Jersey2ApiExceptionHandlerListenerList;
+import com.nike.backstopper.handler.jaxrs.config.JaxRsApiExceptionHandlerListenerList;
 import com.nike.backstopper.model.DefaultErrorContractDTO;
-
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
 
-import java.util.List;
-import java.util.UUID;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
+import java.util.UUID;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,15 +38,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the functionality of {@link Jersey2ApiExceptionHandler }
+ * Tests the functionality of {@link JaxRsApiExceptionHandler }
  *
- * Created by dsand7 on 9/25/14.
+ * @author dsand7
+ * @author Michael Irwin
  */
-public class Jersey2ApiExceptionHandlerTest {
+public class JaxRsApiExceptionHandlerTest {
 
-    private Jersey2ApiExceptionHandler handlerSpy;
+    private JaxRsApiExceptionHandler handlerSpy;
     private JaxRsUnhandledExceptionHandler unhandledSpy;
-    private Jersey2ApiExceptionHandlerListenerList listenerList;
+    private JaxRsApiExceptionHandlerListenerList listenerList;
     private static final ApiError EXPECTED_ERROR = new ApiErrorBase("test", 99008, "test", 8);
 
     private static final ProjectApiErrors testProjectApiErrors = ProjectApiErrorsForTesting.withProjectSpecificData(
@@ -64,12 +61,11 @@ public class Jersey2ApiExceptionHandlerTest {
         when(mockRequest.getMethod()).thenReturn("GET");
         when(mockRequest.getQueryString()).thenReturn("queryString");
 
-        listenerList = new Jersey2ApiExceptionHandlerListenerList(
-            Jersey2BackstopperConfigHelper.defaultApiExceptionHandlerListeners(testProjectApiErrors, ApiExceptionHandlerUtils.DEFAULT_IMPL));
+        listenerList = new JaxRsApiExceptionHandlerListenerList(testProjectApiErrors, ApiExceptionHandlerUtils.DEFAULT_IMPL);
 
         unhandledSpy = spy(new JaxRsUnhandledExceptionHandler(testProjectApiErrors, ApiExceptionHandlerUtils.DEFAULT_IMPL));
 
-        handlerSpy = spy(new Jersey2ApiExceptionHandler(
+        handlerSpy = spy(new JaxRsApiExceptionHandler(
             testProjectApiErrors,
             listenerList,
             ApiExceptionHandlerUtils.DEFAULT_IMPL, unhandledSpy));
@@ -78,12 +74,12 @@ public class Jersey2ApiExceptionHandlerTest {
     }
 
     @Test
-    public void constructor_throws_IllegalArgumentException_if_jerseyUnhandledExceptionHandler_is_null() {
+    public void constructor_throws_IllegalArgumentException_if_jaxRsUnhandledExceptionHandler_is_null() {
         // when
         Throwable ex = catchThrowable(new ThrowableAssert.ThrowingCallable() {
             @Override
             public void call() throws Throwable {
-                new Jersey2ApiExceptionHandler(testProjectApiErrors, listenerList, ApiExceptionHandlerUtils.DEFAULT_IMPL, null);
+                new JaxRsApiExceptionHandler(testProjectApiErrors, listenerList, ApiExceptionHandlerUtils.DEFAULT_IMPL, null);
             }
         });
 
@@ -104,7 +100,7 @@ public class Jersey2ApiExceptionHandlerTest {
     }
 
     @Test
-    public void toResponseReturnsCorrectResponseForJerseyWebApplicationException() {
+    public void toResponseReturnsCorrectResponseForJaxRsWebApplicationException() {
 
         NotFoundException exception = new NotFoundException("uri not found!");
         Response actualResponse = handlerSpy.toResponse(exception);

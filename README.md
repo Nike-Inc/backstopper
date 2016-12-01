@@ -117,6 +117,7 @@ throw ApiException.newBuilder()
 <a name="framework_modules"></a>
 ### Framework-Specific Modules 
   
+* [backstopper-jaxrs](backstopper-jaxrs) - Integration library for JAX-RS. If you want to integrate Backstopper into a JAX-RS project, then start here.
 * [backstopper-jersey1](backstopper-jersey1/) - Integration library for the Jersey 1 framework. If you want to integrate Backstopper into a project running in Jersey 1 then start here. There is a [Jersey 1 sample project](samples/sample-jersey1/) complete with integration tests you can use as an example.
 * [backstopper-jersey2](backstopper-jersey2/) - Integration library for the Jersey 2 framework. If you want to integrate Backstopper into a project running in Jersey 2 then start here. There is a [Jersey 2 sample project](samples/sample-jersey2/) complete with integration tests you can use as an example.
 * [backstopper-spring-web-mvc](backstopper-spring-web-mvc/) - Integration library for the Spring Web MVC framework. If you want to integrate Backstopper into a project running in Spring Web MVC then start here. There is a [Spring Web MVC sample project](samples/sample-spring-web-mvc/) complete with integration tests you can use as an example.

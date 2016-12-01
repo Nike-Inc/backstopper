@@ -3,9 +3,10 @@ package com.nike.backstopper.handler.jersey2.config;
 import com.nike.backstopper.apierror.projectspecificinfo.ProjectApiErrors;
 import com.nike.backstopper.apierror.testutil.ProjectApiErrorsForTesting;
 import com.nike.backstopper.handler.ApiExceptionHandlerUtils;
+import com.nike.backstopper.handler.jaxrs.JaxRsUnhandledExceptionHandler;
+import com.nike.backstopper.handler.jaxrs.listener.impl.JaxRsWebApplicationExceptionHandlerListener;
 import com.nike.backstopper.handler.jersey2.Jersey2ApiExceptionHandler;
-import com.nike.backstopper.handler.jersey2.Jersey2UnhandledExceptionHandler;
-import com.nike.backstopper.handler.jersey2.config.Jersey2BackstopperConfigHelper.ApiExceptionHandlerListenerList;
+import com.nike.backstopper.handler.jersey2.config.Jersey2BackstopperConfigHelper.Jersey2ApiExceptionHandlerListenerList;
 import com.nike.backstopper.handler.jersey2.config.Jersey2BackstopperConfigHelper.BackstopperOnlyExceptionMapperFactory;
 import com.nike.backstopper.handler.jersey2.config.Jersey2BackstopperConfigHelper.ExceptionMapperFactoryOverrideBinder;
 import com.nike.backstopper.handler.jersey2.listener.impl.Jersey2WebApplicationExceptionHandlerListener;
@@ -58,7 +59,7 @@ public class Jersey2BackstopperConfigHelperTest {
     }
 
     private void verifyDefaultListenerList(List<ApiExceptionHandlerListener> listeners) {
-        assertThat(listeners).hasSize(5);
+        assertThat(listeners).hasSize(6);
 
         assertThat(listeners.get(0)).isInstanceOf(GenericApiExceptionHandlerListener.class);
 
@@ -76,6 +77,10 @@ public class Jersey2BackstopperConfigHelperTest {
         assertThat(listeners.get(4)).isInstanceOf(Jersey2WebApplicationExceptionHandlerListener.class);
         verifyContainsExpectedField(listeners.get(4), "projectApiErrors", projectApiErrors);
         verifyContainsExpectedField(listeners.get(4), "utils", utils);
+
+        assertThat(listeners.get(5)).isInstanceOf(JaxRsWebApplicationExceptionHandlerListener.class);
+        verifyContainsExpectedField(listeners.get(5), "projectApiErrors", projectApiErrors);
+        verifyContainsExpectedField(listeners.get(5), "utils", utils);
     }
 
     @Test
@@ -93,8 +98,8 @@ public class Jersey2BackstopperConfigHelperTest {
         );
         verifyContainsExpectedField(handler, "projectApiErrors", projectApiErrors);
         verifyContainsExpectedField(handler, "utils", utils);
-        Jersey2UnhandledExceptionHandler unhandledHandler =
-            (Jersey2UnhandledExceptionHandler) Whitebox.getInternalState(handler, "jerseyUnhandledExceptionHandler");
+        JaxRsUnhandledExceptionHandler unhandledHandler =
+            (JaxRsUnhandledExceptionHandler) Whitebox.getInternalState(handler, "jerseyUnhandledExceptionHandler");
         verifyContainsExpectedField(unhandledHandler, "projectApiErrors", projectApiErrors);
         verifyContainsExpectedField(unhandledHandler, "utils", utils);
     }
@@ -136,7 +141,7 @@ public class Jersey2BackstopperConfigHelperTest {
     @Test
     public void apiExceptionHandlerListenerList_injector_constructor_creates_default_listener_list() {
         // when
-        ApiExceptionHandlerListenerList listHolder = new ApiExceptionHandlerListenerList(projectApiErrors, utils);
+        Jersey2ApiExceptionHandlerListenerList listHolder = new Jersey2ApiExceptionHandlerListenerList(projectApiErrors, utils);
 
         // then
         verifyDefaultListenerList(listHolder.listeners);

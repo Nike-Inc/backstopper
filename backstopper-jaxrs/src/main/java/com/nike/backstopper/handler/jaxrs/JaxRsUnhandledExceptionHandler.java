@@ -1,4 +1,4 @@
-package com.nike.backstopper.handler.jersey2;
+package com.nike.backstopper.handler.jaxrs;
 
 import com.nike.backstopper.apierror.ApiError;
 import com.nike.backstopper.apierror.projectspecificinfo.ProjectApiErrors;
@@ -9,15 +9,14 @@ import com.nike.backstopper.handler.UnhandledExceptionHandlerServletApiBase;
 import com.nike.backstopper.model.DefaultErrorContractDTO;
 import com.nike.backstopper.model.util.JsonUtilWithDefaultErrorContractDTOSupport;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.ws.rs.core.Response;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import javax.ws.rs.core.Response;
 
 /**
  * An extension of {@link UnhandledExceptionHandlerServletApiBase} that acts as a final catch-all exception handler.
@@ -25,10 +24,11 @@ import javax.ws.rs.core.Response;
  * to a {@link Response.ResponseBuilder} for the caller with a response entity payload built by
  * {@link JsonUtilWithDefaultErrorContractDTOSupport#writeValueAsString(Object)}.
  *
- * Created by dsand7 on 9/23/14.
+ * @author dsand7
+ * @author Michael Irwin
  */
 @Singleton
-public class Jersey2UnhandledExceptionHandler extends UnhandledExceptionHandlerServletApiBase<Response.ResponseBuilder> {
+public class JaxRsUnhandledExceptionHandler extends UnhandledExceptionHandlerServletApiBase<Response.ResponseBuilder> {
 
     protected final Set<ApiError> singletonGenericServiceError;
     protected final int genericServiceErrorHttpStatusCode;
@@ -41,7 +41,7 @@ public class Jersey2UnhandledExceptionHandler extends UnhandledExceptionHandlerS
      *                         in {@link ApiExceptionHandlerUtils#DEFAULT_IMPL} if you don't need custom logic.
      */
     @Inject
-    public Jersey2UnhandledExceptionHandler(ProjectApiErrors projectApiErrors, ApiExceptionHandlerUtils utils) {
+    public JaxRsUnhandledExceptionHandler(ProjectApiErrors projectApiErrors, ApiExceptionHandlerUtils utils) {
         super(projectApiErrors, utils);
         this.singletonGenericServiceError = Collections.singleton(projectApiErrors.getGenericServiceError());
         this.genericServiceErrorHttpStatusCode = projectApiErrors.getGenericServiceError().getHttpStatusCode();

@@ -1,5 +1,6 @@
-package com.nike.backstopper.handler.jersey2.listener.impl;
+package com.nike.backstopper.handler.jaxrs.listener.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nike.backstopper.apierror.ApiError;
 import com.nike.backstopper.apierror.SortedApiErrorSet;
 import com.nike.backstopper.apierror.projectspecificinfo.ProjectApiErrors;
@@ -8,43 +9,39 @@ import com.nike.backstopper.exception.ApiException;
 import com.nike.backstopper.handler.ApiExceptionHandlerUtils;
 import com.nike.backstopper.handler.listener.ApiExceptionHandlerListenerResult;
 import com.nike.backstopper.handler.listener.impl.ListenerTestBase;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.ThrowableAssert;
-import org.glassfish.jersey.server.ParamException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Collections;
-
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 /**
- * Tests the functionality of {@link Jersey2WebApplicationExceptionHandlerListener}
+ * Tests the functionality of {@link JaxRsWebApplicationExceptionHandlerListener}
  *
- * Created by dsand7 on 9/25/14.
+ * @author dsand7
+ * @author Michael Irwin
  */
 @RunWith(DataProviderRunner.class)
-public class Jersey2WebApplicationExceptionHandlerListenerTest extends ListenerTestBase {
+public class JaxRsWebApplicationExceptionHandlerListenerTest extends ListenerTestBase {
 
-    private static Jersey2WebApplicationExceptionHandlerListener listener;
+    private static JaxRsWebApplicationExceptionHandlerListener listener;
     private static final ProjectApiErrors testProjectApiErrors = ProjectApiErrorsForTesting.withProjectSpecificData(null, null);
     private static final ApiExceptionHandlerUtils utils = ApiExceptionHandlerUtils.DEFAULT_IMPL;
 
     @BeforeClass
     public static void setupClass() {
-        listener = new Jersey2WebApplicationExceptionHandlerListener(testProjectApiErrors, utils);
+        listener = new JaxRsWebApplicationExceptionHandlerListener(testProjectApiErrors, utils);
     }
 
     @Test
@@ -54,8 +51,8 @@ public class Jersey2WebApplicationExceptionHandlerListenerTest extends ListenerT
         ApiExceptionHandlerUtils utilsMock = mock(ApiExceptionHandlerUtils.class);
 
         // when
-        Jersey2WebApplicationExceptionHandlerListener
-            impl = new Jersey2WebApplicationExceptionHandlerListener(projectErrorsMock, utilsMock);
+        JaxRsWebApplicationExceptionHandlerListener
+            impl = new JaxRsWebApplicationExceptionHandlerListener(projectErrorsMock, utilsMock);
 
         // then
         assertThat(impl.projectApiErrors).isSameAs(projectErrorsMock);
@@ -68,7 +65,7 @@ public class Jersey2WebApplicationExceptionHandlerListenerTest extends ListenerT
         Throwable ex = Assertions.catchThrowable(new ThrowableAssert.ThrowingCallable() {
             @Override
             public void call() throws Throwable {
-                new Jersey2WebApplicationExceptionHandlerListener(null, utils);
+                new JaxRsWebApplicationExceptionHandlerListener(null, utils);
             }
         });
 
@@ -82,7 +79,7 @@ public class Jersey2WebApplicationExceptionHandlerListenerTest extends ListenerT
         Throwable ex = Assertions.catchThrowable(new ThrowableAssert.ThrowingCallable() {
             @Override
             public void call() throws Throwable {
-                new Jersey2WebApplicationExceptionHandlerListener(testProjectApiErrors, null);
+                new JaxRsWebApplicationExceptionHandlerListener(testProjectApiErrors, null);
             }
         });
 
@@ -93,6 +90,16 @@ public class Jersey2WebApplicationExceptionHandlerListenerTest extends ListenerT
     @Test
     public void shouldIgnoreExceptionThatItDoesNotWantToHandle() {
         validateResponse(listener.shouldHandleException(new ApiException(testProjectApiErrors.getGenericServiceError())), false, null);
+    }
+
+    @Test
+    public void shouldCreateValidationErrorsForWebApplicationException() {
+
+        NotFoundException exception = new NotFoundException("/fake/uri");
+
+        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(exception);
+
+        validateResponse(result, true, Collections.singletonList(testProjectApiErrors.getNotFoundApiError()));
     }
 
     @Test
@@ -108,8 +115,12 @@ public class Jersey2WebApplicationExceptionHandlerListenerTest extends ListenerT
     @DataProvider
     public static Object[][] dataProviderForShouldHandleException() {
         return new Object[][] {
-            { mock(ParamException.UriParamException.class), testProjectApiErrors.getNotFoundApiError() },
-            { mock(ParamException.class), testProjectApiErrors.getMalformedRequestApiError() }
+            { new NotFoundException(), testProjectApiErrors.getNotFoundApiError() },
+            { new WebApplicationException(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE), testProjectApiErrors.getUnsupportedMediaTypeApiError() },
+            { new WebApplicationException(HttpServletResponse.SC_METHOD_NOT_ALLOWED), testProjectApiErrors.getMethodNotAllowedApiError() },
+            { new WebApplicationException(HttpServletResponse.SC_UNAUTHORIZED), testProjectApiErrors.getUnauthorizedApiError() },
+            { new WebApplicationException(HttpServletResponse.SC_NOT_ACCEPTABLE), testProjectApiErrors.getNoAcceptableRepresentationApiError() },
+            { mock(JsonProcessingException.class), testProjectApiErrors.getMalformedRequestApiError() }
         };
     }
 

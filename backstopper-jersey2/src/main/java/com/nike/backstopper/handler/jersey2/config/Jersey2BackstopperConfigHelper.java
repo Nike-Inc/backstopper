@@ -2,8 +2,9 @@ package com.nike.backstopper.handler.jersey2.config;
 
 import com.nike.backstopper.apierror.projectspecificinfo.ProjectApiErrors;
 import com.nike.backstopper.handler.ApiExceptionHandlerUtils;
+import com.nike.backstopper.handler.jaxrs.JaxRsUnhandledExceptionHandler;
+import com.nike.backstopper.handler.jaxrs.listener.impl.JaxRsWebApplicationExceptionHandlerListener;
 import com.nike.backstopper.handler.jersey2.Jersey2ApiExceptionHandler;
-import com.nike.backstopper.handler.jersey2.Jersey2UnhandledExceptionHandler;
 import com.nike.backstopper.handler.jersey2.listener.impl.Jersey2WebApplicationExceptionHandlerListener;
 import com.nike.backstopper.handler.listener.ApiExceptionHandlerListener;
 import com.nike.backstopper.handler.listener.impl.ClientDataValidationErrorHandlerListener;
@@ -98,16 +99,16 @@ public class Jersey2BackstopperConfigHelper {
      * @param utils The {@link ApiExceptionHandlerUtils} you want to use with your project.
      * @return A {@link Jersey2ApiExceptionHandler} that uses the given arguments and contains the default set of
      * listeners (generated using {@link #defaultApiExceptionHandlerListeners(ProjectApiErrors,
-     * ApiExceptionHandlerUtils)}) and a default {@link Jersey2UnhandledExceptionHandler}.
+     * ApiExceptionHandlerUtils)}) and a default {@link JaxRsUnhandledExceptionHandler}.
      */
     public static Jersey2ApiExceptionHandler generateJerseyApiExceptionHandler(ProjectApiErrors projectApiErrors,
                                                                                ApiExceptionHandlerUtils utils) {
 
-        ApiExceptionHandlerListenerList listeners = new ApiExceptionHandlerListenerList(
+        Jersey2ApiExceptionHandlerListenerList listeners = new Jersey2ApiExceptionHandlerListenerList(
             defaultApiExceptionHandlerListeners(projectApiErrors, utils)
         );
 
-        Jersey2UnhandledExceptionHandler unhandledExceptionHandler = new Jersey2UnhandledExceptionHandler(
+        JaxRsUnhandledExceptionHandler unhandledExceptionHandler = new JaxRsUnhandledExceptionHandler(
             projectApiErrors, utils
         );
 
@@ -125,7 +126,8 @@ public class Jersey2BackstopperConfigHelper {
             new ServersideValidationErrorHandlerListener(projectApiErrors, utils),
             new ClientDataValidationErrorHandlerListener(projectApiErrors, utils),
             new DownstreamNetworkExceptionHandlerListener(projectApiErrors),
-            new Jersey2WebApplicationExceptionHandlerListener(projectApiErrors, utils));
+            new Jersey2WebApplicationExceptionHandlerListener(projectApiErrors, utils),
+            new JaxRsWebApplicationExceptionHandlerListener(projectApiErrors, utils));
     }
 
     /**
@@ -133,16 +135,16 @@ public class Jersey2BackstopperConfigHelper {
      * think it should.
      */
     @Singleton
-    public static class ApiExceptionHandlerListenerList {
+    public static class Jersey2ApiExceptionHandlerListenerList {
         public final List<ApiExceptionHandlerListener> listeners;
 
         @Inject
         @SuppressWarnings("unused")
-        public ApiExceptionHandlerListenerList(ProjectApiErrors projectApiErrors, ApiExceptionHandlerUtils utils) {
+        public Jersey2ApiExceptionHandlerListenerList(ProjectApiErrors projectApiErrors, ApiExceptionHandlerUtils utils) {
             this(defaultApiExceptionHandlerListeners(projectApiErrors, utils));
         }
 
-        public ApiExceptionHandlerListenerList(List<ApiExceptionHandlerListener> listeners) {
+        public Jersey2ApiExceptionHandlerListenerList(List<ApiExceptionHandlerListener> listeners) {
             this.listeners = listeners;
         }
     }

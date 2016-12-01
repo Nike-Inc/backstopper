@@ -69,6 +69,7 @@ ext {
     springVersion = '4.3.2.RELEASE'
     jersey1Version = '1.19.2'
     jersey2Version = '2.23.2'
+    jaxRsVersion = '2.0.1'
 
     junitVersion = '4.12'
     mockitoVersion = '1.9.5'
