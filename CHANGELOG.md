@@ -9,9 +9,19 @@ Note that the `nike-internal-util` library is technically version-independent ev
 Backstopper is used heavily and is stable internally at Nike, however the wider community may have needs or use cases that we haven't considered. Therefore Backstopper will live at a sub-1.0 version for a short time after its initial open source release to give it time to respond quickly to the open source community without ballooning the version numbers. Once its public APIs have stabilized again as an open source project it will be switched to the normal post-1.0 semantic versioning system.
 
 #### 0.x Releases
-                     
+   
+- `0.11.x` Releases - [0.11.0](#0110)
 - `0.10.x` Releases - [0.10.0](#0100)                     
 - `0.9.x` Releases - [0.9.2](#092), [0.9.1.1](#0911), [0.9.1](#091), [0.9.0.1](#0901), [0.9.0](#090)
+
+## [0.11.0](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.11.0)
+
+Released on 2016-12-01.
+
+### Added
+
+- Added base JAX-RS module for applications running in a non-Jersey JAX-RS environment.
+    - Added by [Michael Irwin][contrib_mikesir87].
 
 ## [0.10.0](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.10.0)
 
@@ -71,3 +81,4 @@ Released on 2016-09-20.
 	
 
 [contrib_nicmunroe]: https://github.com/nicmunroe
+[contrib_mikesir87]: https://github.com/mikesir87 
