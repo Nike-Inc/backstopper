@@ -1,5 +1,7 @@
 package com.nike.backstopper.apierror;
 
+import com.nike.internal.util.Pair;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +37,23 @@ public class ApiErrorWithMetadata implements ApiError {
         unprotectedCombo.putAll(extraMetadata);
 
         this.comboMetadata = Collections.unmodifiableMap(unprotectedCombo);
+    }
+
+    @SafeVarargs
+    public ApiErrorWithMetadata(ApiError delegate, Pair<String, Object> ... extraMetadata) {
+        this(delegate, pairArrayToMap(extraMetadata));
+    }
+
+    private static Map<String, Object> pairArrayToMap(Pair<String, Object>[] extraMetadata) {
+        if (extraMetadata == null)
+            return null;
+
+        Map<String, Object> theMap = new HashMap<>();
+        for (Pair<String, Object> pair : extraMetadata) {
+            if (pair != null)
+                theMap.put(pair.getKey(), pair.getValue());
+        }
+        return theMap;
     }
 
     @Override
