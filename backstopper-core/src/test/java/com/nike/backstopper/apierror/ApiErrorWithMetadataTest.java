@@ -1,6 +1,7 @@
 package com.nike.backstopper.apierror;
 
 import com.nike.internal.util.MapBuilder;
+import com.nike.internal.util.Pair;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -35,6 +36,8 @@ public class ApiErrorWithMetadataTest {
         MapBuilder.builder("foo", (Object) UUID.randomUUID().toString())
                   .put("extraOnlyMetadata", UUID.randomUUID().toString())
                   .build();
+    private final Pair<String, Object> extraMetadataOnlyPair = Pair.of("extraOnlyMetadata", extraMetadata.get("extraOnlyMetadata"));
+    private final Pair<String, Object> extraMetadataSharedPair = Pair.of("foo", extraMetadata.get("foo"));
 
     private final ApiError delegateWithMetadata = new ApiErrorBase(
         "with_metadata", 42, "some error with metadata", 400, delegateMetadata
@@ -63,12 +66,45 @@ public class ApiErrorWithMetadataTest {
     }
 
     @Test
+    public void cconvenience_onstructor_sets_delegate_and_combo_metadata_with_extra_metadata_overriding_delegate_for_same_named_metadata() {
+        // given
+        Map<String, Object> expectedMetadata = new HashMap<>();
+        expectedMetadata.put("delegateOnlyMetadata", delegateMetadata.get("delegateOnlyMetadata"));
+        expectedMetadata.put(extraMetadataOnlyPair.getKey(), extraMetadataOnlyPair.getValue());
+        expectedMetadata.put(extraMetadataSharedPair.getKey(), extraMetadataSharedPair.getValue()); // foo comes from the extra, not the delegate's metadata.
+
+        // when
+        ApiErrorWithMetadata awm = new ApiErrorWithMetadata(delegateWithMetadata, extraMetadataOnlyPair, extraMetadataSharedPair);
+
+        // then
+        assertThat(awm.getName()).isEqualTo(delegateWithMetadata.getName());
+        assertThat(awm.getErrorCode()).isEqualTo(delegateWithMetadata.getErrorCode());
+        assertThat(awm.getMessage()).isEqualTo(delegateWithMetadata.getMessage());
+        assertThat(awm.getHttpStatusCode()).isEqualTo(delegateWithMetadata.getHttpStatusCode());
+        assertThat(awm.getMetadata()).isEqualTo(expectedMetadata);
+    }
+
+    @Test
     public void constructor_throws_IllegalArgumentException_if_delegate_is_null() {
         // when
         Throwable ex = catchThrowable(new ThrowableAssert.ThrowingCallable() {
             @Override
             public void call() throws Throwable {
                 new ApiErrorWithMetadata(null, extraMetadata);
+            }
+        });
+
+        // then
+        assertThat(ex).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void convenience_constructor_throws_IllegalArgumentException_if_delegate_is_null() {
+        // when
+        Throwable ex = catchThrowable(new ThrowableAssert.ThrowingCallable() {
+            @Override
+            public void call() throws Throwable {
+                new ApiErrorWithMetadata(null, Pair.of("foo", (Object)"bar"));
             }
         });
 
@@ -101,6 +137,26 @@ public class ApiErrorWithMetadataTest {
         "false"
     })
     @Test
+    public void convenience_constructor_supports_delegate_with_null_or_empty_metadata(boolean useNull) {
+        // given
+        ApiError delegateToUse = delegateWithoutMetadata;
+        if (useNull) {
+            delegateToUse = mock(ApiError.class);
+            doReturn(null).when(delegateToUse).getMetadata();
+        }
+
+        // when
+        ApiErrorWithMetadata awm = new ApiErrorWithMetadata(delegateToUse, extraMetadataOnlyPair, extraMetadataSharedPair);
+
+        // then
+        assertThat(awm.getMetadata()).isEqualTo(extraMetadata);
+    }
+
+    @DataProvider(value = {
+        "true",
+        "false"
+    })
+    @Test
     public void constructor_supports_null_or_empty_extra_metadata(boolean useNull) {
         // given
         Map<String, Object> extraMetadataToUse = (useNull) ? null : Collections.<String, Object>emptyMap();
@@ -112,12 +168,48 @@ public class ApiErrorWithMetadataTest {
         assertThat(awm.getMetadata()).isEqualTo(delegateMetadata);
     }
 
+    @DataProvider(value = {
+        "true",
+        "false"
+    })
+    @Test
+    public void convenience_constructor_supports_null_or_empty_extra_metadata(boolean useNull) {
+        // given
+        Pair<String, Object>[] extraMetadataToUse = (useNull) ? null : new Pair[0];
+
+        // when
+        ApiErrorWithMetadata awm = new ApiErrorWithMetadata(delegateWithMetadata, extraMetadataToUse);
+
+        // then
+        assertThat(awm.getMetadata()).isEqualTo(delegateMetadata);
+    }
+
     @Test
     public void constructor_supports_no_metadata_from_either_source() {
         // when
-        ApiErrorWithMetadata awm = new ApiErrorWithMetadata(delegateWithoutMetadata, null);
+        ApiErrorWithMetadata awm = new ApiErrorWithMetadata(delegateWithoutMetadata, (Map<String, Object>)null);
 
         // then
         assertThat(awm.getMetadata()).isEmpty();
+    }
+
+    @Test
+    public void convenience_constructor_supports_no_metadata_from_either_source() {
+        // when
+        ApiErrorWithMetadata awm = new ApiErrorWithMetadata(delegateWithoutMetadata, (Pair<String, Object>[])null);
+
+        // then
+        assertThat(awm.getMetadata()).isEmpty();
+    }
+
+    @Test
+    public void convenience_constructor_gracefully_ignores_null_pairs() {
+        // when
+        ApiErrorWithMetadata awm = new ApiErrorWithMetadata(
+            delegateWithoutMetadata, extraMetadataSharedPair, null, extraMetadataOnlyPair
+        );
+
+        // then
+        assertThat(awm.getMetadata()).isEqualTo(extraMetadata);
     }
 }
