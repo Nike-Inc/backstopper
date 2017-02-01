@@ -18,6 +18,7 @@ import org.assertj.core.api.ThrowableAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
@@ -26,6 +27,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.method.annotation.MethodArgumentConversionNotSupportedException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.util.Collections;
 import java.util.UUID;
@@ -182,6 +184,18 @@ public class OneOffSpringFrameworkExceptionHandlerListenerTest extends ListenerT
         HttpRequestMethodNotSupportedException ex = new HttpRequestMethodNotSupportedException("asplode");
         ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
         validateResponse(result, true, Collections.singletonList(testProjectApiErrors.getMethodNotAllowedApiError()));
+    }
+
+    @Test
+    public void shouldHandleException_should_return_not_found_error_when_passed_NoHandlerFoundException() {
+        // given
+        NoHandlerFoundException ex = new NoHandlerFoundException("GET", "/some/url", mock(HttpHeaders.class));
+
+        // when
+        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
+
+        // then
+        validateResponse(result, true, Collections.singletonList(testProjectApiErrors.getNotFoundApiError()));
     }
 
     @DataProvider

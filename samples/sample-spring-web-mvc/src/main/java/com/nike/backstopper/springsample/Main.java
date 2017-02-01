@@ -12,8 +12,6 @@ import org.springframework.web.servlet.DispatcherServlet;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletResponse;
-
 /**
  * Starts up the Backstopper Spring Web MVC Sample server (on port 8080 by default).
  *
@@ -46,7 +44,7 @@ public class Main {
         ServletContextHandler contextHandler = new ServletContextHandler();
         contextHandler.setErrorHandler(generateErrorHandler());
         contextHandler.setContextPath("/");
-        contextHandler.addServlet(new ServletHolder(new DispatcherServlet(context)), "/*");
+        contextHandler.addServlet(new ServletHolder(generateDispatcherServlet(context)), "/*");
         contextHandler.addEventListener(new ContextLoaderListener(context));
         return contextHandler;
     }
@@ -59,8 +57,16 @@ public class Main {
 
     private static ErrorHandler generateErrorHandler() {
         ErrorPageErrorHandler errorHandler = new ErrorPageErrorHandler();
-        errorHandler.addErrorPage(HttpServletResponse.SC_NOT_FOUND, "/error/404");
         errorHandler.addErrorPage(Throwable.class, "/error");
         return errorHandler;
+    }
+
+    private static DispatcherServlet generateDispatcherServlet(WebApplicationContext context) {
+        DispatcherServlet dispatcherServlet = new DispatcherServlet(context);
+        // By setting dispatcherServlet.setThrowExceptionIfNoHandlerFound() to true we get a NoHandlerFoundException thrown
+        //      for a 404 instead of being forced to use error pages. The exception can be directly handled by Backstopper
+        //      which is much preferred - you don't lose any context that way.
+        dispatcherServlet.setThrowExceptionIfNoHandlerFound(true);
+        return dispatcherServlet;
     }
 }
