@@ -10,9 +10,23 @@ Backstopper is used heavily and is stable internally at Nike, however the wider 
 
 #### 0.x Releases
    
-- `0.11.x` Releases - [0.11.0](#0110)
+- `0.11.x` Releases - [0.11.1](#0111), [0.11.0](#0110)
 - `0.10.x` Releases - [0.10.0](#0100)                     
 - `0.9.x` Releases - [0.9.2](#092), [0.9.1.1](#0911), [0.9.1](#091), [0.9.0.1](#0901), [0.9.0](#090)
+
+## [0.11.1](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.11.1)
+
+Released on 2017-02-01.
+
+### Added
+
+- Added convenience constructor to `ApiErrorWithMetadata` that takes a vararg of `Pair<String, Object>` so that you can inline the extra metadata without having to create and populate a `Map` separately.
+    - Added by [Nic Munroe][contrib_nicmunroe].
+
+### Fixed
+
+- Fixed the Spring module's `OneOffSpringFrameworkExceptionHandlerListener` to recognize and properly handle `NoHandlerFoundException` so that it will be mapped to the "404 not found" `ApiError` for your project. 
+    - Fixed by [Nic Munroe][contrib_nicmunroe].
 
 ## [0.11.0](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.11.0)
 
