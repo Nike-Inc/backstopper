@@ -20,6 +20,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.method.annotation.MethodArgumentConversionNotSupportedException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -71,6 +72,10 @@ public class OneOffSpringFrameworkExceptionHandlerListener implements ApiExcepti
     public ApiExceptionHandlerListenerResult shouldHandleException(Throwable ex) {
         SortedApiErrorSet handledErrors = null;
         List<Pair<String, String>> extraDetailsForLogging = new ArrayList<>();
+
+        if (ex instanceof NoHandlerFoundException) {
+            handledErrors = singletonSortedSetOf(projectApiErrors.getNotFoundApiError());
+        }
 
         if (ex instanceof TypeMismatchException) {
             TypeMismatchException tme = (TypeMismatchException) ex;
