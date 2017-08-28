@@ -11,11 +11,30 @@ package com.nike.backstopper.exception;
 @SuppressWarnings("WeakerAccess")
 public class WrapperException extends RuntimeException {
 
+    protected String toStringCache;
+
     public WrapperException(String message, Throwable cause) {
         super(message, cause);
     }
 
     public WrapperException(Throwable cause) {
         super(cause);
+    }
+
+    @Override
+    public String toString() {
+        if (toStringCache == null) {
+            String cacheVal = super.toString();
+            if (getCause() != null) {
+                String causeToString = getCause().toString();
+                if (!cacheVal.endsWith(causeToString)) {
+                    cacheVal += " -- Wrapped toString(): " + getCause().toString();
+                }
+            }
+
+            toStringCache = cacheVal;
+        }
+
+        return toStringCache;
     }
 }
