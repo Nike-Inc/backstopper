@@ -44,9 +44,10 @@ public abstract class VerifyEnumsReferencedByStringConvertsToClassTypeJsr303Anno
     protected abstract ReflectionBasedJsr303AnnotationTrollerBase getAnnotationTroller();
 
     /**
-     * Makes sure that any enums referenced by {@link StringConvertsToClassType} annotations in your project (that
-     * aren't explicitly excluded) support case insensitive deserialization when being deserialized by Jackson. See the
-     * javadocs for {@link StringConvertsToClassType} for more info on why this is required and how to do it.
+     * Makes sure that any enums referenced by {@link StringConvertsToClassType} annotations in your project where
+     * {@link StringConvertsToClassType#allowCaseInsensitiveEnumMatch()} is true (and that aren't explicitly excluded)
+     * support case insensitive deserialization when being deserialized by Jackson. See the javadocs for
+     * {@link StringConvertsToClassType} for more info on why this is required and how to do it.
      */
     @Test
     public void verifyEnumsReferencedByStringConvertsToClassTypeJsr303AnnotationsAreCaseInsensitive()
@@ -58,7 +59,9 @@ public abstract class VerifyEnumsReferencedByStringConvertsToClassTypeJsr303Anno
 
         for (Pair<Annotation, AnnotatedElement> annotationPair : allStringConvertsToClassTypeAnnotations) {
             StringConvertsToClassType sctctAnnotation = (StringConvertsToClassType) annotationPair.getLeft();
-            if (sctctAnnotation.classType().isEnum() && !sctctAnnotation.allowCaseInsensitiveEnumMatch()) {
+            if (sctctAnnotation.classType().isEnum() && sctctAnnotation.allowCaseInsensitiveEnumMatch()) {
+                // This field is supposed to be able to deserialize to the desired enum in a case insensitive way.
+                //      Make sure the enum supports case insensitive deserialization.
                 @SuppressWarnings("unchecked")
                 Class<? extends Enum> enumClass = (Class<? extends Enum>) sctctAnnotation.classType();
 

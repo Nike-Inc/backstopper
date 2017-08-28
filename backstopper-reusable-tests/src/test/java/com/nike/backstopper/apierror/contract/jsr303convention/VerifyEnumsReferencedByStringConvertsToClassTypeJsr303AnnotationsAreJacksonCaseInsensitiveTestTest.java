@@ -28,7 +28,7 @@ public class VerifyEnumsReferencedByStringConvertsToClassTypeJsr303AnnotationsAr
     public void verify_test_passes_for_valid_annotations_and_enum_definitions() {
         // given
         final VerifyEnumsReferencedByStringConvertsToClassTypeJsr303AnnotationsAreJacksonCaseInsensitiveTest testImpl =
-            getTestImpl("caseSensitiveEnumFieldWithSensitivityOn");
+            getTestImpl("caseSensitiveEnumFieldWithInsensitivityAllowed");
 
         // when
         Throwable ex = catchThrowable(new ThrowableAssert.ThrowingCallable() {
@@ -43,7 +43,7 @@ public class VerifyEnumsReferencedByStringConvertsToClassTypeJsr303AnnotationsAr
     }
 
     @Test
-    public void verify_test_fails_for_annotation_that_wants_case_insensitivity_but_enum_that_is_case_sensitive() {
+    public void verify_test_fails_for_annotation_that_allows_case_insensitivity_but_enum_that_is_case_sensitive() {
         // given
         final VerifyEnumsReferencedByStringConvertsToClassTypeJsr303AnnotationsAreJacksonCaseInsensitiveTest testImpl =
             getTestImpl();
@@ -60,7 +60,7 @@ public class VerifyEnumsReferencedByStringConvertsToClassTypeJsr303AnnotationsAr
         assertThat(ex)
             .isInstanceOf(AssertionError.class)
             .hasMessageContaining("$CaseSensitiveEnum")
-            .hasMessageContaining("AnnotatedClass.caseSensitiveEnumFieldWithSensitivityOn");
+            .hasMessageContaining("AnnotatedClass.caseSensitiveEnumFieldWithInsensitivityAllowed");
     }
 
     private VerifyEnumsReferencedByStringConvertsToClassTypeJsr303AnnotationsAreJacksonCaseInsensitiveTest
@@ -113,13 +113,16 @@ public class VerifyEnumsReferencedByStringConvertsToClassTypeJsr303AnnotationsAr
     }
 
     private static class AnnotatedClass {
-        @StringConvertsToClassType(message = "GENERIC_BAD_REQUEST", classType = CaseSensitiveEnum.class, allowCaseInsensitiveEnumMatch = false)
-        public String caseSensitiveEnumFieldWithSensitivityOn;
-
         @StringConvertsToClassType(message = "GENERIC_BAD_REQUEST", classType = CaseSensitiveEnum.class, allowCaseInsensitiveEnumMatch = true)
-        public String caseSensitiveEnumFieldWithSensitivityOff;
+        public String caseSensitiveEnumFieldWithInsensitivityAllowed;
 
-        @StringConvertsToClassType(message = "GENERIC_BAD_REQUEST", classType = CaseInsensitiveEnum.class)
-        public String caseInsensitiveEnumField;
+        @StringConvertsToClassType(message = "GENERIC_BAD_REQUEST", classType = CaseSensitiveEnum.class, allowCaseInsensitiveEnumMatch = false)
+        public String caseSensitiveEnumFieldWithInsensitivityDisallowed;
+
+        @StringConvertsToClassType(message = "GENERIC_BAD_REQUEST", classType = CaseInsensitiveEnum.class, allowCaseInsensitiveEnumMatch = true)
+        public String caseInsensitiveEnumFieldWithInsensitivityAllowed;
+
+        @StringConvertsToClassType(message = "GENERIC_BAD_REQUEST", classType = CaseInsensitiveEnum.class, allowCaseInsensitiveEnumMatch = false)
+        public String caseInsensitiveEnumFieldWithInsensitivityDisallowed;
     }
 }
