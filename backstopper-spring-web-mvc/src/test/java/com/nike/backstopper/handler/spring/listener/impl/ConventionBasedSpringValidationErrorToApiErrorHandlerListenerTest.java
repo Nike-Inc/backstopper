@@ -1,11 +1,13 @@
 package com.nike.backstopper.handler.spring.listener.impl;
 
 import com.nike.backstopper.apierror.ApiError;
+import com.nike.backstopper.apierror.ApiErrorWithMetadata;
 import com.nike.backstopper.apierror.projectspecificinfo.ProjectApiErrors;
 import com.nike.backstopper.apierror.testutil.ProjectApiErrorsForTesting;
 import com.nike.backstopper.exception.ApiException;
 import com.nike.backstopper.handler.listener.ApiExceptionHandlerListenerResult;
 import com.nike.backstopper.handler.listener.impl.ListenerTestBase;
+import com.nike.internal.util.Pair;
 
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.ThrowableAssert;
@@ -88,7 +90,10 @@ public class ConventionBasedSpringValidationErrorToApiErrorHandlerListenerTest e
         MethodArgumentNotValidException ex = new MethodArgumentNotValidException(methodParam, bindingResult);
         ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
 
-        validateResponse(result, true, Collections.singletonList(testProjectApiErrors.getMissingExpectedContentApiError()));
+        validateResponse(result, true, Collections.singletonList(
+            new ApiErrorWithMetadata(testProjectApiErrors.getMissingExpectedContentApiError(),
+                                     Pair.of("field", (Object)"someField"))
+        ));
         verify(bindingResult).getAllErrors();
     }
 
@@ -106,7 +111,10 @@ public class ConventionBasedSpringValidationErrorToApiErrorHandlerListenerTest e
         BindException ex = new BindException(bindingResult);
         ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
 
-        validateResponse(result, true, Arrays.asList(someFieldError, otherFieldError));
+        validateResponse(result, true, Arrays.asList(
+            new ApiErrorWithMetadata(someFieldError, Pair.of("field", (Object)"someField")),
+            new ApiErrorWithMetadata(otherFieldError, Pair.of("field", (Object)"otherField"))
+        ));
         verify(bindingResult).getAllErrors();
     }
 

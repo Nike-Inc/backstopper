@@ -22,7 +22,8 @@ public interface ApiError {
      *          to match ApiError instances when trying to convert a String to an ApiError. e.g. If you had an enum
      *          implement this interface it would return {@link Enum#name()}. <p>IMPORTANT NOTE: The name returned by
      *          this method should be considered this instance's unique ID. NO TWO {@code ApiErrors} SHOULD SHARE THE
-     *          SAME NAME! This should never return null.
+     *          SAME NAME (the only exception should be multiple of the same error with different metadata, i.e. wrapped
+     *          by {@link ApiErrorWithMetadata})! This should never return null.
      */
     String getName();
 

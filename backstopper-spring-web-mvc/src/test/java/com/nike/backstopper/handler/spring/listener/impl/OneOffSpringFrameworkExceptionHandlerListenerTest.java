@@ -1,5 +1,6 @@
 package com.nike.backstopper.handler.spring.listener.impl;
 
+import com.nike.backstopper.apierror.ApiErrorWithMetadata;
 import com.nike.backstopper.apierror.projectspecificinfo.ProjectApiErrors;
 import com.nike.backstopper.apierror.testutil.ProjectApiErrorsForTesting;
 import com.nike.backstopper.exception.ApiException;
@@ -100,7 +101,12 @@ public class OneOffSpringFrameworkExceptionHandlerListenerTest extends ListenerT
     public void shouldReturnTYPE_CONVERSION_ERRORForTypeMismatchException() {
         TypeMismatchException ex = new TypeMismatchException("blah", Integer.class);
         ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
-        validateResponse(result, true, Collections.singletonList(testProjectApiErrors.getTypeConversionApiError()));
+        validateResponse(result, true, Collections.singletonList(
+            new ApiErrorWithMetadata(
+                testProjectApiErrors.getTypeConversionApiError(), Pair.of("bad_property_value", (Object)"blah"),
+                                                                  Pair.of("required_type", (Object)"int")
+            )
+        ));
     }
 
     @Test
