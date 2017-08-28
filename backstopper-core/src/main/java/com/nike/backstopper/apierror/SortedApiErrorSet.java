@@ -10,18 +10,30 @@ import static java.util.Collections.singletonList;
  * A {@link java.util.SortedSet} that uses a built-in {@link ApiErrorComparator} to compare the {@link ApiError}
  * instances to each other. This should be used any time a {@code SortedSet<ApiError>} is called for.
  *
+ * <p>There are some constructors to allow you to pass in a custom comparator rather than the default (a
+ * {@link ApiErrorComparator}) - use them if you're sure the default behavior does not work for your use case.
+ *
  * @author Nic Munroe
  */
 public class SortedApiErrorSet extends TreeSet<ApiError> {
 
-    private static final Comparator<ApiError> API_ERROR_COMPARATOR = new ApiErrorComparator();
+    protected static final Comparator<ApiError> DEFAULT_API_ERROR_COMPARATOR = new ApiErrorComparator();
 
     public SortedApiErrorSet() {
-        super(API_ERROR_COMPARATOR);
+        this(DEFAULT_API_ERROR_COMPARATOR);
     }
 
     public SortedApiErrorSet(Collection<ApiError> values) {
-        super(API_ERROR_COMPARATOR);
+        this(DEFAULT_API_ERROR_COMPARATOR);
+        addAll(values);
+    }
+    
+    public SortedApiErrorSet(Comparator<ApiError> customComparator) {
+        super(customComparator);
+    }
+
+    public SortedApiErrorSet(Collection<ApiError> values, Comparator<ApiError> customComparator) {
+        this(customComparator);
         addAll(values);
     }
 

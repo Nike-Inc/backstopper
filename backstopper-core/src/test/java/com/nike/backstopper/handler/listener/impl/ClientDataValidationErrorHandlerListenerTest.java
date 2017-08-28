@@ -1,6 +1,7 @@
 package com.nike.backstopper.handler.listener.impl;
 
 import com.nike.backstopper.apierror.ApiError;
+import com.nike.backstopper.apierror.ApiErrorWithMetadata;
 import com.nike.backstopper.apierror.projectspecificinfo.ProjectApiErrors;
 import com.nike.backstopper.apierror.testutil.BarebonesCoreApiErrorForTesting;
 import com.nike.backstopper.apierror.testutil.ProjectApiErrorsForTesting;
@@ -169,7 +170,10 @@ public class ClientDataValidationErrorHandlerListenerTest extends ListenerTestBa
         ConstraintViolation<Object> violation = setupConstraintViolation(SomeValidatableObject.class, "path.to.violation", NotNull.class, "I_Am_Invalid");
         ClientDataValidationError ex = new ClientDataValidationError(Arrays.<Object>asList(new SomeValidatableObject("someArg1", "someArg2")), Collections.singletonList(violation), null);
         ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
-        validateResponse(result, true, Collections.<ApiError>singletonList(testProjectApiErrors.getGenericServiceError()));
+        validateResponse(result, true, Collections.<ApiError>singletonList(
+            // We expect it to be the generic error, with some metadata about the field that had an issue
+            new ApiErrorWithMetadata(testProjectApiErrors.getGenericServiceError(), Pair.of("field", (Object)"path.to.violation"))
+        ));
     }
 
     @Test
@@ -179,7 +183,11 @@ public class ClientDataValidationErrorHandlerListenerTest extends ListenerTestBa
         ClientDataValidationError ex = new ClientDataValidationError(
             Collections.<Object>singletonList(new SomeValidatableObject("someArg1", "someArg2")), Arrays.asList(violation1, violation2), null);
         ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
-        validateResponse(result, true, Arrays.<ApiError>asList(BarebonesCoreApiErrorForTesting.MISSING_EXPECTED_CONTENT, BarebonesCoreApiErrorForTesting.TYPE_CONVERSION_ERROR));
+        validateResponse(result, true, Arrays.<ApiError>asList(
+            // We expect them to be the properly associated errors, with some metadata about the field that had an issue
+            new ApiErrorWithMetadata(BarebonesCoreApiErrorForTesting.MISSING_EXPECTED_CONTENT, Pair.of("field", (Object)"path.to.violation1")),
+            new ApiErrorWithMetadata(BarebonesCoreApiErrorForTesting.TYPE_CONVERSION_ERROR, Pair.of("field", (Object)"path.to.violation2"))
+        ));
     }
 
     @Test
