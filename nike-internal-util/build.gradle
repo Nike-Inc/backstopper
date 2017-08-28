@@ -5,8 +5,6 @@ groupId = nikeInternalUtilGroupId
 group = nikeInternalUtilGroupId
 
 dependencies {
-    compile(
-    )
     testCompile(
             "junit:junit:$junitVersion",
             "org.mockito:mockito-core:$mockitoVersion",

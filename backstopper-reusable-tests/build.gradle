@@ -18,6 +18,4 @@ dependencies {
             "org.reflections:reflections:$orgReflectionsVersion",
             "org.javassist:javassist:$javassistVersion"
     )
-    testCompile(
-    )
 }
