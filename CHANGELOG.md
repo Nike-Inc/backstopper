@@ -10,10 +10,28 @@ Backstopper is used heavily and is stable internally at Nike, however the wider 
 
 #### 0.x Releases
    
-- `0.11.x` Releases - [0.11.1](#0111), [0.11.0](#0110)
+- `0.11.x` Releases - [0.11.2](#0112), [0.11.1](#0111), [0.11.0](#0110)
 - `0.10.x` Releases - [0.10.0](#0100)                     
 - `0.9.x` Releases - [0.9.2](#092), [0.9.1.1](#0911), [0.9.1](#091), [0.9.0.1](#0901), [0.9.0](#090)
 
+## [0.11.2](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.11.2)
+
+Released on 2017-08-28.
+
+### Fixed
+
+- `SortedApiErrorSet` now allows multiple same-named `ApiError`s if they have different metadata. Use case example: throwing the same error multiple times for a given object during validation where the only difference is the field affected, and the field is held in the metadata.  
+    - Fixed by [Nic Munroe][contrib_nicmunroe] in pull request [#22](https://github.com/Nike-Inc/backstopper/pull/22).
+- `WrapperException.toString()` now guarantees that info about a non-null cause is included.
+    - Fixed by [Nic Munroe][contrib_nicmunroe] in pull request [#22](https://github.com/Nike-Inc/backstopper/pull/22).
+- The reusable test to verify `@StringConvertsToClassType` on enums pointed to enums that could be deserialized in a case insensitive way if specified in the annotation (`VerifyEnumsReferencedByStringConvertsToClassTypeJsr303AnnotationsAreJacksonCaseInsensitiveTest`) was incorrect. It was doing the case-insensitivity check in the wrong situation. 
+    - Fixed by [Nic Munroe][contrib_nicmunroe] in pull request [#22](https://github.com/Nike-Inc/backstopper/pull/22).
+
+### Project Build
+
+- Upgraded to Gradle 4.1.
+    - Done by [Nic Munroe][contrib_nicmunroe] in pull request [#22](https://github.com/Nike-Inc/backstopper/pull/22).    
+    
 ## [0.11.1](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.11.1)
 
 Released on 2017-02-01.
