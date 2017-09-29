@@ -2,6 +2,7 @@ package com.nike.backstopper.exception;
 
 import com.nike.backstopper.apierror.ApiError;
 import com.nike.internal.util.Pair;
+import com.nike.internal.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +43,7 @@ public class ApiException extends RuntimeException {
      * Handles the simple common case where you just want to throw a single {@link ApiError} and nothing else.
      */
     public ApiException(ApiError error) {
-        super();
+        super(extractMessage(error));
         if (error == null)
             throw new IllegalArgumentException("error cannot be null");
         this.apiErrors = new ArrayList<>(singletonList(error));
@@ -72,7 +73,7 @@ public class ApiException extends RuntimeException {
      */
     public ApiException(List<ApiError> apiErrors, List<Pair<String, String>> extraDetailsForLogging,
                         List<Pair<String, List<String>>> extraResponseHeaders, String message) {
-        super(message);
+        super(extractMessage(apiErrors, message));
 
         if (apiErrors == null || apiErrors.isEmpty())
             throw new IllegalArgumentException("apiErrors cannot be null or empty");
@@ -111,7 +112,7 @@ public class ApiException extends RuntimeException {
      */
     public ApiException(List<ApiError> apiErrors, List<Pair<String, String>> extraDetailsForLogging,
                         List<Pair<String, List<String>>> extraResponseHeaders, String message, Throwable cause) {
-        super(message, cause);
+        super(extractMessage(apiErrors, message), cause);
 
         if (apiErrors == null || apiErrors.isEmpty())
             throw new IllegalArgumentException("apiErrors cannot be null or empty");
@@ -153,6 +154,42 @@ public class ApiException extends RuntimeException {
      */
     public List<Pair<String, List<String>>> getExtraResponseHeaders() {
         return extraResponseHeaders;
+    }
+
+    /**
+     * Extracts message from input {@link ApiError}. Will return null if the input error is null
+     */
+    protected static String extractMessage(ApiError error) {
+        if (error == null)
+            return null;
+
+        return error.getMessage();
+    }
+
+    /**
+     * Extracts and joins all messages from the input List<{@link ApiError}> if the desired message is null.
+     *
+     * Will return null if the input error List is null
+     */
+    protected static String extractMessage(List<ApiError> apiErrors, String desiredMessage) {
+        if (desiredMessage != null) {
+            return desiredMessage;
+        }
+
+        if (apiErrors == null || apiErrors.isEmpty()) {
+            return null;
+        }
+
+        if (apiErrors.size() == 1) {
+            return extractMessage(apiErrors.get(0));
+        }
+
+        List<String> apiErrorMessages = new ArrayList<>(apiErrors.size());
+        for (ApiError error : apiErrors) {
+            apiErrorMessages.add(error.getMessage());
+        }
+
+        return StringUtils.join(apiErrorMessages, ", ", "[", "]");
     }
 
     /**

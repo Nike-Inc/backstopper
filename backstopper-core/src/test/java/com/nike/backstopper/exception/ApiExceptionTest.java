@@ -7,6 +7,7 @@ import com.nike.internal.util.Pair;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 
+import org.assertj.core.util.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -14,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static com.nike.backstopper.apierror.testutil.BarebonesCoreApiErrorForTesting.GENERIC_SERVICE_ERROR;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -79,6 +81,20 @@ public class ApiExceptionTest {
     public void single_error_constructor_fails_if_passed_null_arg() {
         // expect
         new ApiException(null);
+    }
+
+    @Test
+    public void single_error_constructor_sets_expected_values() {
+        // given
+        ApiException apiException = new ApiException(GENERIC_SERVICE_ERROR);
+
+        // then
+        assertThat(apiException.getMessage()).isEqualTo(GENERIC_SERVICE_ERROR.getMessage());
+        assertThat(apiException.getApiErrors().size()).isEqualTo(1);
+        assertThat(apiException.getApiErrors().contains(GENERIC_SERVICE_ERROR)).isTrue();
+        assertThat(apiException.getExtraDetailsForLogging().isEmpty()).isTrue();
+        assertThat(apiException.getExtraResponseHeaders().isEmpty()).isTrue();
+
     }
 
     @DataProvider(value = {
@@ -199,5 +215,51 @@ public class ApiExceptionTest {
         assertThat(apiException.getExtraResponseHeaders())
             .isNotNull()
             .isEmpty();
+    }
+
+    @Test
+    public void extractMessage_listOfErrors_with_message_returns_message() {
+        // given
+        String desiredMessage = "desiredMessage";
+
+        // when
+        String extractedMessage = ApiException.extractMessage(null, desiredMessage);
+
+        // then
+        assertThat(extractedMessage).isEqualTo(desiredMessage);
+    }
+
+    @Test
+    public void extractMessage_nullListOfErrors_without_message_returns_null() {
+        // when
+        String extractedMessage = ApiException.extractMessage(null, null);
+
+        // then
+        assertThat(extractedMessage).isNull();
+    }
+
+    @Test
+    public void extractMessage_listOf1Error_without_message_returns_message() {
+        // given
+        List<ApiError> apiErrors = singletonList(apiError1);
+
+        // when
+        String extractedMessage = ApiException.extractMessage(apiErrors, null);
+
+        // then
+        assertThat(extractedMessage).isEqualTo(apiError1.getMessage());
+    }
+
+    @Test
+    public void extractMessage_listOfErrors_without_message_returns_joined_message() {
+        // given
+        List<ApiError> apiErrors = Lists.newArrayList(apiError1, apiError2, apiError3);
+
+        // when
+        String extractedMessage = ApiException.extractMessage(apiErrors, null);
+
+        // then
+        String expectedMessage = "[" + apiError1.getMessage() + ", " + apiError2.getMessage() + ", " + apiError3.getMessage() + "]";
+        assertThat(extractedMessage).isEqualTo(expectedMessage);
     }
 }
