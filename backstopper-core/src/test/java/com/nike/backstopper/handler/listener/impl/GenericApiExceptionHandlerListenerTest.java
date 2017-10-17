@@ -38,11 +38,17 @@ public class GenericApiExceptionHandlerListenerTest extends ListenerTestBase {
 
     @Test
     public void shouldReturnLoggingDetailsFromApiException() {
+        // given
         ApiError error = BarebonesCoreApiErrorForTesting.NOT_FOUND;
         List<Pair<String, String>> extraLogInfo = Arrays.asList(Pair.of("key1", "val1"), Pair.of("key2", "val2"));
         ApiException ex = ApiException.newBuilder().withApiErrors(error).withExtraDetailsForLogging(extraLogInfo).build();
+        List<Pair<String, String>> expectedExtraLogInfo = Arrays.asList(Pair.of("key1", "val1"), Pair.of("key2", "val2"), Pair.of("api_exception_message", error.getMessage()));
+        
+        //when
         ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
-        assertThat(result.extraDetailsForLogging, is(extraLogInfo));
+
+        // then
+        assertThat(result.extraDetailsForLogging, is(expectedExtraLogInfo));
     }
 
     @Test
@@ -72,22 +78,6 @@ public class GenericApiExceptionHandlerListenerTest extends ListenerTestBase {
         ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
         assertThat(result.extraDetailsForLogging.size(), is(1));
         assertThat(result.extraDetailsForLogging.get(0), is(Pair.of("api_exception_message", "Nice message")));
-    }
-
-    @Test
-    public void shouldNotAddExceptionMessageIfExceptionMessageIsNull() {
-        ApiError error = BarebonesCoreApiErrorForTesting.NOT_FOUND;
-        ApiException ex = ApiException.newBuilder().withApiErrors(error).withExceptionMessage(null).build();
-        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
-        assertThat(result.extraDetailsForLogging.size(), is(0));
-    }
-
-    @Test
-    public void shouldNotAddExceptionMessageIfTrimmedExceptionMessageEmpty() {
-        ApiError error = BarebonesCoreApiErrorForTesting.NOT_FOUND;
-        ApiException ex = ApiException.newBuilder().withApiErrors(error).withExceptionMessage("  \t  \n").build();
-        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
-        assertThat(result.extraDetailsForLogging.size(), is(0));
     }
 
 }
