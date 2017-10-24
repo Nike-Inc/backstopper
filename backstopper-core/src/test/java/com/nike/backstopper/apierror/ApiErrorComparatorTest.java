@@ -12,6 +12,9 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Tests the functionality of {@link com.nike.backstopper.apierror.ApiErrorComparator}
@@ -53,6 +56,29 @@ public class ApiErrorComparatorTest {
         doReturn(mockApiError2Name).when(mockApiError2).getName();
 
         assertThat(comparator.compare(mockApiError1, mockApiError2)).isEqualTo(mockApiError1Name.compareTo(mockApiError2Name));
+    }
+
+    @Test
+    public void should_use_error_code_comparison_when_args_are_valid() {
+        ApiError mockApiError1 = mock(ApiError.class);
+        ApiError mockApiError2 = mock(ApiError.class);
+
+        String name = UUID.randomUUID().toString();
+        doReturn(name).when(mockApiError1).getName();
+        doReturn(name).when(mockApiError2).getName();
+
+        String errorCode1 = UUID.randomUUID().toString();
+        String errorCode2 = UUID.randomUUID().toString();
+        doReturn(errorCode1).when(mockApiError1).getErrorCode();
+        doReturn(errorCode2).when(mockApiError2).getErrorCode();
+
+        assertThat(comparator.compare(mockApiError1, mockApiError2)).isEqualTo(errorCode1.compareTo(errorCode2));
+
+        // 2 times, once in .equals and another inside the comparator
+        verify(mockApiError1, times(2)).getErrorCode();
+        verify(mockApiError1, times(2)).getName();
+        verify(mockApiError2, times(2)).getErrorCode();
+        verify(mockApiError2, times(2)).getName();
     }
 
     @Test

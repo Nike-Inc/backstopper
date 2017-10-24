@@ -1,5 +1,6 @@
 package com.nike.backstopper.apierror;
 
+import com.nike.backstopper.util.ApiErrorUtil;
 import com.nike.internal.util.Pair;
 
 import java.util.Collections;
@@ -79,5 +80,15 @@ public class ApiErrorWithMetadata implements ApiError {
     @Override
     public int getHttpStatusCode() {
         return delegate.getHttpStatusCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return ApiErrorUtil.isApiErrorEqual(this, o);
+    }
+
+    @Override
+    public int hashCode() {
+        return ApiErrorUtil.generateApiErrorHashCode(this);
     }
 }

@@ -87,29 +87,23 @@ public class ApiErrorWithMetadataTest {
     @Test
     public void constructor_throws_IllegalArgumentException_if_delegate_is_null() {
         // when
-        Throwable ex = catchThrowable(new ThrowableAssert.ThrowingCallable() {
-            @Override
-            public void call() throws Throwable {
-                new ApiErrorWithMetadata(null, extraMetadata);
-            }
-        });
+        Throwable ex = catchThrowable(() -> new ApiErrorWithMetadata(null, extraMetadata));
 
         // then
-        assertThat(ex).isInstanceOf(IllegalArgumentException.class);
+        assertThat(ex)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("ApiError delegate cannot be null");
     }
 
     @Test
     public void convenience_constructor_throws_IllegalArgumentException_if_delegate_is_null() {
         // when
-        Throwable ex = catchThrowable(new ThrowableAssert.ThrowingCallable() {
-            @Override
-            public void call() throws Throwable {
-                new ApiErrorWithMetadata(null, Pair.of("foo", (Object)"bar"));
-            }
-        });
+        Throwable ex = catchThrowable(() -> new ApiErrorWithMetadata(null, Pair.of("foo", (Object)"bar")));
 
         // then
-        assertThat(ex).isInstanceOf(IllegalArgumentException.class);
+        assertThat(ex)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("ApiError delegate cannot be null");
     }
 
     @DataProvider(value = {
@@ -211,5 +205,75 @@ public class ApiErrorWithMetadataTest {
 
         // then
         assertThat(awm.getMetadata()).isEqualTo(extraMetadata);
+    }
+
+    @Test
+    public void hashcode_is_as_expected() {
+        // given
+        ApiErrorWithMetadata awm = new ApiErrorWithMetadata(delegateWithMetadata, extraMetadata);
+        ApiErrorWithMetadata awm2 = new ApiErrorWithMetadata(delegateWithMetadata, extraMetadata);
+
+        // then
+        assertThat(awm).isEqualTo(awm2);
+        assertThat(awm.hashCode()).isEqualTo(awm.hashCode());
+        assertThat(awm.hashCode()).isEqualTo(awm2.hashCode());
+    }
+
+    @Test
+    public void equals_same_object_is_true() {
+        // given
+        ApiErrorWithMetadata awm = new ApiErrorWithMetadata(delegateWithMetadata, extraMetadata);
+
+        // then
+        assertThat(awm.equals(awm)).isTrue();
+    }
+
+    @Test
+    @DataProvider(value = {
+            "true",
+            "false"
+    })
+    public void equals_null_or_other_class_is_false(boolean useNull) {
+        // given
+        ApiErrorWithMetadata awm = new ApiErrorWithMetadata(delegateWithMetadata, extraMetadata);
+
+        String otherClass = useNull? null : "";
+
+        // then
+        assertThat(awm.equals(otherClass)).isFalse();
+    }
+
+    @Test
+    @DataProvider(value = {
+            "true  | false | false | false | false | false | false ",
+            "false | false | false | false | false | true  | true  ",
+            "false | true  | false | false | false | false | false ",
+            "false | false | true  | false | false | false | false ",
+            "false | false | false | true  | false | false | false ",
+            "false | false | false | false | true  | false | false ",
+            "false | false | false | false | false | false | false ",
+    }, splitBy = "\\|")
+    public void equals_returns_expected_result(boolean changeName, boolean changeErrorCode, boolean changeErrorMessage, boolean changeHttpStatusCode, boolean changeMetadata, boolean hasExtraMetadata, boolean isEqual) {
+        // given
+        String name = "someName";
+        int errorCode = 42;
+        String message = "some error";
+        int httpStatusCode = 400;
+        Map<String, Object> metadata = MapBuilder.<String, Object>builder().put("foo", UUID.randomUUID().toString()).build();
+        Map<String, Object> metadata2 = MapBuilder.<String, Object>builder().put("foo", UUID.randomUUID().toString()).build();
+
+        ApiErrorBase aeb = new ApiErrorBase(name, errorCode, message, httpStatusCode, metadata);
+        ApiErrorBase aeb2 = new ApiErrorBase(
+                changeName? "name2" : name ,
+                changeErrorCode? 43 : errorCode,
+                changeErrorMessage? "message2" : message,
+                changeHttpStatusCode? 500 : httpStatusCode,
+                changeMetadata? metadata2 : metadata);
+
+        ApiErrorWithMetadata awm = new ApiErrorWithMetadata(aeb, extraMetadata);
+        ApiErrorWithMetadata awm2 = new ApiErrorWithMetadata(aeb2, hasExtraMetadata? extraMetadata : Collections.<String, Object>emptyMap());
+
+        // then
+        assertThat(awm.equals(awm2)).isEqualTo(isEqual);
     }
 }
