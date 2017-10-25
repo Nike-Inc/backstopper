@@ -10,9 +10,20 @@ Backstopper is used heavily and is stable internally at Nike, however the wider 
 
 #### 0.x Releases
    
-- `0.11.x` Releases - [0.11.2](#0112), [0.11.1](#0111), [0.11.0](#0110)
+- `0.11.x` Releases - [0.11.3](#0113), [0.11.2](#0112), [0.11.1](#0111), [0.11.0](#0110)
 - `0.10.x` Releases - [0.10.0](#0100)                     
 - `0.9.x` Releases - [0.9.2](#092), [0.9.1.1](#0911), [0.9.1](#091), [0.9.0.1](#0901), [0.9.0](#090)
+
+## [0.11.3](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.11.3)
+
+Released on 2017-10-26.
+
+### Added
+
+- Updated `ApiException` constructors to use the `ApiError` message as the exception's message if no message is provided.    
+    - Fixed by [Robert Abeyta][contrib_rabeyta] in pull request [#25](https://github.com/Nike-Inc/backstopper/pull/25).
+- Added `equals` and `hashcode` methods to `ApiErrorBase` and `ApiErrorWithMetadata`. Updated `ApiErrorComparator` accordingly with equals and hashcode updates and updated sort to check `errorCode` after `name`
+    - Fixed by [Robert Abeyta][contrib_rabeyta] in pull request [#26](https://github.com/Nike-Inc/backstopper/pull/26).
 
 ## [0.11.2](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.11.2)
 
@@ -114,3 +125,4 @@ Released on 2016-09-20.
 
 [contrib_nicmunroe]: https://github.com/nicmunroe
 [contrib_mikesir87]: https://github.com/mikesir87 
+[contrib_rabeyta]: https://github.com/rabeyta
