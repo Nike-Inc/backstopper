@@ -1,5 +1,7 @@
 package com.nike.backstopper.apierror;
 
+import com.nike.backstopper.util.ApiErrorUtil;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -102,4 +104,15 @@ public class ApiErrorBase implements ApiError {
     public Map<String, Object> getMetadata() {
         return metadata;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        return ApiErrorUtil.isApiErrorEqual(this, o);
+    }
+
+    @Override
+    public int hashCode() {
+        return ApiErrorUtil.generateApiErrorHashCode(this);
+    }
+
 }
