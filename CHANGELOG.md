@@ -10,9 +10,30 @@ Backstopper is used heavily and is stable internally at Nike, however the wider 
 
 #### 0.x Releases
    
-- `0.11.x` Releases - [0.11.3](#0113), [0.11.2](#0112), [0.11.1](#0111), [0.11.0](#0110)
+- `0.11.x` Releases - [0.11.4](#0114), [0.11.3](#0113), [0.11.2](#0112), [0.11.1](#0111), [0.11.0](#0110)
 - `0.10.x` Releases - [0.10.0](#0100)                     
 - `0.9.x` Releases - [0.9.2](#092), [0.9.1.1](#0911), [0.9.1](#091), [0.9.0.1](#0901), [0.9.0](#090)
+
+## [0.11.4](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.11.4)
+
+Released on 2018-01-19.
+
+### Updated
+
+- Updated the version of `org.reflections:reflections` (used by the `backstopper-reusable-tests` module) from 
+`0.9.9-RC1` to `0.9.11`. 
+    - This fixed the following error when a project relied on `backstopper-reusable-tests` but also 
+    a newer version of `org.reflections:reflections` than what backstopper was compiled with: 
+    `NoSuchMethodError: org.reflections.util.ClasspathHelper.forPackage(Ljava/lang/String;[Ljava/lang/ClassLoader;)Ljava/util/Set;`. 
+    One place where this showed up was when using Kotlin in a Backstopper-powered project since Kotlin pulls in 
+    `org.reflections:reflections:0.9.11`. Compiling backstopper with the latest `org.reflections:reflections` version 
+    seems to fix the issue.    
+    - Fixed by [Nic Munroe][contrib_nicmunroe] in pull request [#28](https://github.com/Nike-Inc/backstopper/pull/28).
+
+### Project Build
+
+- Upgraded to Jacoco `0.8.0`.
+    - Done by [Nic Munroe][contrib_nicmunroe] in pull request [#28](https://github.com/Nike-Inc/backstopper/pull/28). 
 
 ## [0.11.3](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.11.3)
 
