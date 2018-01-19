@@ -80,14 +80,14 @@ ext {
     hamcrestVersion = '1.3'
     hibernateValidatorVersion = '4.3.0.Final'
 
-    orgReflectionsVersion = '0.9.9-RC1'
+    orgReflectionsVersion = '0.9.11'
     javassistVersion = '3.18.2-GA'
 
     jettyVersion = '9.2.19.v20160908'
     restAssuredVersion = '3.0.1'
 
     // JACOCO PROPERTIES
-    jacocoToolVersion = '0.7.6.201602180812'
+    jacocoToolVersion = '0.8.0'
     // Anything in this jacocoExclusions list will be excluded from coverage reports.
     jacocoExclusions = []
     jacocoCoverageThresholdSetup = {
