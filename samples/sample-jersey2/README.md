@@ -28,6 +28,11 @@ As you are doing the following you should check the logs that are output by the 
     * Pass in a junk payload that is not valid JSON - you should receive a `"Malformed request"` error back.
 * `GET /sample/coreErrorWrapper` - Triggers an error to be thrown that appears to the caller like a normal generic service exception, but the `SOME_MEANINGFUL_ERROR_NAME` name from the `ApiError` it represents shows up in the logs to help you disambiguate what the true cause was.
 * `GET /sample/triggerUnhandledError` - Triggers an error that is caught by the unhandled exception handler portion of Backstopper and converted to a generic service exception.
+* `GET /sample/throwExceptionFromAsyncEndpoint` - Hits an async endpoint (using Jersey's `@Suspended AsyncResponse` 
+feature) that throws an exception (shows that Backstopper handles async endpoints that throw exceptions).
+* `GET /sample/resumeAsyncResponseWithException` - Hits an async endpoint (using Jersey's `@Suspended AsyncResponse` 
+feature) that resumes the async response via `AsyncResponse.resume(Throwable)` (shows that Backstopper handles async 
+endpoints that explicitly resume the response with an exception from another thread).
 * `GET /does-not-exist` - Triggers a framework 404 which Backstopper handles.
 * `DELETE /sample` - Triggers a framework 405 which Backstopper handles.   
 * `GET /sample` with `Accept: application/octet-stream` header - Triggers a framework 406 which Backstopper handles.

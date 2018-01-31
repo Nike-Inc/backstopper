@@ -12,6 +12,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.Arrays;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -19,6 +21,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -41,6 +45,10 @@ public class SampleResource {
     public static final String CORE_ERROR_WRAPPER_ENDPOINT_SUBPATH = "/coreErrorWrapper";
     public static final String WITH_INT_QUERY_PARAM_SUBPATH = "/withIntQueryParam";
     public static final String TRIGGER_UNHANDLED_ERROR_SUBPATH = "/triggerUnhandledError";
+    public static final String THROW_EXCEPTION_FROM_ASYNC_ENDPOINT_SUBPATH = "/throwExceptionFromAsyncEndpoint";
+    public static final String RESUME_ASYNC_RESPONSE_WITH_EXCEPTION_SUBPATH = "/resumeAsyncResponseWithException";
+
+    private static final ExecutorService executor = Executors.newCachedThreadPool();
 
     public static int nextRangeInt(int lowerBound, int upperBound) {
         return (int)Math.round(Math.random() * upperBound) + lowerBound;
@@ -119,5 +127,28 @@ public class SampleResource {
     @Path(TRIGGER_UNHANDLED_ERROR_SUBPATH)
     public String triggerUnhandledError() {
         throw new RuntimeException("This should be handled by Jersey2UnhandledExceptionHandler.");
+    }
+
+    @GET
+    @Path(THROW_EXCEPTION_FROM_ASYNC_ENDPOINT_SUBPATH)
+    public void throwExceptionFromAsyncEndpoint(@Suspended final AsyncResponse ar) {
+        throw ApiException.newBuilder()
+            .withApiErrors(SampleProjectApiError.MANUALLY_THROWN_ERROR)
+            .build();
+    }
+
+    @GET
+    @Path(RESUME_ASYNC_RESPONSE_WITH_EXCEPTION_SUBPATH)
+    public void resumeAsyncResponseWithException(@Suspended final AsyncResponse ar) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                ar.resume(
+                    ApiException.newBuilder()
+                                .withApiErrors(SampleProjectApiError.MANUALLY_THROWN_ERROR)
+                                .build()
+                );
+            }
+        });
     }
 }
