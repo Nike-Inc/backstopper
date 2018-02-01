@@ -37,6 +37,8 @@ import io.restassured.response.ExtractableResponse;
 import static com.nike.backstopper.jersey2sample.error.SampleProjectApiError.INVALID_RANGE_VALUE;
 import static com.nike.backstopper.jersey2sample.error.SampleProjectApiError.NOT_RGB_COLOR_ENUM;
 import static com.nike.backstopper.jersey2sample.error.SampleProjectApiError.RGB_COLOR_CANNOT_BE_NULL;
+import static com.nike.backstopper.jersey2sample.resource.SampleResource.THROW_EXCEPTION_FROM_ASYNC_ENDPOINT_SUBPATH;
+import static com.nike.backstopper.jersey2sample.resource.SampleResource.RESUME_ASYNC_RESPONSE_WITH_EXCEPTION_SUBPATH;
 import static com.nike.backstopper.jersey2sample.resource.SampleResource.CORE_ERROR_WRAPPER_ENDPOINT_SUBPATH;
 import static com.nike.backstopper.jersey2sample.resource.SampleResource.SAMPLE_PATH;
 import static com.nike.backstopper.jersey2sample.resource.SampleResource.TRIGGER_UNHANDLED_ERROR_SUBPATH;
@@ -305,6 +307,40 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
                 .extract();
 
         verifyErrorReceived(response, SampleCoreApiError.GENERIC_SERVICE_ERROR);
+    }
+
+    @Test
+    public void verify_exception_thrown_from_async_endpoint_is_handled_by_backstopper() {
+        ExtractableResponse response =
+            given()
+                .baseUri("http://localhost")
+                .port(SERVER_PORT)
+                .basePath(SAMPLE_PATH + THROW_EXCEPTION_FROM_ASYNC_ENDPOINT_SUBPATH)
+                .log().all()
+            .when()
+                .get()
+            .then()
+                .log().all()
+                .extract();
+
+        verifyErrorReceived(response, SampleProjectApiError.MANUALLY_THROWN_ERROR);
+    }
+
+    @Test
+    public void verify_async_response_resumed_with_exception_is_handled_by_backstopper() {
+        ExtractableResponse response =
+            given()
+                .baseUri("http://localhost")
+                .port(SERVER_PORT)
+                .basePath(SAMPLE_PATH + RESUME_ASYNC_RESPONSE_WITH_EXCEPTION_SUBPATH)
+                .log().all()
+            .when()
+                .get()
+            .then()
+                .log().all()
+                .extract();
+
+        verifyErrorReceived(response, SampleProjectApiError.MANUALLY_THROWN_ERROR);
     }
 
     // *************** FRAMEWORK ERRORS ******************
