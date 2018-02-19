@@ -12,24 +12,31 @@ import com.nike.backstopper.handler.ErrorResponseInfo;
 import com.nike.backstopper.handler.UnexpectedMajorExceptionHandlingError;
 import com.nike.backstopper.handler.jaxrs.config.JaxRsApiExceptionHandlerListenerList;
 import com.nike.backstopper.model.DefaultErrorContractDTO;
+
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.internal.util.reflection.Whitebox;
+
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
-import java.util.UUID;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -43,6 +50,7 @@ import static org.mockito.Mockito.when;
  * @author dsand7
  * @author Michael Irwin
  */
+@RunWith(DataProviderRunner.class)
 public class JaxRsApiExceptionHandlerTest {
 
     private JaxRsApiExceptionHandler handlerSpy;
@@ -124,32 +132,75 @@ public class JaxRsApiExceptionHandlerTest {
         Assert.assertNotNull(response.build().getEntity());
     }
 
+    @DataProvider(value = {
+        "true",
+        "false"
+    })
     @Test
-    public void toResponseContainsContentTypeHeaderForHandledException() {
+    public void toResponseContainsContentTypeHeaderForHandledException(boolean overrideDefaultContentType) {
+        // given
         ApiException exception = ApiException.Builder.newBuilder()
                                                      .withExceptionMessage("test this")
                                                      .withApiErrors(BarebonesCoreApiErrorForTesting.MALFORMED_REQUEST)
                                                      .build();
+
+        String expectedContentType = MediaType.APPLICATION_JSON;
+        if (overrideDefaultContentType) {
+            final String finalExpectedContentType = UUID.randomUUID().toString();
+            expectedContentType = finalExpectedContentType;
+            doAnswer(invocation -> {
+                ErrorResponseInfo<Response.ResponseBuilder> errorResponseInfo =
+                    (ErrorResponseInfo<Response.ResponseBuilder>) invocation.getArguments()[0];
+                return errorResponseInfo.frameworkRepresentationObj.header("Content-Type", finalExpectedContentType);
+            }).when(handlerSpy).setContentType(
+                any(ErrorResponseInfo.class), any(HttpServletRequest.class), any(HttpServletResponse.class),
+                any(Throwable.class)
+            );
+        }
+
+        // when
         Response response = handlerSpy.toResponse(exception);
-        Assert.assertNotNull(response.getMetadata());
-        List<Object> contentHeaders = response.getMetadata().get("Content-Type");
-        Assert.assertNotNull(contentHeaders);
-        Assert.assertEquals(1, contentHeaders.size());
-        String contentHeaderValue = (String) contentHeaders.get(0);
-        Assert.assertNotNull(contentHeaderValue);
-        Assert.assertEquals(MediaType.APPLICATION_JSON, contentHeaderValue);
+
+        // then
+        verify(handlerSpy).setContentType(
+            any(ErrorResponseInfo.class), any(HttpServletRequest.class), any(HttpServletResponse.class),
+            eq(exception)
+        );
+        assertThat(response.getMetadata()).isNotNull();
+        assertThat(response.getMetadata().get("Content-Type")).isEqualTo(singletonList(expectedContentType));
     }
 
+    @DataProvider(value = {
+        "true",
+        "false"
+    })
     @Test
-    public void toResponseContainsContentTypeHeaderForUnhandledException() {
+    public void toResponseContainsContentTypeHeaderForUnhandledException(boolean overrideDefaultContentType) {
+        // given
+        String expectedContentType = MediaType.APPLICATION_JSON;
+        if (overrideDefaultContentType) {
+            final String finalExpectedContentType = UUID.randomUUID().toString();
+            expectedContentType = finalExpectedContentType;
+            doAnswer(invocation -> {
+                ErrorResponseInfo<Response.ResponseBuilder> errorResponseInfo =
+                    (ErrorResponseInfo<Response.ResponseBuilder>) invocation.getArguments()[0];
+                return errorResponseInfo.frameworkRepresentationObj.header("Content-Type", finalExpectedContentType);
+            }).when(handlerSpy).setContentType(
+                any(ErrorResponseInfo.class), any(HttpServletRequest.class), any(HttpServletResponse.class),
+                any(Throwable.class)
+            );
+        }
+
+        // when
         Response response = handlerSpy.toResponse(new Exception("not handled"));
-        Assert.assertNotNull(response.getMetadata());
-        List<Object> contentHeaders = response.getMetadata().get("Content-Type");
-        Assert.assertNotNull(contentHeaders);
-        Assert.assertEquals(1, contentHeaders.size());
-        String contentHeaderValue = (String) contentHeaders.get(0);
-        Assert.assertNotNull(contentHeaderValue);
-        Assert.assertEquals(MediaType.APPLICATION_JSON, contentHeaderValue);
+
+        // then
+        verify(handlerSpy).setContentType(
+            any(ErrorResponseInfo.class), any(HttpServletRequest.class), any(HttpServletResponse.class),
+            any(Throwable.class)
+        );
+        assertThat(response.getMetadata()).isNotNull();
+        assertThat(response.getMetadata().get("Content-Type")).isEqualTo(singletonList(expectedContentType));
     }
 
     @Test

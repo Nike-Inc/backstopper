@@ -11,8 +11,12 @@ import com.nike.backstopper.handler.jaxrs.config.JaxRsApiExceptionHandlerListene
 import com.nike.backstopper.handler.listener.ApiExceptionHandlerListener;
 import com.nike.backstopper.model.DefaultErrorContractDTO;
 import com.nike.backstopper.model.util.JsonUtilWithDefaultErrorContractDTOSupport;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -23,8 +27,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * An {@link ApiExceptionHandlerServletApiBase} extension that hooks into JAX-RS via its
@@ -112,12 +114,37 @@ public class JaxRsApiExceptionHandler extends ApiExceptionHandlerServletApiBase<
             exceptionHandled = jerseyUnhandledExceptionHandler.handleException(e, request, response);
         }
 
-        Response.ResponseBuilder responseBuilder = exceptionHandled.frameworkRepresentationObj
-            .header("Content-Type", MediaType.APPLICATION_JSON);
+        Response.ResponseBuilder responseBuilder = setContentType(exceptionHandled, request, response, e);
 
         // NOTE: We don't have to add headers to the response here - it's already been done in the
         //      ApiExceptionHandlerServletApiBase.processServletResponse(...) method.
 
         return responseBuilder.build();
+    }
+
+    /**
+     * Sets the {@code Content-Type} header on the given {@link ErrorResponseInfo#frameworkRepresentationObj}
+     * (which is a {@link javax.ws.rs.core.Response.ResponseBuilder}) and then returns it. Defaults to {@link
+     * MediaType#APPLICATION_JSON}. If you need a different content type for your response you can override this method
+     * to do something else.
+     *
+     * @param errorResponseInfo The {@link ErrorResponseInfo} that was generated for this request. The expectation is
+     * that any override of this method will {@code return errorResponseInfo.frameworkRepresentationObj.header(...)}
+     * to set the {@code Content-Type} header for the response.
+     * @param request The {@link HttpServletRequest} for this request - useful if you need it to help determine the
+     * {@code Content-Type} for the response.
+     * @param response The {@link HttpServletResponse} for this request - useful if you need it to help determine the
+     * {@code Content-Type} for the response.
+     * @param ex The exception that backstopper is handling - useful if you need it to help determine the
+     * {@code Content-Type} for the response.
+     * @return The given {@link ErrorResponseInfo}'s {@link ErrorResponseInfo#frameworkRepresentationObj} after setting
+     * the {@code Content-Type} header on it - defaults to {@link MediaType#APPLICATION_JSON}. Override this method
+     * if you need to send a different {@code Content-Type}.
+     */
+    protected Response.ResponseBuilder setContentType(
+        ErrorResponseInfo<Response.ResponseBuilder> errorResponseInfo, HttpServletRequest request,
+        HttpServletResponse response, Throwable ex
+    ) {
+        return errorResponseInfo.frameworkRepresentationObj.header("Content-Type", MediaType.APPLICATION_JSON);
     }
 }
