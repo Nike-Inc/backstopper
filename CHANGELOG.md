@@ -10,9 +10,20 @@ Backstopper is used heavily and is stable internally at Nike, however the wider 
 
 #### 0.x Releases
    
-- `0.11.x` Releases - [0.11.4](#0114), [0.11.3](#0113), [0.11.2](#0112), [0.11.1](#0111), [0.11.0](#0110)
+- `0.11.x` Releases - [0.11.5](#0115), [0.11.4](#0114), [0.11.3](#0113), [0.11.2](#0112), [0.11.1](#0111), [0.11.0](#0110)
 - `0.10.x` Releases - [0.10.0](#0100)                     
 - `0.9.x` Releases - [0.9.2](#092), [0.9.1.1](#0911), [0.9.1](#091), [0.9.0.1](#0901), [0.9.0](#090)
+
+## [0.11.5](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.11.5)
+
+Released on 2018-02-19.
+
+### Added
+
+- Added new overridable `JaxRsApiExceptionHandler.setContentType(...)` method to allow you to send a `Content-Type`
+response header other than `application/json` in JAX-RS based Backstopper projects. Still defaults to `application/json` 
+as before for backwards compatibility.
+    - Added by [Nic Munroe][contrib_nicmunroe] in pull request [#31](https://github.com/Nike-Inc/backstopper/pull/31). 
 
 ## [0.11.4](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.11.4)
 
