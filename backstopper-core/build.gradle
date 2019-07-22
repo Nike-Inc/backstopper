@@ -12,6 +12,9 @@ dependencies {
             "javax.inject:javax.inject:$javaxInjectVersion",
             "javax.validation:validation-api:$javaxValidationVersion"
     )
+    compileOnly(
+            "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
+    )
     testCompile(
             "junit:junit:$junitVersion",
             "org.mockito:mockito-core:$mockitoVersion",

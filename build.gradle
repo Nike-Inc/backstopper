@@ -87,6 +87,8 @@ ext {
     hamcrestVersion = '1.3'
     hibernateValidatorVersion = '4.3.0.Final'
 
+    jetbrainsAnnotationsVersion = '16.0.3'
+
     orgReflectionsVersion = '0.9.11'
     javassistVersion = '3.18.2-GA'
 

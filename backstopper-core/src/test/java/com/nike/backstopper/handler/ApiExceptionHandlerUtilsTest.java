@@ -8,8 +8,13 @@ import com.nike.internal.util.MapBuilder;
 import com.nike.internal.util.Pair;
 import com.nike.internal.util.StringUtils;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.MDC;
@@ -29,6 +34,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,6 +44,7 @@ import static org.mockito.Mockito.when;
  *
  * @author Nic Munroe
  */
+@RunWith(DataProviderRunner.class)
 public class ApiExceptionHandlerUtilsTest {
 
     @Mock
@@ -229,6 +236,82 @@ public class ApiExceptionHandlerUtilsTest {
     public void buildErrorMessageForLogsReturnsExpectedStringForValidDtraceId() {
         verifyBuildErrorMessageForLogs(true, "1234645", null);
         verifyBuildErrorMessageForLogs(true, "1234645", Arrays.asList(Pair.of("foo", "bar"), Pair.of("feefi", "fofum"), Pair.of("stuff", "things"), Pair.of("boo", "whee")));
+    }
+
+    @DataProvider(value = {
+        "true",
+        "false"
+    })
+    @Test
+    public void buildErrorMessageForLogs_includes_orig_error_request_uri_when_available_in_request_attrs(
+        boolean isErrorRequestUriValueInAttrs
+    ) {
+        // given
+        StringBuilder sb = new StringBuilder();
+        RequestInfoForLogging request = mock(RequestInfoForLogging.class);
+
+        String origErrorRequestUriValue = UUID.randomUUID().toString();
+        if (isErrorRequestUriValueInAttrs) {
+            doReturn(origErrorRequestUriValue).when(request).getAttribute("javax.servlet.error.request_uri");
+        }
+
+        // when
+        impl.buildErrorMessageForLogs(
+            sb,
+            request,
+            Collections.emptyList(),
+            400,
+            new RuntimeException("intentional test exception"), Collections.emptyList()
+        );
+
+        // then
+        String result = sb.toString();
+        if (isErrorRequestUriValueInAttrs) {
+            Assertions.assertThat(result)
+                      .contains(String.format("orig_error_request_uri=\"%s\"", origErrorRequestUriValue));
+        }
+        else {
+            Assertions.assertThat(result).doesNotContain("orig_error_request_uri");
+        }
+    }
+
+    @DataProvider(value = {
+        "foo    |   null    |   foo",
+        "null   |   bar     |   bar",
+        "foo    |   bar     |   foo",
+        "null   |   null    |   null",
+    }, splitBy = "\\|")
+    @Test
+    public void buildErrorMessageForLogs_includes_orig_forwarded_request_uri_when_available_in_request_attrs(
+        String forwardedRequestUriAttrValue,
+        String forwardedPathInfoAttrValue,
+        String expectedResult
+    ) {
+        // given
+        StringBuilder sb = new StringBuilder();
+        RequestInfoForLogging request = mock(RequestInfoForLogging.class);
+
+        doReturn(forwardedRequestUriAttrValue).when(request).getAttribute("javax.servlet.forward.request_uri");
+        doReturn(forwardedPathInfoAttrValue).when(request).getAttribute("javax.servlet.forward.path_info");
+
+        // when
+        impl.buildErrorMessageForLogs(
+            sb,
+            request,
+            Collections.emptyList(),
+            400,
+            new RuntimeException("intentional test exception"), Collections.emptyList()
+        );
+
+        // then
+        String result = sb.toString();
+        if (expectedResult == null) {
+            Assertions.assertThat(result).doesNotContain("orig_forwarded_request_uri");
+        }
+        else {
+            Assertions.assertThat(result)
+                      .contains(String.format("orig_forwarded_request_uri=\"%s\"", expectedResult));
+        }
     }
 
     @Test
