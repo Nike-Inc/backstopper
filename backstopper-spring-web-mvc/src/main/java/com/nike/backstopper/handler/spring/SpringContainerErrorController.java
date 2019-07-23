@@ -31,12 +31,20 @@ import static com.nike.backstopper.handler.spring.SpringContainerErrorController
  * prevent this controller from being registered when your application is running in a Springboot environment, since
  * this controller listens on the same path as Springboot's default {@code BasicErrorController} and we'd get a
  * conflict otherwise.
+ *
+ * <p>If you're in a Springboot environment, you should pull in the {@code backstopper-spring-boot1} or
+ * {@code backstopper-spring-boot2} library (whichever is appropriate for your app) and register
+ * {@code BackstopperSpringboot[1/2]ContainerErrorController} to take the place of this class (and override the default
+ * {@code BasicErrorController}).
  */
 @Controller
 @RequestMapping("${server.error.path:${error.path:/error}}")
 // Use a @Conditional to prevent this class from being registered if we're running in a Springboot 1 or Springboot 2
 //      application. This is necessary because this class would conflict with the auto-registered BasicErrorController
 //      since they both listen to the same path.
+// As mentioned in the class javadocs, if you're in a Springboot environment then you should pull in the
+//      backstopper-spring-boot1 or backstopper-spring-boot2 library and
+//      register BackstopperSpringboot[1/2]ContainerErrorController to take the place of this class.
 @Conditional(SpringbootErrorControllerIsNotOnClasspath.class)
 public class SpringContainerErrorController {
 

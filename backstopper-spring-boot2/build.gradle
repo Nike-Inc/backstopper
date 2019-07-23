@@ -1,0 +1,34 @@
+evaluationDependsOn(':')
+
+compileTestJava {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+ext {
+    // Springboot 2 requires Servlet API to be at least version 4.0.0
+    servletApiForSpringboot2Version = '4.0.0'
+}
+
+dependencies {
+    compile(
+            project(":backstopper-spring-web-mvc"),
+    )
+    compileOnly(
+            "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
+            "org.springframework.boot:spring-boot-autoconfigure:$springboot2Version",
+            "org.springframework:spring-webmvc:$spring5Version",
+            "javax.servlet:javax.servlet-api:$servletApiForSpringboot2Version",
+    )
+    testCompile(
+            "junit:junit:$junitVersion",
+            "org.mockito:mockito-core:$mockitoVersion",
+            "ch.qos.logback:logback-classic:$logbackVersion",
+            "org.assertj:assertj-core:$assertJVersion",
+            "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
+            "javax.servlet:javax.servlet-api:$servletApiVersion",
+            "io.rest-assured:rest-assured:$restAssuredVersion",
+            "javax.servlet:javax.servlet-api:$servletApiForSpringboot2Version",
+            "org.springframework.boot:spring-boot-starter-web:$springboot2Version",
+    )
+}
