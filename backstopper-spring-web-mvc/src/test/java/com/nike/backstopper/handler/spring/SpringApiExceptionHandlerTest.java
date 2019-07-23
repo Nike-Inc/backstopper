@@ -8,6 +8,7 @@ import com.nike.backstopper.handler.spring.listener.ApiExceptionHandlerListenerL
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.core.Ordered;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Collections;
@@ -84,6 +85,20 @@ public class SpringApiExceptionHandlerTest {
 
         // then
         assertThat(handlerSpy.getOrder()).isEqualTo(newOrder);
+    }
+
+    @Test
+    public void default_order_is_highest_precedence_plus_one() {
+        // given
+        SpringApiExceptionHandler impl = new SpringApiExceptionHandler(
+            projectApiErrorsMock, listenerList, generalUtils, springUtils
+        );
+
+        // when
+        int defaultOrder = impl.getOrder();
+
+        // then
+        assertThat(defaultOrder).isEqualTo(Ordered.HIGHEST_PRECEDENCE + 1);
     }
 
 }
