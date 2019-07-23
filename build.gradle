@@ -67,6 +67,12 @@ jar.enabled = false
 sourcesJar.enabled = false
 javadocJar.enabled = false
 
+// No javadoc for sample or testonly modules.
+configure(subprojects.findAll { it.name.startsWith("sample") || it.name.startsWith("testonly") }) {
+    javadoc.enabled = false
+    javadocJar.enabled = false
+}
+
 // ========== PROPERTIES FOR GRADLE BUILD - DEPENDENCY VERSIONS / ETC
 ext {
     slf4jVersion = '1.7.7'
