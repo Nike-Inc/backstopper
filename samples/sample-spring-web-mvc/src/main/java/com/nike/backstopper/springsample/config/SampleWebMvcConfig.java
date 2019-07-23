@@ -1,11 +1,13 @@
 package com.nike.backstopper.springsample.config;
 
 import com.nike.backstopper.apierror.projectspecificinfo.ProjectApiErrors;
+import com.nike.backstopper.handler.spring.config.BackstopperSpringWebMvcConfig;
+import com.nike.backstopper.springsample.controller.SampleController;
 import com.nike.backstopper.springsample.error.SampleProjectApiErrorsImpl;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
@@ -17,15 +19,20 @@ import javax.validation.Validator;
  * in this class are needed for autowiring Backstopper and the {@link ProjectApiErrors} in particular allows you
  * to specify project-specific errors and behaviors.
  *
- * <p>NOTE: This pulls in and autowires up Backstopper by component scanning all of the {@code com.nike.backstopper}
- * package and its subpackages. Alternately you can {@link org.springframework.context.annotation.Import} {@link
- * com.nike.backstopper.handler.spring.config.BackstopperSpringWebMvcConfig} which would have the same effect, but
- * would be a little more specific in what packages it scanned.
+ * <p>NOTE: This integrates Backstopper by {@link Import}ing {@link BackstopperSpringWebMvcConfig}. Alternatively,
+ * you could integrate Backstopper by component scanning all of the {@code com.nike.backstopper} package and its
+ * subpackages, e.g. by annotating with
+ * {@link org.springframework.context.annotation.ComponentScan @ComponentScan(basePackages = "com.nike.backstopper")}.
  *
  * @author Nic Munroe
  */
 @Configuration
-@ComponentScan(basePackages = "com.nike.backstopper")
+@Import({
+    // Import core Backstopper+Spring support.
+    BackstopperSpringWebMvcConfig.class,
+    // Import this sample app's controller.
+    SampleController.class
+})
 @EnableWebMvc
 public class SampleWebMvcConfig extends WebMvcConfigurerAdapter {
 

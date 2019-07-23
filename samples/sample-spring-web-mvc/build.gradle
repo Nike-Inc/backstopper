@@ -12,6 +12,9 @@ dependencies {
             "org.hibernate:hibernate-validator:$hibernateValidatorVersion",
             "org.eclipse.jetty:jetty-webapp:$jettyVersion"
     )
+    compileOnly(
+            "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
+    )
     testCompile(
             project(":backstopper-reusable-tests"),
             "junit:junit:$junitVersion",

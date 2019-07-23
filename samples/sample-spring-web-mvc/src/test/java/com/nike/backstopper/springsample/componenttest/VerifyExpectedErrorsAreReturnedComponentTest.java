@@ -310,6 +310,24 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
     }
 
     @Test
+    public void verify_ERROR_THROWN_IN_SERVLET_FILTER_OUTSIDE_SPRING_returned_if_servlet_filter_trigger_occurs() {
+        ExtractableResponse response =
+            given()
+                .baseUri("http://localhost")
+                .port(SERVER_PORT)
+                .basePath(SAMPLE_PATH)
+                .header("throw-servlet-filter-exception", "true")
+                .log().all()
+            .when()
+                .get()
+            .then()
+                .log().all()
+                .extract();
+
+        verifyErrorReceived(response, SampleProjectApiError.ERROR_THROWN_IN_SERVLET_FILTER_OUTSIDE_SPRING);
+    }
+
+    @Test
     public void verify_METHOD_NOT_ALLOWED_returned_if_known_path_is_requested_with_invalid_http_method() throws InterruptedException, IOException {
         ExtractableResponse response =
             given()

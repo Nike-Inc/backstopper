@@ -33,6 +33,9 @@ As you are doing the following you should check the logs that are output by the 
 * `DELETE /sample` - Triggers a framework 405 which Backstopper handles.   
 * `GET /sample` with `Accept: application/octet-stream` header - Triggers a framework 406 which Backstopper handles.
 * `POST /sample` with `ContentType: text/plain` - Triggers a framework 415 which Backstopper handles.
+* Any request with a `throw-servlet-filter-exception` header set to `true`. This will trigger an exception in a
+Servlet filter before the request ever hits Spring. The Jetty container for this sample app is configured (in 
+`Main.java`) to forward these kinds of errors back into Spring, where it is handled by Backstopper.
 
 ## More Info
 
