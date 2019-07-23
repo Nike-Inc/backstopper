@@ -20,8 +20,18 @@ Servlet-based Spring MVC requests the same in Spring 4 / Spring 5 / Spring Boot 
 ### Setup
 
 * Pull in the `com.nike.backstopper:backstopper-spring-web-mvc` dependency into your project.
-* Register Backstopper components with Spring Web MVC, either via `@Import({BackstopperSpringWebMvcConfig.class})`, or `@ComponentScan(basePackages = "com.nike.backstopper")`. See the javadocs on `BackstopperSpringWebMvcConfig` for some related details.
-    * This causes `SpringApiExceptionHandler` and `SpringUnhandledExceptionHandler` to be registered with the Spring Web MVC error handling chain in a way that overrides the default Spring Web MVC error handlers so that the Backstopper handlers will take care of *all* errors. It sets up `SpringApiExceptionHandler` with a default list of `ApiExceptionHandlerListener` listeners that should be sufficient for most projects. You can override that list of listeners (and/or many other Backstopper components) if needed in your project's Spring config.
+* Register Backstopper components with Spring Web MVC, either via `@Import({BackstopperSpringWebMvcConfig.class})`, or 
+`@ComponentScan(basePackages = "com.nike.backstopper")`. See the javadocs on `BackstopperSpringWebMvcConfig` for some 
+related details.
+    * This causes `SpringApiExceptionHandler` and `SpringUnhandledExceptionHandler` to be registered with the Spring 
+    Web MVC error handling chain in a way that overrides the default Spring Web MVC error handlers so that the 
+    Backstopper handlers will take care of *all* errors. It sets up `SpringApiExceptionHandler` with a default list 
+    of `ApiExceptionHandlerListener` listeners that should be sufficient for most projects. You can override that list 
+    of listeners (and/or many other Backstopper components) if needed in your project's Spring config.
+    * It also registers `SpringContainerErrorController` to handle errors that happen outside Spring 
+    Web MVC (i.e. in the Servlet container), and make sure they're routed through Backstopper as well. Note that you'll
+    need to configure your Servlet container to route container errors to the path this controller listens on 
+    (default `/error`) for it to work.
 * Expose your project's `ProjectApiErrors` and a JSR 303 `javax.validation.Validator` implementation in your Spring dependency injection config.
     * `ProjectApiErrors` creation is discussed in the base Backstopper readme [here](../README.md#quickstart_usage_project_api_errors).
     * JSR 303 setup and generation of a `Validator` is discussed in the Backstopper User Guide [here](../USER_GUIDE.md#jsr_303_basic_setup). If you're not going to be doing any JSR 303 validation outside what is built-in supported by Spring Web MVC, *and* you don't want to bother jumping through the hoops to get a handle on Spring's JSR 303 validator impl provided by `WebMvcConfigurer.getValidator()`, *and* you don't want to bother creating a real `Validator` yourself then you can simply register `NoOpJsr303Validator#SINGLETON_IMPL` as the `Validator` that gets exposed by your Spring config. `ClientDataValidationService` and `FailFastServersideValidationService` would fail to do anything, but if you don't use those then it wouldn't matter. 

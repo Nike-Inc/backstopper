@@ -254,6 +254,22 @@ public class ClientfacingErrorITest extends BaseSpringEnabledValidationTestCase 
                 ClientDataValidationError.class);
     }
 
+    @Test
+    public void verify_SpringContainerErrorController_is_registered_and_listening_on_error_path() throws Exception {
+        MvcResult result = this.mockMvc.perform(get("/error")).andReturn();
+        verifyErrorResponse(result, projectApiErrors, projectApiErrors.getGenericServiceError(), ApiException.class);
+        ApiException apiEx = (ApiException) result.getResolvedException();
+        Assertions.assertThat(apiEx.getMessage()).isEqualTo(
+            "Synthetic exception for unhandled container status code: null"
+        );
+        Assertions.assertThat(apiEx.getExtraDetailsForLogging()).isEqualTo(singletonList(
+            Pair.of(
+                "synthetic_exception_for_unhandled_status_code",
+                "null"
+            ))
+        );
+    }
+
     private static class DummyRequestObject implements Serializable {
         @Min(value=1, message="INVALID_COUNT_VALUE")
         public String count;

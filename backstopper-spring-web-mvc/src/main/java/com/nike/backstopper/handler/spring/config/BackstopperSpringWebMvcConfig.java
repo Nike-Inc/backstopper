@@ -5,11 +5,13 @@ import com.nike.backstopper.apierror.sample.SampleProjectApiErrorsBase;
 import com.nike.backstopper.handler.ApiExceptionHandlerBase;
 import com.nike.backstopper.handler.spring.SpringApiExceptionHandler;
 import com.nike.backstopper.handler.spring.SpringApiExceptionHandlerUtils;
+import com.nike.backstopper.handler.spring.SpringContainerErrorController;
 import com.nike.backstopper.handler.spring.SpringUnhandledExceptionHandler;
 import com.nike.backstopper.handler.spring.listener.ApiExceptionHandlerListenerList;
 import com.nike.backstopper.service.ClientDataValidationService;
 import com.nike.backstopper.service.FailFastServersideValidationService;
 import com.nike.backstopper.service.NoOpJsr303Validator;
+import com.nike.backstopper.servletapi.UnhandledServletContainerErrorHelper;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -26,8 +28,14 @@ import javax.validation.Validator;
  * the caller so that they conform to the API error contract. See the {@link SpringApiExceptionHandler} and {@link
  * SpringUnhandledExceptionHandler} classes themselves for more info.
  *
- * <p>Most of the necessary dependencies are setup for autowiring so this should be sufficient to enable Backstopper
- * error handling in your Spring Web MVC application, except for two things:
+ * This also pulls in {@link SpringContainerErrorController} to handle exceptions that originate in the
+ * Servlet container outside Spring proper so they can also be handled by Backstopper. Note that you'll need to
+ * configure your Servlet container to forward exceptions and errors it handles outside of Spring to {@code /error} for
+ * {@link SpringContainerErrorController} to be able to handle them. See {@link SpringContainerErrorController}'s
+ * javadocs for details.
+ *
+ * <p>Most of the necessary dependencies are setup for autowiring so this configuration class should be sufficient to
+ * enable Backstopper error handling in your Spring Web MVC application, except for two things:
  * <ol>
  *     <li>
  *         Backstopper needs to know what your {@link ProjectApiErrors} is. You must expose an instance of that class
@@ -60,7 +68,8 @@ import javax.validation.Validator;
 @ComponentScan(basePackageClasses = {
     ApiExceptionHandlerBase.class, // Covers the core exception handler base classes, utils, and listener subpackages.
     ClientDataValidationService.class, // Covers the JSR 303 service additions.
-    SpringApiExceptionHandler.class // Covers the Spring Web MVC additions and subclasses.
+    SpringApiExceptionHandler.class, // Covers the Spring Web MVC additions and subclasses.
+    UnhandledServletContainerErrorHelper.class, // Covers UnhandledServletContainerErrorHelper.
 })
 public class BackstopperSpringWebMvcConfig {
 

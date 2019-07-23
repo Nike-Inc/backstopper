@@ -15,6 +15,7 @@ dependencies {
             project(":backstopper-jackson"),
     )
     compileOnly(
+            "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
             "org.springframework:spring-webmvc:$springVersion",
             "javax.servlet:javax.servlet-api:$servletApiVersion",
     )
