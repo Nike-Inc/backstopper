@@ -10,6 +10,20 @@ It contains the following classes:
 * **`UnhandledExceptionHandlerServletApiBase`** - An extension of the core `UnhandledExceptionHandlerBase` that takes in a `HttpServletRequest` and `HttpServletResponse` and does the necessary adaptation for calling the `UnhandledExceptionHandlerBase` `super` methods.
 * **`RequestInfoForLoggingServletApiAdapter`** - The adapter used by `ApiExceptionHandlerServletApiBase` and `UnhandledExceptionHandlerServletApiBase` for exposing `HttpServletRequest` as the `RequestInfoForLogging` needed by the core Backstopper components.  
 
+## NOTE - Servlet API dependency required at runtime
+
+This `backstopper-servlet-api` module does not export any transitive Servlet API dependency to prevent runtime 
+version conflicts with whatever Servlet environment you deploy to. 
+
+This should not affect most users since this library is likely to be used in a Servlet environment where the
+required dependencies are already on the classpath at runtime, however if you receive class-not-found errors related to 
+Servlet API classes then you'll need to pull the necessary dependency into your project. 
+
+The dependency you may need to pull in (choose one of the following, depending on your environment needs):
+
+* Servlet 3+ API: [javax.servlet:javax.servlet-api:\[servlet-api-version\]](https://search.maven.org/search?q=g:javax.servlet%20AND%20a:javax.servlet-api) 
+* Servlet 2 API: [javax.servlet:servlet-api:\[servlet-2-api-version\]](https://search.maven.org/search?q=g:javax.servlet%20AND%20a:servlet-api)
+
 ## More Info
 
 See the [base project README.md](../README.md), [User Guide](../USER_GUIDE.md), and Backstopper repository source code and javadocs for all further information.

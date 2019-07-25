@@ -5,6 +5,11 @@ compileTestJava {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
+ext {
+    // This module should use AssertJ 2.x by default so it's compatible with projects that are still on Java 7.
+    assertJ2Version = '2.9.1'
+}
+
 dependencies {
     compile(
             project(":backstopper-core"),
@@ -17,7 +22,7 @@ dependencies {
             "junit:junit:$junitVersion",
             "org.mockito:mockito-core:$mockitoVersion",
             "ch.qos.logback:logback-classic:$logbackVersion",
-            "org.assertj:assertj-core:$assertJVersion",
+            "org.assertj:assertj-core:$assertJ2Version",
             "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
             "org.hamcrest:hamcrest-all:$hamcrestVersion",
             "org.reflections:reflections:$orgReflectionsVersion",
