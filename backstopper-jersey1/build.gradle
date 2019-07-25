@@ -9,7 +9,10 @@ dependencies {
     compile(
             project(":backstopper-servlet-api"),
             project(":backstopper-jackson"),
-            "com.sun.jersey:jersey-server:$jersey1Version"
+    )
+    compileOnly(
+            "com.sun.jersey:jersey-server:$jersey1Version",
+            "javax.servlet:javax.servlet-api:$servletApiVersion",
     )
     testCompile(
             project(":backstopper-core").sourceSets.test.output,
@@ -18,6 +21,8 @@ dependencies {
             "ch.qos.logback:logback-classic:$logbackVersion",
             "org.assertj:assertj-core:$assertJVersion",
             "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
-            "org.hamcrest:hamcrest-all:$hamcrestVersion"
+            "org.hamcrest:hamcrest-all:$hamcrestVersion",
+            "com.sun.jersey:jersey-server:$jersey1Version",
+            "javax.servlet:javax.servlet-api:$servletApiVersion",
     )
 }

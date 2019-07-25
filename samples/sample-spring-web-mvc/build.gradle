@@ -7,6 +7,7 @@ dependencies {
     compile(
             project(":backstopper-spring-web-mvc"),
             project(":backstopper-custom-validators"),
+            "org.springframework:spring-webmvc:$springVersion",
             "ch.qos.logback:logback-classic:$logbackVersion",
             "org.hibernate:hibernate-validator:$hibernateValidatorVersion",
             "org.eclipse.jetty:jetty-webapp:$jettyVersion"

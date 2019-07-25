@@ -8,6 +8,15 @@ This readme focuses specifically on the Backstopper Spring Web MVC integration. 
 
 ## Backstopper Spring Web MVC Setup, Configuration, and Usage
 
+### Spring / Spring Boot Versions
+
+This `backstopper-spring-web-mvc` library can be used in any Spring `4.3.x` environment or later. This includes
+Spring 5, Spring Boot 1, and Spring Boot 2.
+
+NOTE: This library does not yet have support for the new Spring 5 WebFlux features, but it will cover the traditional
+Servlet-based Spring MVC requests the same in Spring 4 / Spring 5 / Spring Boot 1 / Spring Boot 2.
+ 
+
 ### Setup
 
 * Pull in the `com.nike.backstopper:backstopper-spring-web-mvc` dependency into your project.
@@ -39,6 +48,22 @@ This method signature with the two `@Valid` annotations would cause both the `@M
 
 This feature allows you to enjoy the Backstopper JSR 303 validation integration support automatically at the point where caller-provided data is deserialized and passed to your controller endpoint without having to inject and manually call a `ClientDataValidationService`.
 
+## NOTE - Spring WebMVC and Servlet API dependencies required at runtime
+
+This `backstopper-spring-web-mvc` module does not export any transitive Spring or Servlet API dependencies to prevent runtime 
+version conflicts with whatever Spring and Servlet environment you deploy to. 
+
+This should not affect most users since this library is likely to be used in a Spring/Servlet environment where the
+required dependencies are already on the classpath at runtime, however if you receive class-not-found errors related to 
+Spring or Servlet API classes then you'll need to pull the necessary dependency into your project. 
+
+The dependencies you may need to pull in:
+
+* Spring Web MVC: [org.springframework:spring-webmvc:\[spring-version\]](https://search.maven.org/search?q=g:org.springframework%20AND%20a:spring-webmvc)
+* Servlet API (choose one of the following, depending on your environment needs):
+    + Servlet 3+ API: [javax.servlet:javax.servlet-api:\[servlet-api-version\]](https://search.maven.org/search?q=g:javax.servlet%20AND%20a:javax.servlet-api) 
+    + Servlet 2 API: [javax.servlet:servlet-api:\[servlet-2-api-version\]](https://search.maven.org/search?q=g:javax.servlet%20AND%20a:servlet-api)
+    
 ## More Info
 
 See the [base project README.md](../README.md), [User Guide](../USER_GUIDE.md), and Backstopper repository source code and javadocs for all further information.
