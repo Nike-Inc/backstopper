@@ -43,15 +43,16 @@ public class SpringApiExceptionHandler extends ApiExceptionHandlerServletApiBase
 
     /**
      * The sort order for where this handler goes in the spring exception handler chain. We default to {@link
-     * Ordered#HIGHEST_PRECEDENCE} so that this is tried first before any other handlers.
+     * Ordered#HIGHEST_PRECEDENCE} plus one, so that this is tried first before any other handlers but after
+     * Springboot's {@code DefaultErrorAttributes} (or any other similar handler that adds some error context info to
+     * the servlet request attributes but doesn't actually handle the error).
      */
-    private int order = Ordered.HIGHEST_PRECEDENCE;
+    private int order = Ordered.HIGHEST_PRECEDENCE + 1;
 
     @SuppressWarnings("WeakerAccess")
     protected final SpringApiExceptionHandlerUtils springUtils;
 
     @Inject
-    @SuppressWarnings("WeakerAccess")
     public SpringApiExceptionHandler(ProjectApiErrors projectApiErrors,
                                      ApiExceptionHandlerListenerList apiExceptionHandlerListeners,
                                      ApiExceptionHandlerUtils generalUtils,
@@ -102,7 +103,7 @@ public class SpringApiExceptionHandler extends ApiExceptionHandlerServletApiBase
     /**
      * See the javadocs for {@link #order} for info on what this is for.
      */
-    @SuppressWarnings({"unused", "WeakerAccess"})
+    @SuppressWarnings({"unused"})
     public void setOrder(int order) {
         this.order = order;
     }
