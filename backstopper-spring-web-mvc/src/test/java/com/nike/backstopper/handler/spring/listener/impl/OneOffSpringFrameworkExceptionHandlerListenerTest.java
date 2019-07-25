@@ -26,6 +26,16 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AccountExpiredException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.CredentialsExpiredException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.authentication.LockedException;
+import org.springframework.security.authentication.rcp.RemoteAuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -440,6 +450,53 @@ public class OneOffSpringFrameworkExceptionHandlerListenerTest extends ListenerT
 
         // then
         validateResponse(result, true, singletonList(testProjectApiErrors.getNotFoundApiError()));
+    }
+
+    @DataProvider
+    public static List<List<Throwable>> unauthorized401ExceptionsDataProvider() {
+        return Stream.<Throwable>of(
+            new BadCredentialsException("foo"),
+            new InsufficientAuthenticationException("foo"),
+            new AuthenticationCredentialsNotFoundException("foo"),
+            new LockedException("foo"),
+            new DisabledException("foo"),
+            new CredentialsExpiredException("foo"),
+            new AccountExpiredException("foo"),
+            new UsernameNotFoundException("foo"),
+            new RemoteAuthenticationException("foo")
+        ).map(Collections::singletonList)
+         .collect(Collectors.toList());
+    }
+
+    @UseDataProvider("unauthorized401ExceptionsDataProvider")
+    @Test
+    public void shouldHandleException_returns_UNAUTHORIZED_for_exceptions_that_map_to_401(
+        Throwable ex
+    ) {
+        // when
+        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
+
+        // then
+        validateResponse(result, true, singletonList(testProjectApiErrors.getUnauthorizedApiError()));
+    }
+
+    @DataProvider
+    public static List<List<Throwable>> forbidden403ExceptionsDataProvider() {
+        return singletonList(
+            singletonList(new AccessDeniedException("foo"))
+        );
+    }
+
+    @UseDataProvider("forbidden403ExceptionsDataProvider")
+    @Test
+    public void shouldHandleException_returns_FORBIDDEN_for_exceptions_that_map_to_403(
+        Throwable ex
+    ) {
+        // when
+        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
+
+        // then
+        validateResponse(result, true, singletonList(testProjectApiErrors.getForbiddenApiError()));
     }
 
     @DataProvider

@@ -5,6 +5,10 @@ compileTestJava {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
+ext {
+    springSecurityVersion = '4.2.13.RELEASE'
+}
+
 dependencies {
     compile(
             project(":backstopper-servlet-api"),
@@ -21,6 +25,7 @@ dependencies {
             "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
             "org.hamcrest:hamcrest-all:$hamcrestVersion",
             "org.springframework:spring-test:$springVersion",
-            "org.hibernate:hibernate-validator:$hibernateValidatorVersion"
+            "org.hibernate:hibernate-validator:$hibernateValidatorVersion",
+            "org.springframework.security:spring-security-core:$springSecurityVersion",
     )
 }

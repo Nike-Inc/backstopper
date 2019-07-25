@@ -27,16 +27,20 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 import static com.nike.backstopper.apierror.SortedApiErrorSet.singletonSortedSetOf;
+import static java.util.Collections.singleton;
 
 /**
  * Handles the one-off spring framework exceptions that don't fall into any other {@link ApiExceptionHandlerListener}'s
@@ -51,6 +55,24 @@ public class OneOffSpringFrameworkExceptionHandlerListener implements ApiExcepti
 
     protected final ProjectApiErrors projectApiErrors;
     protected final ApiExceptionHandlerUtils utils;
+
+    // Support Spring Security exceptions that should map to a 403.
+    protected final Set<String> DEFAULT_TO_403_CLASSNAMES = singleton(
+        "org.springframework.security.access.AccessDeniedException"
+    );
+
+    // Support Spring Security exceptions that should map to a 401.
+    protected final Set<String> DEFAULT_TO_401_CLASSNAMES = new LinkedHashSet<>(Arrays.asList(
+        "org.springframework.security.authentication.BadCredentialsException",
+        "org.springframework.security.authentication.InsufficientAuthenticationException",
+        "org.springframework.security.authentication.AuthenticationCredentialsNotFoundException",
+        "org.springframework.security.authentication.LockedException",
+        "org.springframework.security.authentication.DisabledException",
+        "org.springframework.security.authentication.CredentialsExpiredException",
+        "org.springframework.security.authentication.AccountExpiredException",
+        "org.springframework.security.core.userdetails.UsernameNotFoundException",
+        "org.springframework.security.authentication.rcp.RemoteAuthenticationException"
+    ));
 
     /**
      * @param projectApiErrors The {@link ProjectApiErrors} that should be used by this instance when finding {@link
@@ -221,6 +243,14 @@ public class OneOffSpringFrameworkExceptionHandlerListener implements ApiExcepti
             handledErrors = singletonSortedSetOf(projectApiErrors.getTemporaryServiceProblemApiError());
         }
 
+        if (isA401UnauthorizedExceptionClassname(exClassname)) {
+            handledErrors = singletonSortedSetOf(projectApiErrors.getUnauthorizedApiError());
+        }
+
+        if (isA403ForibddenExceptionClassname(exClassname)) {
+            handledErrors = singletonSortedSetOf(projectApiErrors.getForbiddenApiError());
+        }
+
         if (handledErrors != null) {
             return ApiExceptionHandlerListenerResult.handleResponse(handledErrors, extraDetailsForLogging);
         }
@@ -315,5 +345,13 @@ public class OneOffSpringFrameworkExceptionHandlerListener implements ApiExcepti
         }
 
         return false;
+    }
+
+    protected boolean isA403ForibddenExceptionClassname(String exClassname) {
+        return DEFAULT_TO_403_CLASSNAMES.contains(exClassname);
+    }
+
+    protected boolean isA401UnauthorizedExceptionClassname(String exClassname) {
+        return DEFAULT_TO_401_CLASSNAMES.contains(exClassname);
     }
 }
