@@ -5,9 +5,7 @@ import com.nike.backstopper.handler.listener.ApiExceptionHandlerListenerResult;
 
 import java.util.Collection;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Base class for the test classes testing the various {@link com.nike.backstopper.handler.listener.ApiExceptionHandlerListener} implementations.
@@ -19,14 +17,11 @@ public abstract class ListenerTestBase {
 
     protected void validateResponse(ApiExceptionHandlerListenerResult result, boolean expectedShouldHandle, Collection<? extends ApiError> expectedErrors) {
         if (!expectedShouldHandle) {
-            assertThat(result.shouldHandleResponse, is(false));
+            assertThat(result.shouldHandleResponse).isFalse();
             return;
         }
 
-        assertThat(result.errors.size(), is(expectedErrors.size()));
-        for(ApiError error : expectedErrors) {
-            assertTrue(result.errors.contains(error));
-        }
+        assertThat(result.errors).containsExactlyInAnyOrderElementsOf(expectedErrors);
     }
 
 }

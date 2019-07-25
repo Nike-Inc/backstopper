@@ -2,7 +2,6 @@ package com.nike.backstopper.handler.spring.listener.impl;
 
 import com.nike.backstopper.apierror.ApiError;
 import com.nike.backstopper.apierror.ApiErrorWithMetadata;
-import com.nike.backstopper.apierror.SortedApiErrorSet;
 import com.nike.backstopper.apierror.projectspecificinfo.ProjectApiErrors;
 import com.nike.backstopper.handler.ApiExceptionHandlerUtils;
 import com.nike.backstopper.handler.listener.ApiExceptionHandlerListener;
@@ -11,27 +10,36 @@ import com.nike.internal.util.Pair;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 
+import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.method.annotation.MethodArgumentConversionNotSupportedException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 import static com.nike.backstopper.apierror.SortedApiErrorSet.singletonSortedSetOf;
+import static java.util.Collections.singleton;
 
 /**
  * Handles the one-off spring framework exceptions that don't fall into any other {@link ApiExceptionHandlerListener}'s
@@ -46,6 +54,24 @@ public class OneOffSpringFrameworkExceptionHandlerListener implements ApiExcepti
 
     protected final ProjectApiErrors projectApiErrors;
     protected final ApiExceptionHandlerUtils utils;
+
+    // Support Spring Security exceptions that should map to a 403.
+    protected final Set<String> DEFAULT_TO_403_CLASSNAMES = singleton(
+        "org.springframework.security.access.AccessDeniedException"
+    );
+
+    // Support Spring Security exceptions that should map to a 401.
+    protected final Set<String> DEFAULT_TO_401_CLASSNAMES = new LinkedHashSet<>(Arrays.asList(
+        "org.springframework.security.authentication.BadCredentialsException",
+        "org.springframework.security.authentication.InsufficientAuthenticationException",
+        "org.springframework.security.authentication.AuthenticationCredentialsNotFoundException",
+        "org.springframework.security.authentication.LockedException",
+        "org.springframework.security.authentication.DisabledException",
+        "org.springframework.security.authentication.CredentialsExpiredException",
+        "org.springframework.security.authentication.AccountExpiredException",
+        "org.springframework.security.core.userdetails.UsernameNotFoundException",
+        "org.springframework.security.authentication.rcp.RemoteAuthenticationException"
+    ));
 
     /**
      * @param projectApiErrors The {@link ProjectApiErrors} that should be used by this instance when finding {@link
@@ -68,54 +94,124 @@ public class OneOffSpringFrameworkExceptionHandlerListener implements ApiExcepti
         this.utils = utils;
     }
 
+    // NOTE: If you're comparing the exception handling done in this method with Spring's
+    //      DefaultHandlerExceptionResolver and/or ResponseEntityExceptionHandler to verify completeness, keep in
+    //      mind that MethodArgumentNotValidException and BindException are handled by
+    //      ConventionBasedSpringValidationErrorToApiErrorHandlerListener - they should not be handled here.
     @Override
     public ApiExceptionHandlerListenerResult shouldHandleException(Throwable ex) {
-        SortedApiErrorSet handledErrors = null;
         List<Pair<String, String>> extraDetailsForLogging = new ArrayList<>();
 
-        if (ex instanceof NoHandlerFoundException) {
-            handledErrors = singletonSortedSetOf(projectApiErrors.getNotFoundApiError());
+        String exClassname = (ex == null) ? null : ex.getClass().getName();
+
+        if (
+            ex instanceof NoHandlerFoundException
+            // NoSuchRequestHandlingMethodException is a deprecated Spring 4.x exception that doesn't appear in
+            //      Spring 5 but should be translated to a 404.
+            || Objects.equals(exClassname, "org.springframework.web.servlet.mvc.multiaction.NoSuchRequestHandlingMethodException")
+        ) {
+            return handleError(projectApiErrors.getNotFoundApiError(), extraDetailsForLogging);
         }
 
         if (ex instanceof TypeMismatchException) {
-            TypeMismatchException tme = (TypeMismatchException) ex;
-            Map<String, Object> metadata = new LinkedHashMap<>();
-
-            utils.addBaseExceptionMessageToExtraDetailsForLogging(ex, extraDetailsForLogging);
-
-            String badPropName = extractPropertyName(tme);
-            String badPropValue = (tme.getValue() == null) ? null : String.valueOf(tme.getValue());
-            String requiredTypeNoInfoLeak = extractRequiredTypeNoInfoLeak(tme);
-
-            extraDetailsForLogging.add(Pair.of("bad_property_name", badPropName));
-            if (badPropName != null) {
-                metadata.put("bad_property_name", badPropName);
-            }
-            extraDetailsForLogging.add(Pair.of("bad_property_value", String.valueOf(tme.getValue())));
-            if (badPropValue != null) {
-                metadata.put("bad_property_value", badPropValue);
-            }
-            extraDetailsForLogging.add(Pair.of("required_type", String.valueOf(tme.getRequiredType())));
-            if (requiredTypeNoInfoLeak != null) {
-                metadata.put("required_type", requiredTypeNoInfoLeak);
-            }
-            handledErrors = singletonSortedSetOf(
-                new ApiErrorWithMetadata(projectApiErrors.getTypeConversionApiError(), metadata)
-            );
+            return handleTypeMismatchException((TypeMismatchException)ex, extraDetailsForLogging);
         }
 
         if (ex instanceof ServletRequestBindingException) {
-            // Malformed requests can be difficult to track down - add the exception's message to our logging details
-            utils.addBaseExceptionMessageToExtraDetailsForLogging(ex, extraDetailsForLogging);
-            handledErrors = singletonSortedSetOf(projectApiErrors.getMalformedRequestApiError());
+            return handleServletRequestBindingException((ServletRequestBindingException)ex, extraDetailsForLogging);
         }
 
         if (ex instanceof HttpMessageConversionException) {
-            // Malformed requests can be difficult to track down - add the exception's message to our logging details
-            utils.addBaseExceptionMessageToExtraDetailsForLogging(ex, extraDetailsForLogging);
+            return handleHttpMessageConversionException((HttpMessageConversionException)ex, extraDetailsForLogging);
+        }
 
-            if (isMissingExpectedContentCase((HttpMessageConversionException) ex)) {
-                handledErrors = singletonSortedSetOf(projectApiErrors.getMissingExpectedContentApiError());
+        if (ex instanceof HttpMediaTypeNotAcceptableException) {
+            return handleError(projectApiErrors.getNoAcceptableRepresentationApiError(), extraDetailsForLogging);
+        }
+
+        if (ex instanceof HttpMediaTypeNotSupportedException) {
+            return handleError(projectApiErrors.getUnsupportedMediaTypeApiError(), extraDetailsForLogging);
+        }
+
+        if (ex instanceof HttpRequestMethodNotSupportedException) {
+            return handleError(projectApiErrors.getMethodNotAllowedApiError(), extraDetailsForLogging);
+        }
+
+        if (ex instanceof MissingServletRequestPartException) {
+            MissingServletRequestPartException detailsEx = (MissingServletRequestPartException)ex;
+            return handleError(
+                new ApiErrorWithMetadata(
+                    projectApiErrors.getMalformedRequestApiError(),
+                    Pair.of("missing_required_part", (Object)detailsEx.getRequestPartName())
+                ),
+                extraDetailsForLogging
+            );
+        }
+
+        // AsyncRequestTimeoutException didn't show up until more recent versions of Spring, so we'll check for it
+        //      by classname to prevent unnecessarily breaking existing Backstopper users on older versions of Spring.
+        if (Objects.equals(exClassname, "org.springframework.web.context.request.async.AsyncRequestTimeoutException")) {
+            return handleError(projectApiErrors.getTemporaryServiceProblemApiError(), extraDetailsForLogging);
+        }
+
+        if (isA401UnauthorizedExceptionClassname(exClassname)) {
+            return handleError(projectApiErrors.getUnauthorizedApiError(), extraDetailsForLogging);
+        }
+
+        if (isA403ForibddenExceptionClassname(exClassname)) {
+            return handleError(projectApiErrors.getForbiddenApiError(), extraDetailsForLogging);
+        }
+
+        // This exception is not handled here.
+        return ApiExceptionHandlerListenerResult.ignoreResponse();
+    }
+
+    protected ApiExceptionHandlerListenerResult handleError(
+        ApiError error,
+        List<Pair<String, String>> extraDetailsForLogging
+    ) {
+        return ApiExceptionHandlerListenerResult.handleResponse(singletonSortedSetOf(error), extraDetailsForLogging);
+    }
+
+    protected ApiExceptionHandlerListenerResult handleServletRequestBindingException(
+        ServletRequestBindingException ex,
+        List<Pair<String, String>> extraDetailsForLogging
+    ) {
+        // Malformed requests can be difficult to track down - add the exception's message to our logging details
+        utils.addBaseExceptionMessageToExtraDetailsForLogging(ex, extraDetailsForLogging);
+
+        ApiError errorToUse = projectApiErrors.getMalformedRequestApiError();
+
+        // Add some extra context metadata if it's a MissingServletRequestParameterException.
+        if (ex instanceof MissingServletRequestParameterException) {
+            MissingServletRequestParameterException detailsEx = (MissingServletRequestParameterException)ex;
+            errorToUse = new ApiErrorWithMetadata(
+                errorToUse,
+                Pair.of("missing_param_name", (Object)detailsEx.getParameterName()),
+                Pair.of("missing_param_type", (Object)detailsEx.getParameterType())
+            );
+        }
+
+        return handleError(errorToUse, extraDetailsForLogging);
+    }
+
+    protected ApiExceptionHandlerListenerResult handleHttpMessageConversionException(
+        HttpMessageConversionException ex,
+        List<Pair<String, String>> extraDetailsForLogging
+    ) {
+        // Malformed requests can be difficult to track down - add the exception's message to our logging details
+        utils.addBaseExceptionMessageToExtraDetailsForLogging(ex, extraDetailsForLogging);
+
+        // HttpMessageNotWritableException is a special case of HttpMessageConversionException that should be
+        //      treated as a 500 internal service error. See Spring's DefaultHandlerExceptionResolver and/or
+        //      ResponseEntityExceptionHandler for verification.
+        if (ex instanceof HttpMessageNotWritableException) {
+            return handleError(projectApiErrors.getGenericServiceError(), extraDetailsForLogging);
+        }
+        else {
+            // All other HttpMessageConversionException should be treated as a 400.
+            if (isMissingExpectedContentCase(ex)) {
+                return handleError(projectApiErrors.getMissingExpectedContentApiError(), extraDetailsForLogging);
             }
             else {
                 // NOTE: If this was a HttpMessageNotReadableException with a cause of
@@ -125,27 +221,9 @@ public class OneOffSpringFrameworkExceptionHandlerListener implements ApiExcepti
                 //          get to it via getPath(), iterating over each path object, and building the full path by
                 //          concatenating them with '.'. For now we'll just turn all errors in this category into
                 //          projectApiErrors.getMalformedRequestApiError().
-                handledErrors = singletonSortedSetOf(projectApiErrors.getMalformedRequestApiError());
+                return handleError(projectApiErrors.getMalformedRequestApiError(), extraDetailsForLogging);
             }
         }
-
-        if (ex instanceof HttpMediaTypeNotAcceptableException) {
-            handledErrors = singletonSortedSetOf(projectApiErrors.getNoAcceptableRepresentationApiError());
-        }
-
-        if (ex instanceof HttpMediaTypeNotSupportedException) {
-            handledErrors = singletonSortedSetOf(projectApiErrors.getUnsupportedMediaTypeApiError());
-        }
-
-        if (ex instanceof HttpRequestMethodNotSupportedException) {
-            handledErrors = singletonSortedSetOf(projectApiErrors.getMethodNotAllowedApiError());
-        }
-
-        if (handledErrors != null) {
-            return ApiExceptionHandlerListenerResult.handleResponse(handledErrors, extraDetailsForLogging);
-        }
-
-        return ApiExceptionHandlerListenerResult.ignoreResponse();
     }
 
     protected boolean isMissingExpectedContentCase(HttpMessageConversionException ex) {
@@ -159,6 +237,7 @@ public class OneOffSpringFrameworkExceptionHandlerListener implements ApiExcepti
 
             // An older/more unusual case. Unfortunately there's a lot of manual digging that we have to do to determine
             //      that we've reached this case.
+            //noinspection RedundantIfStatement
             if (ex.getCause() != null && ex.getCause() instanceof JsonMappingException
                 && ex.getCause().getMessage() != null && ex.getCause().getMessage()
                                                            .contains("No content to map due to end-of-input")) {
@@ -167,6 +246,62 @@ public class OneOffSpringFrameworkExceptionHandlerListener implements ApiExcepti
         }
 
         return false;
+    }
+
+    protected ApiExceptionHandlerListenerResult handleTypeMismatchException(
+        TypeMismatchException ex,
+        List<Pair<String, String>> extraDetailsForLogging
+    ) {
+        // The metadata will only be used if it's a 400 error.
+        Map<String, Object> metadata = new LinkedHashMap<>();
+
+        utils.addBaseExceptionMessageToExtraDetailsForLogging(ex, extraDetailsForLogging);
+
+        String badPropName = extractPropertyName(ex);
+        String badPropValue = (ex.getValue() == null) ? null : String.valueOf(ex.getValue());
+        String requiredTypeNoInfoLeak = extractRequiredTypeNoInfoLeak(ex);
+
+        extraDetailsForLogging.add(Pair.of("bad_property_name", badPropName));
+        if (badPropName != null) {
+            metadata.put("bad_property_name", badPropName);
+        }
+        extraDetailsForLogging.add(Pair.of("bad_property_value", String.valueOf(ex.getValue())));
+        if (badPropValue != null) {
+            metadata.put("bad_property_value", badPropValue);
+        }
+        extraDetailsForLogging.add(Pair.of("required_type", String.valueOf(ex.getRequiredType())));
+        if (requiredTypeNoInfoLeak != null) {
+            metadata.put("required_type", requiredTypeNoInfoLeak);
+        }
+
+        // ConversionNotSupportedException is a special case of TypeMismatchException that should be treated as
+        //      a 500 internal service error. See Spring's DefaultHandlerExceptionResolver and/or
+        //      ResponseEntityExceptionHandler for verification.
+        if (ex instanceof ConversionNotSupportedException) {
+            // We can add even more context log details if it's a MethodArgumentConversionNotSupportedException.
+            if (ex instanceof MethodArgumentConversionNotSupportedException) {
+                MethodArgumentConversionNotSupportedException macnsEx = (MethodArgumentConversionNotSupportedException)ex;
+                extraDetailsForLogging.add(Pair.of("method_arg_name", macnsEx.getName()));
+                extraDetailsForLogging.add(Pair.of("method_arg_target_param", macnsEx.getParameter().toString()));
+            }
+
+            return handleError(projectApiErrors.getGenericServiceError(), extraDetailsForLogging);
+        }
+        else {
+            // All other TypeMismatchExceptions should be treated as a 400, and we can/should include the metadata.
+
+            // We can add even more context log details if it's a MethodArgumentTypeMismatchException.
+            if (ex instanceof MethodArgumentTypeMismatchException) {
+                MethodArgumentTypeMismatchException matmEx = (MethodArgumentTypeMismatchException)ex;
+                extraDetailsForLogging.add(Pair.of("method_arg_name", matmEx.getName()));
+                extraDetailsForLogging.add(Pair.of("method_arg_target_param", matmEx.getParameter().toString()));
+            }
+
+            return handleError(
+                new ApiErrorWithMetadata(projectApiErrors.getTypeConversionApiError(), metadata),
+                extraDetailsForLogging
+            );
+        }
     }
 
     protected String extractPropertyName(TypeMismatchException tme) {
@@ -234,5 +369,13 @@ public class OneOffSpringFrameworkExceptionHandlerListener implements ApiExcepti
         }
 
         return false;
+    }
+
+    protected boolean isA403ForibddenExceptionClassname(String exClassname) {
+        return DEFAULT_TO_403_CLASSNAMES.contains(exClassname);
+    }
+
+    protected boolean isA401UnauthorizedExceptionClassname(String exClassname) {
+        return DEFAULT_TO_401_CLASSNAMES.contains(exClassname);
     }
 }

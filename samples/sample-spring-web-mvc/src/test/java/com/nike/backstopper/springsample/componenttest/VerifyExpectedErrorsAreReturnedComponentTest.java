@@ -10,6 +10,7 @@ import com.nike.backstopper.springsample.error.SampleProjectApiError;
 import com.nike.backstopper.springsample.model.RgbColor;
 import com.nike.backstopper.springsample.model.SampleModel;
 import com.nike.internal.util.MapBuilder;
+import com.nike.internal.util.Pair;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -379,7 +380,14 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
                 .log().all()
                 .extract();
 
-        verifyErrorReceived(response, SampleCoreApiError.MALFORMED_REQUEST);
+        verifyErrorReceived(
+            response,
+            new ApiErrorWithMetadata(
+                SampleCoreApiError.MALFORMED_REQUEST,
+                Pair.of("missing_param_type", "int"),
+                Pair.of("missing_param_name", "requiredQueryParamValue")
+            )
+        );
     }
 
     @Test
