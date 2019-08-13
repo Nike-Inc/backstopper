@@ -105,7 +105,7 @@ ext {
     restAssuredVersion = '3.0.1'
 
     // JACOCO PROPERTIES
-    jacocoToolVersion = '0.8.0'
+    jacocoToolVersion = '0.8.4'
     // Anything in this jacocoExclusions list will be excluded from coverage reports. The format is paths to class
     //      files, with wildcards allowed. e.g.: jacocoExclusions = [ "com/nike/Foo.class", "**/Bar*.*" ]
     jacocoExclusions = []
