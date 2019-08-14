@@ -1,0 +1,24 @@
+evaluationDependsOn(':')
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+dependencies {
+    compile(
+            project(":backstopper-spring-web-mvc"),
+            project(":backstopper-custom-validators"),
+            "org.springframework:spring-webmvc:$spring4Version",
+            "ch.qos.logback:logback-classic:$logbackVersion",
+            "org.hibernate:hibernate-validator:$hibernateValidatorVersion",
+            "org.eclipse.jetty:jetty-webapp:$jettyVersion",
+    )
+    testCompile(
+            project(":backstopper-reusable-tests"),
+            project(":testonly:testonly-spring-reusable-test-support"),
+            "junit:junit:$junitVersion",
+            "org.mockito:mockito-core:$mockitoVersion",
+            "org.assertj:assertj-core:$assertJVersion",
+            "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
+            "io.rest-assured:rest-assured:$restAssuredVersion",
+    )
+}

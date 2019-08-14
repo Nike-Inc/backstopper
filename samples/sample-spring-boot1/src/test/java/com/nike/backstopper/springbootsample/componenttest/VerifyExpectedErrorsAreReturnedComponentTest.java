@@ -230,7 +230,6 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
             expectedErrors.add(apiError);
         }
         verifyErrorReceived(response, expectedErrors, expectedResponseHttpStatusCode);
-        verifyErrorReceived(response, expectedErrors, expectedResponseHttpStatusCode);
     }
 
     @Test

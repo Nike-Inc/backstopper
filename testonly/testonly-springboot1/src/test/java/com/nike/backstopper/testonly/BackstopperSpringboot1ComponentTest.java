@@ -1,14 +1,8 @@
-package com.nike.backstopper.springbootsample.componenttest;
+package com.nike.backstopper.testonly;
 
 import com.nike.backstopper.apierror.ApiError;
 import com.nike.backstopper.apierror.ApiErrorWithMetadata;
 import com.nike.backstopper.apierror.sample.SampleCoreApiError;
-import com.nike.backstopper.model.DefaultErrorContractDTO;
-import com.nike.backstopper.model.DefaultErrorDTO;
-import com.nike.backstopper.springboot2sample.Main;
-import com.nike.backstopper.springboot2sample.error.SampleProjectApiError;
-import com.nike.backstopper.springboot2sample.model.RgbColor;
-import com.nike.backstopper.springboot2sample.model.SampleModel;
 import com.nike.internal.util.MapBuilder;
 import com.nike.internal.util.Pair;
 
@@ -16,10 +10,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,114 +20,96 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
+import serverconfig.classpathscan.Springboot1ClasspathScanConfig;
+import serverconfig.directimport.Springboot1DirectImportConfig;
+import testonly.componenttest.spring.reusable.error.SampleProjectApiError;
+import testonly.componenttest.spring.reusable.model.RgbColor;
+import testonly.componenttest.spring.reusable.model.SampleModel;
 
-import static com.nike.backstopper.springboot2sample.controller.SampleController.CORE_ERROR_WRAPPER_ENDPOINT_SUBPATH;
-import static com.nike.backstopper.springboot2sample.controller.SampleController.SAMPLE_PATH;
-import static com.nike.backstopper.springboot2sample.controller.SampleController.TRIGGER_UNHANDLED_ERROR_SUBPATH;
-import static com.nike.backstopper.springboot2sample.controller.SampleController.WITH_REQUIRED_QUERY_PARAM_SUBPATH;
-import static com.nike.backstopper.springboot2sample.controller.SampleController.nextRandomColor;
-import static com.nike.backstopper.springboot2sample.controller.SampleController.nextRangeInt;
-import static com.nike.backstopper.springboot2sample.error.SampleProjectApiError.INVALID_RANGE_VALUE;
-import static com.nike.backstopper.springboot2sample.error.SampleProjectApiError.NOT_RGB_COLOR_ENUM;
-import static com.nike.backstopper.springboot2sample.error.SampleProjectApiError.RGB_COLOR_CANNOT_BE_NULL;
 import static io.restassured.RestAssured.given;
-import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static testonly.componenttest.spring.reusable.controller.SampleController.CORE_ERROR_WRAPPER_ENDPOINT_SUBPATH;
+import static testonly.componenttest.spring.reusable.controller.SampleController.SAMPLE_PATH;
+import static testonly.componenttest.spring.reusable.controller.SampleController.TRIGGER_UNHANDLED_ERROR_SUBPATH;
+import static testonly.componenttest.spring.reusable.controller.SampleController.WITH_REQUIRED_QUERY_PARAM_SUBPATH;
+import static testonly.componenttest.spring.reusable.error.SampleProjectApiError.FOO_STRING_CANNOT_BE_BLANK;
+import static testonly.componenttest.spring.reusable.error.SampleProjectApiError.INVALID_RANGE_VALUE;
+import static testonly.componenttest.spring.reusable.error.SampleProjectApiError.NOT_RGB_COLOR_ENUM;
+import static testonly.componenttest.spring.reusable.error.SampleProjectApiError.RGB_COLOR_CANNOT_BE_NULL;
+import static testonly.componenttest.spring.reusable.testutil.TestUtils.findFreePort;
+import static testonly.componenttest.spring.reusable.testutil.TestUtils.randomizedSampleModel;
+import static testonly.componenttest.spring.reusable.testutil.TestUtils.verifyErrorReceived;
 
 /**
- * Component test that starts up the sample server and hits it with various requests and verifies that the expected
- * request spans are created/completed appropriately.
+ * Component test to verify that the functionality of {@code backstopper-spring-boot1} works as expected in a
+ * Spring Boot 1 environment, for both classpath-scanning and direct-import Backstopper configuration use cases.
  *
  * @author Nic Munroe
  */
 @RunWith(DataProviderRunner.class)
-public class VerifyExpectedErrorsAreReturnedComponentTest {
+public class BackstopperSpringboot1ComponentTest {
 
-    private static final int SERVER_PORT = findFreePort();
-    private static ConfigurableApplicationContext serverAppContext;
-
+    private static final int CLASSPATH_SCAN_SERVER_PORT = findFreePort();
+    private static final int DIRECT_IMPORT_SERVER_PORT = findFreePort();
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    
+
+    private static ConfigurableApplicationContext classpathScanServerAppContext;
+    private static ConfigurableApplicationContext directImportServerAppContext;
+
     @BeforeClass
     public static void beforeClass() {
-        serverAppContext = SpringApplication.run(Main.class, "--server.port=" + SERVER_PORT);
+        assertThat(CLASSPATH_SCAN_SERVER_PORT).isNotEqualTo(DIRECT_IMPORT_SERVER_PORT);
+        classpathScanServerAppContext = SpringApplication.run(
+            Springboot1ClasspathScanConfig.class, "--server.port=" + CLASSPATH_SCAN_SERVER_PORT
+        );
+        directImportServerAppContext = SpringApplication.run(
+            Springboot1DirectImportConfig.class, "--server.port=" + DIRECT_IMPORT_SERVER_PORT
+        );
     }
 
     @AfterClass
     public static void afterClass() {
-        SpringApplication.exit(serverAppContext);
+        SpringApplication.exit(classpathScanServerAppContext);
+        SpringApplication.exit(directImportServerAppContext);
     }
 
-    private static int findFreePort() {
-        try (ServerSocket serverSocket = new ServerSocket(0)) {
-            return serverSocket.getLocalPort();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    @SuppressWarnings("unused")
+    private enum ServerScenario {
+        CLASSPATH_SCAN_SERVER(CLASSPATH_SCAN_SERVER_PORT),
+        DIRECT_IMPORT_SERVER(DIRECT_IMPORT_SERVER_PORT);
+
+        public final int serverPort;
+
+        ServerScenario(int serverPort) {
+            this.serverPort = serverPort;
         }
     }
 
-    @Before
-    public void beforeMethod() {
-    }
-
-    @After
-    public void afterMethod() {
-    }
-
-    private void verifyErrorReceived(ExtractableResponse response, ApiError expectedError) {
-        verifyErrorReceived(response, singleton(expectedError), expectedError.getHttpStatusCode());
-    }
-
-    private DefaultErrorDTO findErrorMatching(DefaultErrorContractDTO errorContract, ApiError desiredError) {
-        for (DefaultErrorDTO error : errorContract.errors) {
-            if (error.code.equals(desiredError.getErrorCode()) && error.message.equals(desiredError.getMessage()))
-                return error;
-        }
-
-        return null;
-    }
-
-    private void verifyErrorReceived(ExtractableResponse response, Collection<ApiError> expectedErrors, int expectedHttpStatusCode) {
-        assertThat(response.statusCode()).isEqualTo(expectedHttpStatusCode);
-        try {
-            DefaultErrorContractDTO errorContract = objectMapper.readValue(response.asString(), DefaultErrorContractDTO.class);
-            assertThat(errorContract.error_id).isNotEmpty();
-            assertThat(UUID.fromString(errorContract.error_id)).isNotNull();
-            assertThat(errorContract.errors).hasSameSizeAs(expectedErrors);
-            for (ApiError apiError : expectedErrors) {
-                DefaultErrorDTO matchingError = findErrorMatching(errorContract, apiError);
-                assertThat(matchingError).isNotNull();
-                assertThat(matchingError.code).isEqualTo(apiError.getErrorCode());
-                assertThat(matchingError.message).isEqualTo(apiError.getMessage());
-                assertThat(matchingError.metadata).isEqualTo(apiError.getMetadata());
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private SampleModel randomizedSampleModel() {
-        return new SampleModel(UUID.randomUUID().toString(), String.valueOf(nextRangeInt(0, 42)), nextRandomColor().name(), false);
+    @DataProvider
+    public static List<List<ServerScenario>> serverScenarioDataProvider() {
+        return Stream.of(ServerScenario.values()).map(Collections::singletonList).collect(Collectors.toList());
     }
 
     // *************** SUCCESSFUL (NON ERROR) CALLS ******************
+    @UseDataProvider("serverScenarioDataProvider")
     @Test
-    public void verify_basic_sample_get() throws IOException {
+    public void verify_basic_sample_get(ServerScenario scenario) throws IOException {
         ExtractableResponse response =
             given()
                 .baseUri("http://localhost")
-                .port(SERVER_PORT)
+                .port(scenario.serverPort)
                 .basePath(SAMPLE_PATH)
                 .log().all()
                 .when()
@@ -154,15 +129,16 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
         assertThat(responseBody.throw_manual_error).isFalse();
     }
 
+    @UseDataProvider("serverScenarioDataProvider")
     @Test
-    public void verify_basic_sample_post() throws IOException {
+    public void verify_basic_sample_post(ServerScenario scenario) throws IOException {
         SampleModel requestPayload = randomizedSampleModel();
         String requestPayloadAsString = objectMapper.writeValueAsString(requestPayload);
 
         ExtractableResponse response =
             given()
                 .baseUri("http://localhost")
-                .port(SERVER_PORT)
+                .port(scenario.serverPort)
                 .contentType(ContentType.JSON)
                 .basePath(SAMPLE_PATH)
                 .body(requestPayloadAsString)
@@ -184,25 +160,62 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
 
     // *************** JSR 303 AND ENDPOINT ERRORS ******************
 
-    @DataProvider(value = {
-        "null   |   42  |   GREEN   |   FOO_STRING_CANNOT_BE_BLANK  |   400",
-        "bar    |   -1  |   GREEN   |   INVALID_RANGE_VALUE         |   400",
-        "bar    |   42  |   null    |   RGB_COLOR_CANNOT_BE_NULL    |   400",
-        "bar    |   42  |   car     |   NOT_RGB_COLOR_ENUM          |   400",
-        "       |   99  |   tree    |   FOO_STRING_CANNOT_BE_BLANK,INVALID_RANGE_VALUE,NOT_RGB_COLOR_ENUM   |   400",
-    }, splitBy = "\\|")
+    @SuppressWarnings("unused")
+    private enum Jsr303SampleModelValidationScenario {
+        BLANK_FIELD_VIOLATION(
+            new SampleModel("", "42", "GREEN", false),
+            singletonList(FOO_STRING_CANNOT_BE_BLANK)
+        ),
+        INVALID_RANGE_VIOLATION(
+            new SampleModel("bar", "-1", "GREEN", false),
+            singletonList(INVALID_RANGE_VALUE)
+        ),
+        NULL_FIELD_VIOLATION(
+            new SampleModel("bar", "42", null, false),
+            singletonList(RGB_COLOR_CANNOT_BE_NULL)
+        ),
+        STRING_CONVERTS_TO_CLASSTYPE_VIOLATION(
+            new SampleModel("bar", "42", "car", false),
+            singletonList(NOT_RGB_COLOR_ENUM)
+        ),
+        MULTIPLE_VIOLATIONS(
+            new SampleModel("  \n\r\t  ", "99", "tree", false),
+            Arrays.asList(FOO_STRING_CANNOT_BE_BLANK, INVALID_RANGE_VALUE, NOT_RGB_COLOR_ENUM)
+        );
+
+        public final SampleModel model;
+        public final List<ApiError> expectedErrors;
+
+        Jsr303SampleModelValidationScenario(
+            SampleModel model, List<ApiError> expectedErrors
+        ) {
+            this.model = model;
+            this.expectedErrors = expectedErrors;
+        }
+    }
+
+    @DataProvider
+    public static List<List<Object>> jsr303ValidationErrorScenariosDataProvider() {
+        List<List<Object>> result = new ArrayList<>();
+        for (Jsr303SampleModelValidationScenario violationScenario : Jsr303SampleModelValidationScenario.values()) {
+            for (ServerScenario serverScenario : ServerScenario.values()) {
+                result.add(Arrays.asList(violationScenario, serverScenario));
+            }
+        }
+        return result;
+    }
+
+    @UseDataProvider("jsr303ValidationErrorScenariosDataProvider")
     @Test
     public void verify_jsr303_validation_errors(
-        String fooString, String rangeString, String rgbColorString,
-        String expectedErrorsComboString, int expectedResponseHttpStatusCode) throws JsonProcessingException
-    {
-        SampleModel requestPayload = new SampleModel(fooString, rangeString, rgbColorString, false);
-        String requestPayloadAsString = objectMapper.writeValueAsString(requestPayload);
+        Jsr303SampleModelValidationScenario violationScenario, ServerScenario serverScenario
+    ) throws JsonProcessingException {
+        String requestPayloadAsString = objectMapper.writeValueAsString(violationScenario.model);
 
         ExtractableResponse response =
             given()
                 .baseUri("http://localhost")
-                .port(SERVER_PORT)
+                .port(serverScenario.serverPort)
                 .contentType(ContentType.JSON)
                 .basePath(SAMPLE_PATH)
                 .body(requestPayloadAsString)
@@ -213,34 +226,39 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
                 .log().all()
                 .extract();
 
-        String[] expectedErrorsArray = expectedErrorsComboString.split(",");
         List<ApiError> expectedErrors = new ArrayList<>();
-        for (String errorStr : expectedErrorsArray) {
-            ApiError apiError = SampleProjectApiError.valueOf(errorStr);
+        for (ApiError expectedApiError : violationScenario.expectedErrors) {
             String extraMetadataFieldValue = null;
 
-            if (INVALID_RANGE_VALUE.equals(apiError))
+            if (INVALID_RANGE_VALUE.equals(expectedApiError)) {
                 extraMetadataFieldValue = "range_0_to_42";
-            else if (RGB_COLOR_CANNOT_BE_NULL.equals(apiError) || NOT_RGB_COLOR_ENUM.equals(apiError))
+            }
+            else if (RGB_COLOR_CANNOT_BE_NULL.equals(expectedApiError) || NOT_RGB_COLOR_ENUM.equals(expectedApiError)) {
                 extraMetadataFieldValue = "rgb_color";
+            }
 
-            if (extraMetadataFieldValue != null)
-                apiError = new ApiErrorWithMetadata(apiError, MapBuilder.builder("field", (Object)extraMetadataFieldValue).build());
+            if (extraMetadataFieldValue != null) {
+                expectedApiError = new ApiErrorWithMetadata(
+                    expectedApiError,
+                    MapBuilder.builder("field", (Object) extraMetadataFieldValue).build()
+                );
+            }
 
-            expectedErrors.add(apiError);
+            expectedErrors.add(expectedApiError);
         }
-        verifyErrorReceived(response, expectedErrors, expectedResponseHttpStatusCode);
+        verifyErrorReceived(response, expectedErrors, 400);
     }
 
+    @UseDataProvider("serverScenarioDataProvider")
     @Test
-    public void verify_MANUALLY_THROWN_ERROR_is_thrown_when_requested() throws IOException {
+    public void verify_MANUALLY_THROWN_ERROR_is_thrown_when_requested(ServerScenario scenario) throws IOException {
         SampleModel requestPayload = new SampleModel("bar", "42", "RED", true);
         String requestPayloadAsString = objectMapper.writeValueAsString(requestPayload);
 
         ExtractableResponse response =
             given()
                 .baseUri("http://localhost")
-                .port(SERVER_PORT)
+                .port(scenario.serverPort)
                 .contentType(ContentType.JSON)
                 .basePath(SAMPLE_PATH)
                 .body(requestPayloadAsString)
@@ -257,12 +275,13 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
         assertThat(response.headers().getValues("otherExtraMultivalueHeader")).isEqualTo(Arrays.asList("foo", "bar"));
     }
 
+    @UseDataProvider("serverScenarioDataProvider")
     @Test
-    public void verify_SOME_MEANINGFUL_ERROR_NAME_is_thrown_when_correct_endpoint_is_hit() {
+    public void verify_SOME_MEANINGFUL_ERROR_NAME_is_thrown_when_correct_endpoint_is_hit(ServerScenario scenario) {
         ExtractableResponse response =
             given()
                 .baseUri("http://localhost")
-                .port(SERVER_PORT)
+                .port(scenario.serverPort)
                 .basePath(SAMPLE_PATH + CORE_ERROR_WRAPPER_ENDPOINT_SUBPATH)
                 .log().all()
                 .when()
@@ -274,12 +293,13 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
         verifyErrorReceived(response, SampleProjectApiError.SOME_MEANINGFUL_ERROR_NAME);
     }
 
+    @UseDataProvider("serverScenarioDataProvider")
     @Test
-    public void verify_GENERIC_SERVICE_ERROR_is_thrown_when_correct_endpoint_is_hit() {
+    public void verify_GENERIC_SERVICE_ERROR_is_thrown_when_correct_endpoint_is_hit(ServerScenario scenario) {
         ExtractableResponse response =
             given()
                 .baseUri("http://localhost")
-                .port(SERVER_PORT)
+                .port(scenario.serverPort)
                 .basePath(SAMPLE_PATH + TRIGGER_UNHANDLED_ERROR_SUBPATH)
                 .log().all()
                 .when()
@@ -291,14 +311,15 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
         verifyErrorReceived(response, SampleCoreApiError.GENERIC_SERVICE_ERROR);
     }
 
-    // *************** FRAMEWORK/CONTAINER ERRORS ******************
+    // *************** FRAMEWORK ERRORS ******************
 
+    @UseDataProvider("serverScenarioDataProvider")
     @Test
-    public void verify_NOT_FOUND_returned_if_unknown_path_is_requested() {
+    public void verify_NOT_FOUND_returned_if_unknown_path_is_requested(ServerScenario scenario) {
         ExtractableResponse response =
             given()
                 .baseUri("http://localhost")
-                .port(SERVER_PORT)
+                .port(scenario.serverPort)
                 .basePath(UUID.randomUUID().toString())
                 .log().all()
                 .when()
@@ -310,12 +331,15 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
         verifyErrorReceived(response, SampleCoreApiError.NOT_FOUND);
     }
 
+    @UseDataProvider("serverScenarioDataProvider")
     @Test
-    public void verify_ERROR_THROWN_IN_SERVLET_FILTER_OUTSIDE_SPRING_returned_if_servlet_filter_trigger_occurs() {
+    public void verify_ERROR_THROWN_IN_SERVLET_FILTER_OUTSIDE_SPRING_returned_if_servlet_filter_trigger_occurs(
+        ServerScenario scenario
+    ) {
         ExtractableResponse response =
             given()
                 .baseUri("http://localhost")
-                .port(SERVER_PORT)
+                .port(scenario.serverPort)
                 .basePath(SAMPLE_PATH)
                 .header("throw-servlet-filter-exception", "true")
                 .log().all()
@@ -328,12 +352,15 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
         verifyErrorReceived(response, SampleProjectApiError.ERROR_THROWN_IN_SERVLET_FILTER_OUTSIDE_SPRING);
     }
 
+    @UseDataProvider("serverScenarioDataProvider")
     @Test
-    public void verify_METHOD_NOT_ALLOWED_returned_if_known_path_is_requested_with_invalid_http_method() {
+    public void verify_METHOD_NOT_ALLOWED_returned_if_known_path_is_requested_with_invalid_http_method(
+        ServerScenario scenario
+    ) {
         ExtractableResponse response =
             given()
                 .baseUri("http://localhost")
-                .port(SERVER_PORT)
+                .port(scenario.serverPort)
                 .basePath(SAMPLE_PATH)
                 .log().all()
                 .when()
@@ -345,12 +372,15 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
         verifyErrorReceived(response, SampleCoreApiError.METHOD_NOT_ALLOWED);
     }
 
+    @UseDataProvider("serverScenarioDataProvider")
     @Test
-    public void verify_sample_get_fails_with_NO_ACCEPTABLE_REPRESENTATION_if_passed_invalid_accept_header() {
+    public void verify_sample_get_fails_with_NO_ACCEPTABLE_REPRESENTATION_if_passed_invalid_accept_header(
+        ServerScenario scenario
+    ) {
         ExtractableResponse response =
             given()
                 .baseUri("http://localhost")
-                .port(SERVER_PORT)
+                .port(scenario.serverPort)
                 .basePath(SAMPLE_PATH)
                 .accept(ContentType.BINARY)
                 .log().all()
@@ -363,15 +393,18 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
         verifyErrorReceived(response, SampleCoreApiError.NO_ACCEPTABLE_REPRESENTATION);
     }
 
+    @UseDataProvider("serverScenarioDataProvider")
     @Test
-    public void verify_sample_post_fails_with_UNSUPPORTED_MEDIA_TYPE_if_passed_invalid_content_type() throws IOException {
+    public void verify_sample_post_fails_with_UNSUPPORTED_MEDIA_TYPE_if_passed_invalid_content_type(
+        ServerScenario scenario
+    ) throws IOException {
         SampleModel requestPayload = randomizedSampleModel();
         String requestPayloadAsString = objectMapper.writeValueAsString(requestPayload);
 
         ExtractableResponse response =
             given()
                 .baseUri("http://localhost")
-                .port(SERVER_PORT)
+                .port(scenario.serverPort)
                 .basePath(SAMPLE_PATH)
                 .body(requestPayloadAsString)
                 .contentType(ContentType.TEXT)
@@ -385,12 +418,15 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
         verifyErrorReceived(response, SampleCoreApiError.UNSUPPORTED_MEDIA_TYPE);
     }
 
+    @UseDataProvider("serverScenarioDataProvider")
     @Test
-    public void verify_MALFORMED_REQUEST_is_thrown_when_required_data_is_missing() {
+    public void verify_MALFORMED_REQUEST_is_thrown_when_required_data_is_missing(
+        ServerScenario scenario
+    ) {
         ExtractableResponse response =
             given()
                 .baseUri("http://localhost")
-                .port(SERVER_PORT)
+                .port(scenario.serverPort)
                 .basePath(SAMPLE_PATH + WITH_REQUIRED_QUERY_PARAM_SUBPATH)
                 .log().all()
                 .when()
@@ -409,12 +445,15 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
         );
     }
 
+    @UseDataProvider("serverScenarioDataProvider")
     @Test
-    public void verify_TYPE_CONVERSION_ERROR_is_thrown_when_framework_cannot_convert_type() {
+    public void verify_TYPE_CONVERSION_ERROR_is_thrown_when_framework_cannot_convert_type(
+        ServerScenario scenario
+    ) {
         ExtractableResponse response =
             given()
                 .baseUri("http://localhost")
-                .port(SERVER_PORT)
+                .port(scenario.serverPort)
                 .basePath(SAMPLE_PATH + WITH_REQUIRED_QUERY_PARAM_SUBPATH)
                 .queryParam("requiredQueryParamValue", "not-an-integer")
                 .log().all()
@@ -433,12 +472,15 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
         ));
     }
 
+    @UseDataProvider("serverScenarioDataProvider")
     @Test
-    public void verify_sample_post_fails_with_MISSING_EXPECTED_CONTENT_if_passed_empty_body() {
+    public void verify_sample_post_fails_with_MISSING_EXPECTED_CONTENT_if_passed_empty_body(
+        ServerScenario scenario
+    ) {
         ExtractableResponse response =
             given()
                 .baseUri("http://localhost")
-                .port(SERVER_PORT)
+                .port(scenario.serverPort)
                 .basePath(SAMPLE_PATH)
                 .contentType(ContentType.JSON)
                 .body("")
@@ -452,8 +494,11 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
         verifyErrorReceived(response, SampleCoreApiError.MISSING_EXPECTED_CONTENT);
     }
 
+    @UseDataProvider("serverScenarioDataProvider")
     @Test
-    public void verify_sample_post_fails_with_MALFORMED_REQUEST_if_passed_bad_json_body() throws IOException {
+    public void verify_sample_post_fails_with_MALFORMED_REQUEST_if_passed_bad_json_body(
+        ServerScenario scenario
+    ) throws IOException {
         SampleModel originalValidPayloadObj = randomizedSampleModel();
         String originalValidPayloadAsString = objectMapper.writeValueAsString(originalValidPayloadObj);
         @SuppressWarnings("unchecked")
@@ -464,7 +509,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
         ExtractableResponse response =
             given()
                 .baseUri("http://localhost")
-                .port(SERVER_PORT)
+                .port(scenario.serverPort)
                 .basePath(SAMPLE_PATH)
                 .contentType(ContentType.JSON)
                 .body(badJsonPayloadAsString)
@@ -477,5 +522,4 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
 
         verifyErrorReceived(response, SampleCoreApiError.MALFORMED_REQUEST);
     }
-
 }

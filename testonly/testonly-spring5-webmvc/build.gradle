@@ -1,0 +1,38 @@
+evaluationDependsOn(':')
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+ext {
+    // Spring 5 has some requirements around jackson and hibernate/JSR 303 validation that mean we need to upgrade
+    //      versions for a few libraries.
+    jacksonVersionForSpring5 = '2.9.9'
+    javaxValidationVersionForSpring5 = '2.0.1.Final'
+    hibernateValidatorVersionForSpring5 = '6.0.16.Final'
+    elApiVersion = '3.0.1-b06'
+    elImplVersion = '3.0.1-b11'
+}
+
+dependencies {
+    compile(
+            project(":backstopper-spring-web-mvc"),
+            project(":backstopper-custom-validators"),
+            "org.springframework:spring-webmvc:$spring5Version",
+            "ch.qos.logback:logback-classic:$logbackVersion",
+            "com.fasterxml.jackson.core:jackson-core:$jacksonVersionForSpring5",
+            "com.fasterxml.jackson.core:jackson-databind:$jacksonVersionForSpring5",
+            "org.hibernate:hibernate-validator:$hibernateValidatorVersionForSpring5",
+            "javax.el:javax.el-api:$elApiVersion",
+            "org.glassfish:javax.el:$elImplVersion",
+            "org.eclipse.jetty:jetty-webapp:$jettyVersion",
+    )
+    testCompile(
+            project(":backstopper-reusable-tests"),
+            project(":testonly:testonly-spring-reusable-test-support"),
+            "junit:junit:$junitVersion",
+            "org.mockito:mockito-core:$mockitoVersion",
+            "org.assertj:assertj-core:$assertJVersion",
+            "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
+            "io.rest-assured:rest-assured:$restAssuredVersion",
+    )
+}

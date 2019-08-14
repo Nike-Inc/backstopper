@@ -1,4 +1,6 @@
 rootProject.name = 'backstopper'
+
+        // Published-artifact modules
 include "nike-internal-util",
         "backstopper-custom-validators",
         "backstopper-core",
@@ -11,6 +13,13 @@ include "nike-internal-util",
         "backstopper-jaxrs",
         "backstopper-jersey1",
         "backstopper-jersey2",
+        // Test-only modules (not published)
+        "testonly:testonly-spring-reusable-test-support",
+        "testonly:testonly-spring4-webmvc",
+        "testonly:testonly-spring5-webmvc",
+        "testonly:testonly-springboot1",
+        "testonly:testonly-springboot2",
+        // Sample modules (not published)
         "samples:sample-spring-web-mvc",
         "samples:sample-spring-boot1",
         "samples:sample-spring-boot2",

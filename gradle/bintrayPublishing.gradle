@@ -1,9 +1,15 @@
 configure(subprojects.findAll {
-    if (it.name.startsWith("sample"))
+    if (it.name.startsWith("sample")) {
         return false
+    }
 
-    if ("true" == System.getProperty("publishNikeInternalUtil"))
+    if (it.name.startsWith("testonly")) {
+        return false
+    }
+
+    if ("true" == System.getProperty("publishNikeInternalUtil")) {
         return it.name == "nike-internal-util"
+    }
 
     return it.name != "nike-internal-util"
 }) {
