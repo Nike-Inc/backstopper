@@ -2,6 +2,7 @@ package com.nike.backstopper.handler.spring.listener.impl;
 
 import com.nike.backstopper.apierror.ApiError;
 import com.nike.backstopper.apierror.ApiErrorWithMetadata;
+import com.nike.backstopper.apierror.SortedApiErrorSet;
 import com.nike.backstopper.apierror.projectspecificinfo.ProjectApiErrors;
 import com.nike.backstopper.apierror.testutil.ProjectApiErrorsForTesting;
 import com.nike.backstopper.exception.ApiException;
@@ -17,12 +18,12 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 
 import org.assertj.core.api.Assertions;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.core.MethodParameter;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
@@ -36,22 +37,15 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.rcp.RemoteAuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.HttpMediaTypeNotAcceptableException;
-import org.springframework.web.HttpMediaTypeNotSupportedException;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
-import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.method.annotation.MethodArgumentConversionNotSupportedException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.multiaction.NoSuchRequestHandlingMethodException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -63,18 +57,38 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 /**
- * Tests the functionality of {@link OneOffSpringFrameworkExceptionHandlerListener}.
+ * Tests the functionality of {@link OneOffSpringCommonFrameworkExceptionHandlerListener}.
  *
  * @author Nic Munroe
  */
 @RunWith(DataProviderRunner.class)
-public class OneOffSpringFrameworkExceptionHandlerListenerTest extends ListenerTestBase {
+public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends ListenerTestBase {
 
     private static final ProjectApiErrors testProjectApiErrors = ProjectApiErrorsForTesting.withProjectSpecificData(null, null);
-    private OneOffSpringFrameworkExceptionHandlerListener listener = new OneOffSpringFrameworkExceptionHandlerListener(testProjectApiErrors,
-                                                                                                                       ApiExceptionHandlerUtils.DEFAULT_IMPL);
+    private OneOffSpringCommonFrameworkExceptionHandlerListener listener = new OneOffListenerBasicImpl(
+        testProjectApiErrors, ApiExceptionHandlerUtils.DEFAULT_IMPL
+    );
+
+    private static class OneOffListenerBasicImpl extends OneOffSpringCommonFrameworkExceptionHandlerListener {
+
+        public OneOffListenerBasicImpl(
+            ProjectApiErrors projectApiErrors,
+            ApiExceptionHandlerUtils utils
+        ) {
+            super(projectApiErrors, utils);
+        }
+
+        @Override
+        protected @NotNull ApiExceptionHandlerListenerResult handleSpringMvcOrWebfluxSpecificFrameworkExceptions(
+            @NotNull Throwable ex
+        ) {
+            return ApiExceptionHandlerListenerResult.ignoreResponse();
+        }
+    }
 
     @Test
     public void constructor_sets_projectApiErrors_and_utils_to_passed_in_args() {
@@ -83,7 +97,8 @@ public class OneOffSpringFrameworkExceptionHandlerListenerTest extends ListenerT
         ApiExceptionHandlerUtils utilsMock = mock(ApiExceptionHandlerUtils.class);
 
         // when
-        OneOffSpringFrameworkExceptionHandlerListener impl = new OneOffSpringFrameworkExceptionHandlerListener(projectErrorsMock, utilsMock);
+        OneOffSpringCommonFrameworkExceptionHandlerListener
+            impl = new OneOffListenerBasicImpl(projectErrorsMock, utilsMock);
 
         // then
         assertThat(impl.projectApiErrors).isSameAs(projectErrorsMock);
@@ -94,7 +109,7 @@ public class OneOffSpringFrameworkExceptionHandlerListenerTest extends ListenerT
     public void constructor_throws_IllegalArgumentException_if_passed_null_projectApiErrors() {
         // when
         Throwable ex = Assertions.catchThrowable(
-            () -> new OneOffSpringFrameworkExceptionHandlerListener(null, ApiExceptionHandlerUtils.DEFAULT_IMPL)
+            () -> new OneOffListenerBasicImpl(null, ApiExceptionHandlerUtils.DEFAULT_IMPL)
         );
 
         // then
@@ -105,7 +120,7 @@ public class OneOffSpringFrameworkExceptionHandlerListenerTest extends ListenerT
     public void constructor_throws_IllegalArgumentException_if_passed_null_utils() {
         // when
         Throwable ex = Assertions.catchThrowable(
-            () -> new OneOffSpringFrameworkExceptionHandlerListener(mock(ProjectApiErrors.class), null)
+            () -> new OneOffListenerBasicImpl(mock(ProjectApiErrors.class), null)
         );
 
         // then
@@ -130,6 +145,24 @@ public class OneOffSpringFrameworkExceptionHandlerListenerTest extends ListenerT
 
         // then
         validateResponse(result, false, null);
+    }
+
+    @Test
+    public void shouldHandleException_defers_to_handleSpringMvcOrWebfluxSpecificFrameworkExceptions_if_that_method_wants_to_handle_exception() {
+        // given
+        OneOffSpringCommonFrameworkExceptionHandlerListener listenerSpy = spy(listener);
+        Throwable ex = mock(Throwable.class);
+        ApiExceptionHandlerListenerResult expectedResult = ApiExceptionHandlerListenerResult.handleResponse(
+            SortedApiErrorSet.singletonSortedSetOf(mock(ApiError.class))
+        );
+        doReturn(expectedResult).when(listenerSpy).handleSpringMvcOrWebfluxSpecificFrameworkExceptions(ex);
+
+        // when
+        ApiExceptionHandlerListenerResult result = listenerSpy.shouldHandleException(ex);
+
+        // then
+        assertThat(result).isSameAs(expectedResult);
+        verify(listenerSpy).handleSpringMvcOrWebfluxSpecificFrameworkExceptions(ex);
     }
 
     @DataProvider(value = {
@@ -231,45 +264,6 @@ public class OneOffSpringFrameworkExceptionHandlerListenerTest extends ListenerT
         assertThat(result.extraDetailsForLogging).containsExactlyInAnyOrderElementsOf(expectedExtraDetailsForLogging);
     }
 
-    @DataProvider(value = {
-        "true",
-        "false"
-    })
-    @Test
-    public void shouldHandleException_returns_MALFORMED_REQUEST_for_ServletRequestBindingException(
-        boolean isMissingRequestParamEx
-    ) {
-        // given
-        String missingParamName = "someParam-" + UUID.randomUUID().toString();
-        String missingParamType = "someParamType-" + UUID.randomUUID().toString();
-        ServletRequestBindingException ex =
-            (isMissingRequestParamEx)
-            ? new MissingServletRequestParameterException(missingParamName, missingParamType)
-            : new ServletRequestBindingException("foo");
-
-        ApiError expectedResult = testProjectApiErrors.getMalformedRequestApiError();
-        if (isMissingRequestParamEx) {
-            expectedResult = new ApiErrorWithMetadata(
-                expectedResult,
-                Pair.of("missing_param_name", missingParamName),
-                Pair.of("missing_param_type", missingParamType)
-            );
-        }
-
-        String expectedExceptionMessage =
-            (isMissingRequestParamEx)
-            ? String.format("Required %s parameter '%s' is not present", missingParamType, missingParamName)
-            : "foo";
-
-        // when
-        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
-
-        // then
-        validateResponse(result, true, singletonList(expectedResult));
-        assertThat(result.extraDetailsForLogging)
-            .containsExactly(Pair.of("exception_message", expectedExceptionMessage));
-    }
-
     @Test
     public void shouldHandleException_returns_MALFORMED_REQUEST_for_generic_HttpMessageConversionException() {
         // given
@@ -359,60 +353,6 @@ public class OneOffSpringFrameworkExceptionHandlerListenerTest extends ListenerT
     }
 
     @Test
-    public void shouldHandleException_returns_NO_ACCEPTABLE_REPRESENTATION_for_HttpMediaTypeNotAcceptableException() {
-        // given
-        HttpMediaTypeNotAcceptableException ex = new HttpMediaTypeNotAcceptableException("asplode");
-
-        // when
-        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
-
-        // then
-        validateResponse(result, true, singletonList(testProjectApiErrors.getNoAcceptableRepresentationApiError()));
-    }
-
-    @Test
-    public void shouldHandleException_returns_UNSUPPORTED_MEDIA_TYPE_for_HttpMediaTypeNotSupportedException() {
-        // given
-        HttpMediaTypeNotSupportedException ex = new HttpMediaTypeNotSupportedException("asplode");
-
-        // when
-        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
-
-        // then
-        validateResponse(result, true, singletonList(testProjectApiErrors.getUnsupportedMediaTypeApiError()));
-    }
-
-    @Test
-    public void shouldHandleException_returns_METHOD_NOT_ALLOWED_for_HttpRequestMethodNotSupportedException() {
-        // given
-        HttpRequestMethodNotSupportedException ex = new HttpRequestMethodNotSupportedException("asplode");
-
-        // when
-        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
-
-        // then
-        validateResponse(result, true, singletonList(testProjectApiErrors.getMethodNotAllowedApiError()));
-    }
-
-    @Test
-    public void shouldHandleException_returns_MALFORMED_REQUEST_for_MissingServletRequestPartException() {
-        // given
-        String partName = UUID.randomUUID().toString();
-        MissingServletRequestPartException ex = new MissingServletRequestPartException(partName);
-
-        ApiError expectedResult = new ApiErrorWithMetadata(
-            testProjectApiErrors.getMalformedRequestApiError(),
-            Pair.of("missing_required_part", partName)
-        );
-
-        // when
-        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
-
-        // then
-        validateResponse(result, true, singletonList(expectedResult));
-    }
-
-    @Test
     public void shouldHandleException_returns_TEMPORARY_SERVICE_PROBLEM_for_AsyncRequestTimeoutException() {
         // given
         AsyncRequestTimeoutException ex = new AsyncRequestTimeoutException();
@@ -429,7 +369,7 @@ public class OneOffSpringFrameworkExceptionHandlerListenerTest extends ListenerT
     @Test
     public void shouldHandleException_should_return_not_found_error_when_passed_NoHandlerFoundException() {
         // given
-        NoHandlerFoundException ex = new NoHandlerFoundException("GET", "/some/url", mock(HttpHeaders.class));
+        NoHandlerFoundException ex = new NoHandlerFoundException();
 
         // when
         ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
@@ -441,9 +381,7 @@ public class OneOffSpringFrameworkExceptionHandlerListenerTest extends ListenerT
     @Test
     public void shouldHandleException_should_return_not_found_error_when_passed_NoSuchRequestHandlingMethodException() {
         // given
-        NoSuchRequestHandlingMethodException ex = new NoSuchRequestHandlingMethodException(
-            "/some/url", "GET", new HashMap<>()
-        );
+        NoSuchRequestHandlingMethodException ex = new NoSuchRequestHandlingMethodException();
 
         // when
         ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);

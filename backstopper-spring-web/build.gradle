@@ -11,14 +11,11 @@ ext {
 
 dependencies {
     compile(
-            project(":backstopper-servlet-api"),
-            project(":backstopper-jackson"),
-            project(":backstopper-spring-web"),
+            project(":backstopper-core"),
     )
     compileOnly(
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
-            "org.springframework:spring-webmvc:$spring4Version",
-            "javax.servlet:javax.servlet-api:$servletApiVersion",
+            "org.springframework:spring-web:$spring4Version",
     )
     testCompile(
             project(":backstopper-core").sourceSets.test.output,
@@ -28,11 +25,11 @@ dependencies {
             "ch.qos.logback:logback-classic:$logbackVersion",
             "org.assertj:assertj-core:$assertJVersion",
             "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
-            "org.hamcrest:hamcrest-all:$hamcrestVersion",
+            "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
+            "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
             "org.springframework:spring-test:$spring4Version",
             "org.hibernate:hibernate-validator:$hibernateValidatorVersion",
-            "javax.servlet:javax.servlet-api:$servletApiVersion",
-            "org.springframework:spring-webmvc:$spring4Version",
+            "org.springframework:spring-web:$spring4Version",
             "org.springframework.security:spring-security-core:$springSecurityVersion",
     )
 }

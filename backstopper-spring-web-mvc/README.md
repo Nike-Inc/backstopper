@@ -10,7 +10,7 @@ This readme focuses specifically on the Backstopper Spring Web MVC integration. 
 
 ### Spring / Spring Boot Versions
 
-This `backstopper-spring-web-mvc` library can be used in any Spring `4.3.x` environment or later. This includes
+This `backstopper-spring-web-mvc` library can be used in any Spring Web MVC `4.3.x` environment or later. This includes
 Spring 5, Spring Boot 1, and Spring Boot 2.
 
 NOTE: This library does not yet have support for the new Spring 5 WebFlux features, but it will cover the traditional

@@ -8,22 +8,14 @@ import com.nike.backstopper.handler.listener.ApiExceptionHandlerListener;
 import com.nike.backstopper.handler.listener.ApiExceptionHandlerListenerResult;
 import com.nike.internal.util.Pair;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
-
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
-import org.springframework.web.HttpMediaTypeNotAcceptableException;
-import org.springframework.web.HttpMediaTypeNotSupportedException;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
-import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.method.annotation.MethodArgumentConversionNotSupportedException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import org.springframework.web.multipart.support.MissingServletRequestPartException;
-import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,29 +23,43 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
 
 import static com.nike.backstopper.apierror.SortedApiErrorSet.singletonSortedSetOf;
 import static java.util.Collections.singleton;
 
 /**
- * Handles the one-off spring framework exceptions that don't fall into any other {@link ApiExceptionHandlerListener}'s
- * domain.
+ * Handles the one-off spring framework exceptions common to any spring environment (e.g. WebMVC and WebFlux) that
+ * don't fall into any other {@link ApiExceptionHandlerListener}'s domain.
+ *
+ * <p>The exceptions handled here are primarily ones that are found in the spring-web dependency as that's common to
+ * both WebMVC and WebFlux apps, however this also contains support for Spring Security exceptions via simply checking
+ * classnames, and a few spring-webmvc exceptions that we can also handle by checking classname (so we don't need the
+ * spring-security or spring-webmvc dependencies in this backstopper-spring-web module). Also note that a few
+ * exceptions in spring-web extend from Servlet API exceptions. Those are not handled here since we don't want a
+ * servlet-api dependency included. Instead they are handled by the backstopper-spring-web-mvc's
+ * {@code OneOffSpringWebMvcFrameworkExceptionHandlerListener} class.
+ *
+ * <p>NOTE: This class is abstract - concrete implementations must implement
+ * {@link #handleSpringMvcOrWebfluxSpecificFrameworkExceptions(Throwable)} to handle the Spring WebMVC or WebFlux
+ * exceptions relevant to the specific Spring environment flavor they're covering.
  *
  * @author Nic Munroe
  */
-@Named
-@Singleton
 @SuppressWarnings("WeakerAccess")
-public class OneOffSpringFrameworkExceptionHandlerListener implements ApiExceptionHandlerListener {
+public abstract class OneOffSpringCommonFrameworkExceptionHandlerListener implements ApiExceptionHandlerListener {
 
     protected final ProjectApiErrors projectApiErrors;
     protected final ApiExceptionHandlerUtils utils;
+
+    // Support all the various 404 cases from competing dependencies using classname matching.
+    protected final Set<String> DEFAULT_TO_404_CLASSNAMES = new LinkedHashSet<>(Arrays.asList(
+        // NoHandlerFoundException is found in the spring-webmvc dependency, not spring-web.
+        "org.springframework.web.servlet.NoHandlerFoundException",
+        // NoSuchRequestHandlingMethodException is a deprecated Spring 4.x exception that doesn't appear in
+        //      Spring 5 but should be translated to a 404.
+        "org.springframework.web.servlet.mvc.multiaction.NoSuchRequestHandlingMethodException"
+    ));
 
     // Support Spring Security exceptions that should map to a 403.
     protected final Set<String> DEFAULT_TO_403_CLASSNAMES = singleton(
@@ -73,15 +79,21 @@ public class OneOffSpringFrameworkExceptionHandlerListener implements ApiExcepti
         "org.springframework.security.authentication.rcp.RemoteAuthenticationException"
     ));
 
+    // Support 503 cases from competing dependencies using classname matching.
+    protected final Set<String> DEFAULT_TO_503_CLASSNAMES = singleton(
+        // AsyncRequestTimeoutException didn't show up until more recent versions of Spring, so we'll check for it
+        //      by classname to prevent unnecessarily breaking existing Backstopper users on older versions of Spring.
+        "org.springframework.web.context.request.async.AsyncRequestTimeoutException"
+    );
+
     /**
      * @param projectApiErrors The {@link ProjectApiErrors} that should be used by this instance when finding {@link
      *                         ApiError}s. Cannot be null.
      * @param utils            The {@link ApiExceptionHandlerUtils} that should be used by this instance. You can pass
      *                         in {@link ApiExceptionHandlerUtils#DEFAULT_IMPL} if you don't need custom logic.
      */
-    @Inject
-    public OneOffSpringFrameworkExceptionHandlerListener(ProjectApiErrors projectApiErrors,
-                                                         ApiExceptionHandlerUtils utils) {
+    public OneOffSpringCommonFrameworkExceptionHandlerListener(ProjectApiErrors projectApiErrors,
+                                                               ApiExceptionHandlerUtils utils) {
         if (projectApiErrors == null) {
             throw new IllegalArgumentException("ProjectApiErrors cannot be null");
         }
@@ -94,22 +106,35 @@ public class OneOffSpringFrameworkExceptionHandlerListener implements ApiExcepti
         this.utils = utils;
     }
 
+    protected abstract @NotNull ApiExceptionHandlerListenerResult handleSpringMvcOrWebfluxSpecificFrameworkExceptions(
+        @NotNull Throwable ex
+    );
+
     // NOTE: If you're comparing the exception handling done in this method with Spring's
     //      DefaultHandlerExceptionResolver and/or ResponseEntityExceptionHandler to verify completeness, keep in
     //      mind that MethodArgumentNotValidException and BindException are handled by
     //      ConventionBasedSpringValidationErrorToApiErrorHandlerListener - they should not be handled here.
     @Override
     public ApiExceptionHandlerListenerResult shouldHandleException(Throwable ex) {
+        if (ex == null) {
+            // This probably can't happen in reality, but if it does there's nothing for us to handle.
+            return ApiExceptionHandlerListenerResult.ignoreResponse();
+        }
+
+        // See if it's a Spring MVC or WebFlux specific exception first.
+        ApiExceptionHandlerListenerResult mvcOrWebfluxSpecificHandlerResult =
+            handleSpringMvcOrWebfluxSpecificFrameworkExceptions(ex);
+
+        if (mvcOrWebfluxSpecificHandlerResult.shouldHandleResponse) {
+            return mvcOrWebfluxSpecificHandlerResult;
+        }
+
+        // Not a Spring MVC or WebFlux specific exception. See if it's an exception common to both.
         List<Pair<String, String>> extraDetailsForLogging = new ArrayList<>();
 
-        String exClassname = (ex == null) ? null : ex.getClass().getName();
+        String exClassname = ex.getClass().getName();
 
-        if (
-            ex instanceof NoHandlerFoundException
-            // NoSuchRequestHandlingMethodException is a deprecated Spring 4.x exception that doesn't appear in
-            //      Spring 5 but should be translated to a 404.
-            || Objects.equals(exClassname, "org.springframework.web.servlet.mvc.multiaction.NoSuchRequestHandlingMethodException")
-        ) {
+        if (isA404NotFoundExceptionClassname(exClassname)) {
             return handleError(projectApiErrors.getNotFoundApiError(), extraDetailsForLogging);
         }
 
@@ -117,40 +142,11 @@ public class OneOffSpringFrameworkExceptionHandlerListener implements ApiExcepti
             return handleTypeMismatchException((TypeMismatchException)ex, extraDetailsForLogging);
         }
 
-        if (ex instanceof ServletRequestBindingException) {
-            return handleServletRequestBindingException((ServletRequestBindingException)ex, extraDetailsForLogging);
-        }
-
         if (ex instanceof HttpMessageConversionException) {
             return handleHttpMessageConversionException((HttpMessageConversionException)ex, extraDetailsForLogging);
         }
 
-        if (ex instanceof HttpMediaTypeNotAcceptableException) {
-            return handleError(projectApiErrors.getNoAcceptableRepresentationApiError(), extraDetailsForLogging);
-        }
-
-        if (ex instanceof HttpMediaTypeNotSupportedException) {
-            return handleError(projectApiErrors.getUnsupportedMediaTypeApiError(), extraDetailsForLogging);
-        }
-
-        if (ex instanceof HttpRequestMethodNotSupportedException) {
-            return handleError(projectApiErrors.getMethodNotAllowedApiError(), extraDetailsForLogging);
-        }
-
-        if (ex instanceof MissingServletRequestPartException) {
-            MissingServletRequestPartException detailsEx = (MissingServletRequestPartException)ex;
-            return handleError(
-                new ApiErrorWithMetadata(
-                    projectApiErrors.getMalformedRequestApiError(),
-                    Pair.of("missing_required_part", (Object)detailsEx.getRequestPartName())
-                ),
-                extraDetailsForLogging
-            );
-        }
-
-        // AsyncRequestTimeoutException didn't show up until more recent versions of Spring, so we'll check for it
-        //      by classname to prevent unnecessarily breaking existing Backstopper users on older versions of Spring.
-        if (Objects.equals(exClassname, "org.springframework.web.context.request.async.AsyncRequestTimeoutException")) {
+        if (isA503TemporaryProblemExceptionClassname(exClassname)) {
             return handleError(projectApiErrors.getTemporaryServiceProblemApiError(), extraDetailsForLogging);
         }
 
@@ -171,28 +167,6 @@ public class OneOffSpringFrameworkExceptionHandlerListener implements ApiExcepti
         List<Pair<String, String>> extraDetailsForLogging
     ) {
         return ApiExceptionHandlerListenerResult.handleResponse(singletonSortedSetOf(error), extraDetailsForLogging);
-    }
-
-    protected ApiExceptionHandlerListenerResult handleServletRequestBindingException(
-        ServletRequestBindingException ex,
-        List<Pair<String, String>> extraDetailsForLogging
-    ) {
-        // Malformed requests can be difficult to track down - add the exception's message to our logging details
-        utils.addBaseExceptionMessageToExtraDetailsForLogging(ex, extraDetailsForLogging);
-
-        ApiError errorToUse = projectApiErrors.getMalformedRequestApiError();
-
-        // Add some extra context metadata if it's a MissingServletRequestParameterException.
-        if (ex instanceof MissingServletRequestParameterException) {
-            MissingServletRequestParameterException detailsEx = (MissingServletRequestParameterException)ex;
-            errorToUse = new ApiErrorWithMetadata(
-                errorToUse,
-                Pair.of("missing_param_name", (Object)detailsEx.getParameterName()),
-                Pair.of("missing_param_type", (Object)detailsEx.getParameterType())
-            );
-        }
-
-        return handleError(errorToUse, extraDetailsForLogging);
     }
 
     protected ApiExceptionHandlerListenerResult handleHttpMessageConversionException(
@@ -237,10 +211,13 @@ public class OneOffSpringFrameworkExceptionHandlerListener implements ApiExcepti
 
             // An older/more unusual case. Unfortunately there's a lot of manual digging that we have to do to determine
             //      that we've reached this case.
+            Throwable cause = ex.getCause();
             //noinspection RedundantIfStatement
-            if (ex.getCause() != null && ex.getCause() instanceof JsonMappingException
-                && ex.getCause().getMessage() != null && ex.getCause().getMessage()
-                                                           .contains("No content to map due to end-of-input")) {
+            if (cause != null
+                && "com.fasterxml.jackson.databind.JsonMappingException".equals(cause.getClass().getName())
+                && cause.getMessage() != null
+                && cause.getMessage().contains("No content to map due to end-of-input")
+            ) {
                 return true;
             }
         }
@@ -371,11 +348,19 @@ public class OneOffSpringFrameworkExceptionHandlerListener implements ApiExcepti
         return false;
     }
 
+    protected boolean isA404NotFoundExceptionClassname(String exClassname) {
+        return DEFAULT_TO_404_CLASSNAMES.contains(exClassname);
+    }
+
     protected boolean isA403ForibddenExceptionClassname(String exClassname) {
         return DEFAULT_TO_403_CLASSNAMES.contains(exClassname);
     }
 
     protected boolean isA401UnauthorizedExceptionClassname(String exClassname) {
         return DEFAULT_TO_401_CLASSNAMES.contains(exClassname);
+    }
+
+    protected boolean isA503TemporaryProblemExceptionClassname(String exClassname) {
+        return DEFAULT_TO_503_CLASSNAMES.contains(exClassname);
     }
 }
