@@ -120,17 +120,24 @@ throw ApiException.newBuilder()
 * [backstopper-jaxrs](backstopper-jaxrs) - Integration library for JAX-RS. If you want to integrate Backstopper into a JAX-RS project other than Jersey then start here (see below for the Jersey-specific modules).
 * [backstopper-jersey1](backstopper-jersey1/) - Integration library for the Jersey 1 framework. If you want to integrate Backstopper into a project running in Jersey 1 then start here. There is a [Jersey 1 sample project](samples/sample-jersey1/) complete with integration tests you can use as an example.
 * [backstopper-jersey2](backstopper-jersey2/) - Integration library for the Jersey 2 framework. If you want to integrate Backstopper into a project running in Jersey 2 then start here. There is a [Jersey 2 sample project](samples/sample-jersey2/) complete with integration tests you can use as an example.
-* [backstopper-spring-web-mvc](backstopper-spring-web-mvc/) - Integration library for the Spring Web MVC framework. 
-If you want to integrate Backstopper into a project running in Spring Web MVC then start here. Works for both Spring 4
-and Spring 5, and used as a foundation for Backstopper support in Spring Boot 1 and 2. There is a 
-[Spring Web MVC sample project](samples/sample-spring-web-mvc/) complete with integration tests you can use as an 
-example.
+* [backstopper-spring-web-flux](backstopper-spring-web-flux/) - Integration library for the Spring WebFlux (Netty)
+framework. If you want to integrate Backstopper into a project running in Spring WebFlux then start here. There is a 
+[Spring Boot 2 WebFlux sample project](samples/sample-spring-boot2-webflux/) complete with integration tests you can 
+use as an example.
+* [backstopper-spring-web-mvc](backstopper-spring-web-mvc/) - Base Integration library for the Spring Web MVC (Servlet) 
+framework. If you want to integrate Backstopper into a project running in Spring Web MVC then start here. Works for 
+both Spring 4 and Spring 5, and used as a foundation for Backstopper support in Spring Boot 1 and 2 (when using Web 
+MVC with Spring Boot). There is a [Spring Web MVC sample project](samples/sample-spring-web-mvc/) complete with 
+integration tests you can use as an example.
 * [backstopper-spring-boot1](backstopper-spring-boot1/) - Integration library for the Spring Boot 1 framework. 
 If you want to integrate Backstopper into a project running in Spring Boot 1 then start here. There is a 
 [Spring Boot 1 sample project](samples/sample-spring-boot1/) complete with integration tests you can use as an example.
-* [backstopper-spring-boot2](backstopper-spring-boot2/) - Integration library for the Spring Boot 2 framework. 
-If you want to integrate Backstopper into a project running in Spring Boot 2 then start here. There is a 
-[Spring Boot 2 sample project](samples/sample-spring-boot2/) complete with integration tests you can use as an example.
+* [backstopper-spring-boot2](backstopper-spring-boot2/) - Integration library for the Spring Boot 2 framework *if and
+only if you're using the Spring Web MVC (Servlet) runtime*. If you're running a Spring Boot 2 + WebFlux (Netty) 
+application, then you do not want this library and should use [backstopper-spring-web-flux](backstopper-spring-web-flux) 
+instead. If you want to integrate Backstopper into a project running in Spring Boot 2 + Web MVC then start here. There 
+is a [Spring Boot 2 Web MVC sample project](samples/sample-spring-boot2/) complete with integration tests you can use 
+as an example.
    
 <a name="samples"></a>
 ### Framework Integration Sample Applications
@@ -142,6 +149,7 @@ Note that the sample apps are an excellent source for framework integration exam
 * [samples/sample-spring-web-mvc](samples/sample-spring-web-mvc/)
 * [samples/sample-spring-boot1](samples/sample-spring-boot1/)
 * [samples/sample-spring-boot2](samples/sample-spring-boot2/)
+* [samples/sample-spring-boot2-webflux](samples/sample-spring-boot2-webflux/)
 
 <a name="quickstart"></a>
 ## Quickstart

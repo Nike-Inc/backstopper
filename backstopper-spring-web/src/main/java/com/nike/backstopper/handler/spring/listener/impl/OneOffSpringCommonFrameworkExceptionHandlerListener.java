@@ -139,7 +139,7 @@ public abstract class OneOffSpringCommonFrameworkExceptionHandlerListener implem
         }
 
         if (ex instanceof TypeMismatchException) {
-            return handleTypeMismatchException((TypeMismatchException)ex, extraDetailsForLogging);
+            return handleTypeMismatchException((TypeMismatchException)ex, extraDetailsForLogging, true);
         }
 
         if (ex instanceof HttpMessageConversionException) {
@@ -215,8 +215,7 @@ public abstract class OneOffSpringCommonFrameworkExceptionHandlerListener implem
             //noinspection RedundantIfStatement
             if (cause != null
                 && "com.fasterxml.jackson.databind.JsonMappingException".equals(cause.getClass().getName())
-                && cause.getMessage() != null
-                && cause.getMessage().contains("No content to map due to end-of-input")
+                && nullSafeStringContains(cause.getMessage(), "No content to map due to end-of-input")
             ) {
                 return true;
             }
@@ -224,17 +223,31 @@ public abstract class OneOffSpringCommonFrameworkExceptionHandlerListener implem
 
         return false;
     }
+    
+    protected boolean nullSafeStringContains(String strToCheck, String snippet) {
+        if (strToCheck == null || snippet == null) {
+            return false;
+        }
+
+        return strToCheck.contains(snippet);
+    }
 
     protected ApiExceptionHandlerListenerResult handleTypeMismatchException(
         TypeMismatchException ex,
-        List<Pair<String, String>> extraDetailsForLogging
+        List<Pair<String, String>> extraDetailsForLogging,
+        boolean addBaseExceptionMessageToLoggingDetails
     ) {
         // The metadata will only be used if it's a 400 error.
         Map<String, Object> metadata = new LinkedHashMap<>();
 
-        utils.addBaseExceptionMessageToExtraDetailsForLogging(ex, extraDetailsForLogging);
+        if (addBaseExceptionMessageToLoggingDetails) {
+            utils.addBaseExceptionMessageToExtraDetailsForLogging(ex, extraDetailsForLogging);
+        }
 
         String badPropName = extractPropertyName(ex);
+        if (badPropName == null) {
+            badPropName = ex.getPropertyName();
+        }
         String badPropValue = (ex.getValue() == null) ? null : String.valueOf(ex.getValue());
         String requiredTypeNoInfoLeak = extractRequiredTypeNoInfoLeak(ex);
 

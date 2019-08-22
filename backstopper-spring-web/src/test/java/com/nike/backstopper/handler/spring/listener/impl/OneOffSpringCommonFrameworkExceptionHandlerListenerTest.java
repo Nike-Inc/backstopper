@@ -48,6 +48,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -225,6 +226,75 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
         "false"
     })
     @Test
+    public void handleTypeMismatchException_adds_exception_message_logging_detail_depending_on_method_arg(
+        boolean shouldAddExceptionMsg
+    ) {
+        // given
+        List<Pair<String, String>> extraDetailsForLogging = new ArrayList<>();
+
+        // when
+        ApiExceptionHandlerListenerResult result = listener.handleTypeMismatchException(
+            new TypeMismatchException("doesNotMatter", Integer.class), extraDetailsForLogging, shouldAddExceptionMsg
+        );
+
+        // then
+        assertThat(result.extraDetailsForLogging).isEqualTo(extraDetailsForLogging);
+        Optional<Pair<String, String>> exMsgPairOpt = extraDetailsForLogging
+            .stream()
+            .filter(p -> p.getKey().equals("exception_message"))
+            .findAny();
+
+        if (shouldAddExceptionMsg) {
+            assertThat(exMsgPairOpt).isPresent();
+        }
+        else {
+            assertThat(exMsgPairOpt).isEmpty();
+        }
+    }
+
+    @DataProvider(value = {
+        "false  |   false   |   false",
+        "true   |   false   |   false",
+        "false  |   true    |   false",
+        "false  |   false   |   true",
+        "true   |   true    |   true",
+    }, splitBy = "\\|")
+    @Test
+    public void handleTypeMismatchException_adds_metadata_to_resulting_ApiError_as_expected(
+        boolean propNameExists, boolean propValueExists, boolean requiredTypeExists
+    ) {
+        // given
+        TypeMismatchException exMock = mock(TypeMismatchException.class);
+        String propName = (propNameExists) ? UUID.randomUUID().toString() : null;
+        String propValue = (propValueExists) ? UUID.randomUUID().toString() : null;
+        Class<?> requiredType = (requiredTypeExists) ? Integer.class : null;
+        String expectedRequiredType = (requiredTypeExists) ? "int" : null;
+
+        doReturn(propName).when(exMock).getPropertyName();
+        doReturn(propValue).when(exMock).getValue();
+        doReturn(requiredType).when(exMock).getRequiredType();
+
+        // when
+        ApiExceptionHandlerListenerResult result = listener.handleTypeMismatchException(
+            exMock, new ArrayList<>(), true
+        );
+
+        // then
+        assertThat(result.errors).hasSize(1);
+        ApiError apiError = result.errors.iterator().next();
+        Object propNameMetadata = apiError.getMetadata().get("bad_property_name");
+        Object propValueMetadata = apiError.getMetadata().get("bad_property_value");
+        Object requiredTypeMetadata = apiError.getMetadata().get("required_type");
+        assertThat(propNameMetadata).isEqualTo(propName);
+        assertThat(propValueMetadata).isEqualTo(propValue);
+        assertThat(requiredTypeMetadata).isEqualTo(expectedRequiredType);
+    }
+
+    @DataProvider(value = {
+        "true",
+        "false"
+    })
+    @Test
     public void shouldHandleException_returns_GENERIC_SERVICE_ERROR_for_ConversionNotSupportedException(
         boolean isMethodArgConversionEx
     ) {
@@ -287,15 +357,11 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
             ProjectApiErrors::getMissingExpectedContentApiError
         ),
         CAUSE_IS_NULL(
-            new HttpMessageNotReadableException("foobar", null),
+            new HttpMessageNotReadableException("foobar", null, null),
             ProjectApiErrors::getMalformedRequestApiError
         ),
         CAUSE_IS_NOT_JSON_MAPPING_EXCEPTION(
             new HttpMessageNotReadableException("foobar", new Exception("No content to map due to end-of-input")),
-            ProjectApiErrors::getMalformedRequestApiError
-        ),
-        CAUSE_IS_JSON_MAPPING_EXCEPTION_BUT_JME_MESSAGE_IS_NULL(
-            new HttpMessageNotReadableException("foobar", mock(JsonMappingException.class)),
             ProjectApiErrors::getMalformedRequestApiError
         ),
         CAUSE_IS_JSON_MAPPING_EXCEPTION_BUT_JME_MESSAGE_IS_NOT_THE_NO_CONTENT_MESSAGE(
@@ -514,5 +580,23 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
 
         // then
         assertThat(result).isNull();
+    }
+
+    @DataProvider(value = {
+        "some foo bar string    |   foo bar |   true",
+        "some foo bar string    |   nope    |   false",
+        "null                   |   blah    |   false",
+        "blah                   |   null    |   false",
+        "null                   |   null    |   false",
+    }, splitBy = "\\|")
+    @Test
+    public void nullSafeStringContains_works_as_expected(
+        String strToCheck, String snippet, boolean expectedResult
+    ) {
+        // when
+        boolean result = listener.nullSafeStringContains(strToCheck, snippet);
+
+        // then
+        assertThat(result).isEqualTo(expectedResult);
     }
 }

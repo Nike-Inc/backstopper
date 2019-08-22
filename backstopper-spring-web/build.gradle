@@ -6,7 +6,7 @@ compileTestJava {
 }
 
 ext {
-    springSecurityVersion = '4.2.13.RELEASE'
+    springSecurityVersionForTesting = '5.1.6.RELEASE'
 }
 
 dependencies {
@@ -27,9 +27,8 @@ dependencies {
             "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
             "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
             "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
-            "org.springframework:spring-test:$spring4Version",
             "org.hibernate:hibernate-validator:$hibernateValidatorVersion",
-            "org.springframework:spring-web:$spring4Version",
-            "org.springframework.security:spring-security-core:$springSecurityVersion",
+            "org.springframework:spring-web:$spring5Version",
+            "org.springframework.security:spring-security-core:$springSecurityVersionForTesting",
     )
 }

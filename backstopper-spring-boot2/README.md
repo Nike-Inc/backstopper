@@ -2,16 +2,19 @@
 
 Backstopper is a framework-agnostic API error handling and (optional) model validation solution for Java 7 and greater.
 
-This readme focuses specifically on the Backstopper Spring Boot 2 integration. If you are looking for a different 
-framework integration check out the [relevant section](../README.md#framework_modules) of the base readme to see if one 
-already exists. The [base project README.md](../README.md) and [User Guide](../USER_GUIDE.md) contain the main bulk of 
-information regarding Backstopper. 
+This readme focuses specifically on the Backstopper Spring Boot 2 integration utilizing the Spring Web MVC framework. 
+If you are looking for a different framework integration check out the 
+[relevant section](../README.md#framework_modules) of the base readme to see if one already exists. The 
+[base project README.md](../README.md) and [User Guide](../USER_GUIDE.md) contain the main bulk of information 
+regarding Backstopper. 
 
 **NOTE: There is a [Spring Boot 2 sample application](../samples/sample-spring-boot2/) that provides a simple concrete 
 example of the information covered in this readme.**
 
-ALSO NOTE: This library does not yet have support for the new Spring 5 WebFlux features, but it will cover the 
-traditional Servlet-based Spring MVC style requests.
+_ALSO NOTE: **This library does not cover Spring WebFlux (Netty) applications**. If you're looking for a 
+Spring Boot 2 app using the Spring WebFlux framework, then you should use the 
+[backstopper-spring-web-flux](../backstopper-spring-web-flux) integration instead._ This library is just for 
+Spring Boot 2 apps using Spring Web MVC (Servlet).
 
 ## Backstopper Spring Boot 2 Setup, Configuration, and Usage
 
