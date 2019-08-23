@@ -17,7 +17,7 @@ If you're looking for a Spring Web MVC based integration, then you should see th
 depending on your application:_
 
 * [backstopper-spring-boot1](../backstopper-spring-boot1) - For Spring Boot 1 + Spring MVC applications.
-* [backstopper-spring-boot2](../backstopper-spring-boot2) - For Spring Boot 2 + Spring MVC applications. 
+* [backstopper-spring-boot2-webmvc](../backstopper-spring-boot2-webmvc) - For Spring Boot 2 + Spring MVC applications. 
 * [backstopper-spring-web-mvc](../backstopper-spring-web-mvc) - For Spring Web MVC applications that are not
 Spring Boot.
 

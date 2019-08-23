@@ -1,0 +1,46 @@
+evaluationDependsOn(':')
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springboot2Version}")
+    }
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+apply plugin: 'org.springframework.boot'
+apply plugin: "io.spring.dependency-management"
+
+dependencies {
+    compile(
+            project(":backstopper-spring-boot2-webmvc"),
+            project(":backstopper-custom-validators"),
+            "ch.qos.logback:logback-classic:$logbackVersion",
+            "org.springframework.boot:spring-boot-dependencies:$springboot2Version",
+            "org.springframework.boot:spring-boot-starter-web",
+    )
+    compileOnly(
+            "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
+    )
+    testCompile(
+            project(":backstopper-reusable-tests"),
+            "junit:junit:$junitVersion",
+            "org.mockito:mockito-core:$mockitoVersion",
+            "ch.qos.logback:logback-classic:$logbackVersion",
+            "org.assertj:assertj-core:$assertJVersion",
+            "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
+            "io.rest-assured:rest-assured:$restAssuredVersion",
+    )
+}
+
+apply plugin: "application"
+mainClassName = "com.nike.backstopper.springboot2webmvcsample.Main"
+
+run {
+    systemProperties = System.getProperties()
+}
