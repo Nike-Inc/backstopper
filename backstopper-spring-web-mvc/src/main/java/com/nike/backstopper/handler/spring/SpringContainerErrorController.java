@@ -33,7 +33,7 @@ import static com.nike.backstopper.handler.spring.SpringContainerErrorController
  * conflict otherwise.
  *
  * <p>If you're in a Springboot environment, you should pull in the {@code backstopper-spring-boot1} or
- * {@code backstopper-spring-boot2} library (whichever is appropriate for your app) and register
+ * {@code backstopper-spring-boot2-webmvc} library (whichever is appropriate for your app) and register
  * {@code BackstopperSpringboot[1/2]ContainerErrorController} to take the place of this class (and override the default
  * {@code BasicErrorController}).
  */
@@ -43,7 +43,7 @@ import static com.nike.backstopper.handler.spring.SpringContainerErrorController
 //      application. This is necessary because this class would conflict with the auto-registered BasicErrorController
 //      since they both listen to the same path.
 // As mentioned in the class javadocs, if you're in a Springboot environment then you should pull in the
-//      backstopper-spring-boot1 or backstopper-spring-boot2 library and
+//      backstopper-spring-boot1 or backstopper-spring-boot2-webmvc library and
 //      register BackstopperSpringboot[1/2]ContainerErrorController to take the place of this class.
 @Conditional(SpringbootErrorControllerIsNotOnClasspath.class)
 public class SpringContainerErrorController {

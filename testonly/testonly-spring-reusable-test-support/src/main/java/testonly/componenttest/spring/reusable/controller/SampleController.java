@@ -49,10 +49,6 @@ public class SampleController {
         return RgbColor.values()[nextRangeInt(0, 2)];
     }
 
-    public SampleController() {
-        "".toString();
-    }
-
     @GetMapping(produces = "application/json")
     @ResponseBody
     public SampleModel getSampleModel() {

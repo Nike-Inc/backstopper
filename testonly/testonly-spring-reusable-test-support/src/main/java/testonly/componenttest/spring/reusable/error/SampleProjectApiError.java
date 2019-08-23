@@ -35,8 +35,30 @@ public enum SampleProjectApiError implements ApiError {
     //      but will show up in the logs with contributing_errors="SOME_MEANINGFUL_ERROR_NAME", allowing you to
     //      distinguish the context of the error vs. the core GENERIC_SERVICE_ERROR at a glance.
     SOME_MEANINGFUL_ERROR_NAME(SampleCoreApiError.GENERIC_SERVICE_ERROR),
+
+    // Spring Web MVC (Servlet) only errors
     ERROR_THROWN_IN_SERVLET_FILTER_OUTSIDE_SPRING(
         99150, "An error occurred in a Servlet Filter outside Spring", HttpStatus.INTERNAL_SERVER_ERROR.value()
+    ),
+
+    // Spring WebFlux (Netty) only errors
+    ERROR_THROWN_IN_WEB_FILTER(
+        99160, "An error was thrown in a WebFilter", HttpStatus.INTERNAL_SERVER_ERROR.value()
+    ),
+    ERROR_RETURNED_IN_WEB_FILTER_MONO(
+        99161, "An error was returned in a WebFilter Mono", HttpStatus.INTERNAL_SERVER_ERROR.value()
+    ),
+    ERROR_THROWN_IN_HANDLER_FILTER_FUNCTION(
+        99165, "An error was thrown in a HandlerFilterFunction", HttpStatus.INTERNAL_SERVER_ERROR.value()
+    ),
+    ERROR_RETURNED_IN_HANDLER_FILTER_FUNCTION_MONO(
+        99166, "An error was returned in a HandlerFilterFunction Mono", HttpStatus.INTERNAL_SERVER_ERROR.value()
+    ),
+    WEBFLUX_MONO_ERROR(
+        99170, "You hit the WebFlux Mono error endpoint", HttpStatus.INTERNAL_SERVER_ERROR.value()
+    ),
+    WEBFLUX_FLUX_ERROR(
+        99180, "You hit the WebFlux Flux error endpoint", HttpStatus.INTERNAL_SERVER_ERROR.value()
     );
 
     private final ApiError delegate;

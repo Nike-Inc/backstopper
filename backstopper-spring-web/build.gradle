@@ -1,0 +1,34 @@
+evaluationDependsOn(':')
+
+compileTestJava {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+ext {
+    springSecurityVersionForTesting = '5.1.6.RELEASE'
+}
+
+dependencies {
+    compile(
+            project(":backstopper-core"),
+    )
+    compileOnly(
+            "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
+            "org.springframework:spring-web:$spring4Version",
+    )
+    testCompile(
+            project(":backstopper-core").sourceSets.test.output,
+            "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
+            "junit:junit:$junitVersion",
+            "org.mockito:mockito-core:$mockitoVersion",
+            "ch.qos.logback:logback-classic:$logbackVersion",
+            "org.assertj:assertj-core:$assertJVersion",
+            "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
+            "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
+            "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
+            "org.hibernate:hibernate-validator:$hibernateValidatorVersion",
+            "org.springframework:spring-web:$spring5Version",
+            "org.springframework.security:spring-security-core:$springSecurityVersionForTesting",
+    )
+}

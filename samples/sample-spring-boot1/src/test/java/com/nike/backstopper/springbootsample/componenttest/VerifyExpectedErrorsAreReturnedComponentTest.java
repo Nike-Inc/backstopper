@@ -53,8 +53,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Component test that starts up the sample server and hits it with various requests and verifies that the expected
- * request spans are created/completed appropriately.
+ * Component test that starts up the sample server and hits it with requests that should generate specific errors.
  *
  * @author Nic Munroe
  */

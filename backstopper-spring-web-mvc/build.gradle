@@ -13,6 +13,7 @@ dependencies {
     compile(
             project(":backstopper-servlet-api"),
             project(":backstopper-jackson"),
+            project(":backstopper-spring-web"),
     )
     compileOnly(
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
@@ -21,6 +22,7 @@ dependencies {
     )
     testCompile(
             project(":backstopper-core").sourceSets.test.output,
+            "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
             "junit:junit:$junitVersion",
             "org.mockito:mockito-core:$mockitoVersion",
             "ch.qos.logback:logback-classic:$logbackVersion",

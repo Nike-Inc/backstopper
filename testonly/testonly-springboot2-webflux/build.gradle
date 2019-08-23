@@ -1,0 +1,40 @@
+evaluationDependsOn(':')
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springboot2Version}")
+    }
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+apply plugin: 'org.springframework.boot'
+apply plugin: "io.spring.dependency-management"
+
+dependencies {
+    compile(
+            project(":backstopper-spring-web-flux"),
+            project(":backstopper-custom-validators"),
+            "ch.qos.logback:logback-classic:$logbackVersion",
+            "org.springframework.boot:spring-boot-dependencies:$springboot2Version",
+            "org.springframework.boot:spring-boot-starter-webflux",
+    )
+    testCompile(
+            project(":backstopper-reusable-tests"),
+            project(":testonly:testonly-spring-reusable-test-support"),
+            "junit:junit:$junitVersion",
+            "org.mockito:mockito-core:$mockitoVersion",
+            "org.assertj:assertj-core:$assertJVersion",
+            "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
+            "io.rest-assured:rest-assured:$restAssuredVersion",
+    )
+}
+
+// We're just running tests, not trying to stand up a real Springboot 2 server from gradle.
+//      Disable the bootJar task so gradle doesn't fall over.
+bootJar.enabled = false

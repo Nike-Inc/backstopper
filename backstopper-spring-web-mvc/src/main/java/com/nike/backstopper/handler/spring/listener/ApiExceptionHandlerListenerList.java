@@ -6,7 +6,7 @@ import com.nike.backstopper.handler.listener.impl.DownstreamNetworkExceptionHand
 import com.nike.backstopper.handler.listener.impl.GenericApiExceptionHandlerListener;
 import com.nike.backstopper.handler.listener.impl.ServersideValidationErrorHandlerListener;
 import com.nike.backstopper.handler.spring.listener.impl.ConventionBasedSpringValidationErrorToApiErrorHandlerListener;
-import com.nike.backstopper.handler.spring.listener.impl.OneOffSpringFrameworkExceptionHandlerListener;
+import com.nike.backstopper.handler.spring.listener.impl.OneOffSpringWebMvcFrameworkExceptionHandlerListener;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,7 +33,7 @@ public class ApiExceptionHandlerListenerList {
         ServersideValidationErrorHandlerListener serversideValidationErrorHandlerListener,
         ClientDataValidationErrorHandlerListener clientDataValidationErrorHandlerListener,
         ConventionBasedSpringValidationErrorToApiErrorHandlerListener conventionBasedSpringValidationErrorToApiErrorHandlerListener,
-        OneOffSpringFrameworkExceptionHandlerListener oneOffSpringFrameworkExceptionHandlerListener,
+        OneOffSpringWebMvcFrameworkExceptionHandlerListener oneOffSpringWebMvcFrameworkExceptionHandlerListener,
         DownstreamNetworkExceptionHandlerListener downstreamNetworkExceptionHandlerListener
     ) {
         this(Arrays.asList(
@@ -41,7 +41,7 @@ public class ApiExceptionHandlerListenerList {
             serversideValidationErrorHandlerListener,
             clientDataValidationErrorHandlerListener,
             conventionBasedSpringValidationErrorToApiErrorHandlerListener,
-            oneOffSpringFrameworkExceptionHandlerListener,
+            oneOffSpringWebMvcFrameworkExceptionHandlerListener,
             downstreamNetworkExceptionHandlerListener
         ));
     }
