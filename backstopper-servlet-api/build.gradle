@@ -10,9 +10,11 @@ dependencies {
             project(":backstopper-core"),
     )
     compileOnly(
+            "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
             "javax.servlet:javax.servlet-api:$servletApiVersion",
     )
     testCompile(
+            "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
             "junit:junit:$junitVersion",
             "org.mockito:mockito-core:$mockitoVersion",
             "ch.qos.logback:logback-classic:$logbackVersion",

@@ -128,7 +128,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
 
     // *************** SUCCESSFUL (NON ERROR) CALLS ******************
     @Test
-    public void verify_basic_sample_get() throws InterruptedException, IOException {
+    public void verify_basic_sample_get() throws IOException {
         ExtractableResponse response =
             given()
                 .baseUri("http://localhost")
@@ -153,7 +153,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
     }
 
     @Test
-    public void verify_basic_sample_post() throws InterruptedException, IOException {
+    public void verify_basic_sample_post() throws IOException {
         SampleModel requestPayload = randomizedSampleModel();
         String requestPayloadAsString = objectMapper.writeValueAsString(requestPayload);
 
@@ -228,11 +228,10 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
             expectedErrors.add(apiError);
         }
         verifyErrorReceived(response, expectedErrors, expectedResponseHttpStatusCode);
-        verifyErrorReceived(response, expectedErrors, expectedResponseHttpStatusCode);
     }
 
     @Test
-    public void verify_MANUALLY_THROWN_ERROR_is_thrown_when_requested() throws InterruptedException, IOException {
+    public void verify_MANUALLY_THROWN_ERROR_is_thrown_when_requested() throws IOException {
         SampleModel requestPayload = new SampleModel("bar", "42", "RED", true);
         String requestPayloadAsString = objectMapper.writeValueAsString(requestPayload);
 
@@ -257,7 +256,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
     }
 
     @Test
-    public void verify_SOME_MEANINGFUL_ERROR_NAME_is_thrown_when_correct_endpoint_is_hit() throws InterruptedException, IOException {
+    public void verify_SOME_MEANINGFUL_ERROR_NAME_is_thrown_when_correct_endpoint_is_hit() {
         ExtractableResponse response =
             given()
                 .baseUri("http://localhost")
@@ -274,7 +273,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
     }
 
     @Test
-    public void verify_GENERIC_SERVICE_ERROR_is_thrown_when_correct_endpoint_is_hit() throws InterruptedException, IOException {
+    public void verify_GENERIC_SERVICE_ERROR_is_thrown_when_correct_endpoint_is_hit() {
         ExtractableResponse response =
             given()
                 .baseUri("http://localhost")
@@ -310,7 +309,25 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
     }
 
     @Test
-    public void verify_METHOD_NOT_ALLOWED_returned_if_known_path_is_requested_with_invalid_http_method() throws InterruptedException, IOException {
+    public void verify_ERROR_THROWN_IN_SERVLET_FILTER_OUTSIDE_SPRING_returned_if_servlet_filter_trigger_occurs() {
+        ExtractableResponse response =
+            given()
+                .baseUri("http://localhost")
+                .port(SERVER_PORT)
+                .basePath(SAMPLE_PATH)
+                .header("throw-servlet-filter-exception", "true")
+                .log().all()
+            .when()
+                .get()
+            .then()
+                .log().all()
+                .extract();
+
+        verifyErrorReceived(response, SampleProjectApiError.ERROR_THROWN_IN_SERVLET_FILTER_OUTSIDE_SPRING);
+    }
+
+    @Test
+    public void verify_METHOD_NOT_ALLOWED_returned_if_known_path_is_requested_with_invalid_http_method() {
         ExtractableResponse response =
             given()
                 .baseUri("http://localhost")
@@ -327,7 +344,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
     }
 
     @Test
-    public void verify_sample_get_fails_with_NO_ACCEPTABLE_REPRESENTATION_if_passed_invalid_accept_header() throws InterruptedException, IOException {
+    public void verify_sample_get_fails_with_NO_ACCEPTABLE_REPRESENTATION_if_passed_invalid_accept_header() {
         ExtractableResponse response =
             given()
                 .baseUri("http://localhost")
@@ -345,7 +362,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
     }
 
     @Test
-    public void verify_sample_post_fails_with_UNSUPPORTED_MEDIA_TYPE_if_passed_invalid_content_type() throws InterruptedException, IOException {
+    public void verify_sample_post_fails_with_UNSUPPORTED_MEDIA_TYPE_if_passed_invalid_content_type() throws IOException {
         SampleModel requestPayload = randomizedSampleModel();
         String requestPayloadAsString = objectMapper.writeValueAsString(requestPayload);
 
@@ -415,7 +432,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
     }
 
     @Test
-    public void verify_sample_post_fails_with_MISSING_EXPECTED_CONTENT_if_passed_empty_body() throws InterruptedException, IOException {
+    public void verify_sample_post_fails_with_MISSING_EXPECTED_CONTENT_if_passed_empty_body() {
         ExtractableResponse response =
             given()
                 .baseUri("http://localhost")
@@ -434,7 +451,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
     }
 
     @Test
-    public void verify_sample_post_fails_with_MALFORMED_REQUEST_if_passed_bad_json_body() throws InterruptedException, IOException {
+    public void verify_sample_post_fails_with_MALFORMED_REQUEST_if_passed_bad_json_body() throws IOException {
         SampleModel originalValidPayloadObj = randomizedSampleModel();
         String originalValidPayloadAsString = objectMapper.writeValueAsString(originalValidPayloadObj);
         @SuppressWarnings("unchecked")

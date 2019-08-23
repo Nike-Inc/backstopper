@@ -4,6 +4,8 @@ import com.nike.backstopper.apierror.ApiError;
 import com.nike.internal.util.Pair;
 import com.nike.internal.util.StringUtils;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.MDC;
 
 import java.util.Collection;
@@ -182,8 +184,19 @@ public class ApiExceptionHandlerUtils {
           .append(", exception_class=").append(cause.getClass().getName())
           .append(", returned_http_status_code=").append(httpStatusCode)
           .append(", contributing_errors=\"").append(contributingErrorsString)
-          .append("\", request_uri=\"").append(requestUri)
-          .append("\", request_method=\"").append(requestMethod)
+          .append("\", request_uri=\"").append(requestUri);
+
+        Object origErrorRequestUriAttr = extractOrigErrorRequestUriAttr(request);
+        if (origErrorRequestUriAttr != null) {
+            sb.append("\", orig_error_request_uri=\"").append(origErrorRequestUriAttr);
+        }
+
+        Object origForwardedRequestUriAttr = extractOrigForwardedRequestUriAttr(request);
+        if (origForwardedRequestUriAttr != null) {
+            sb.append("\", orig_forwarded_request_uri=\"").append(origForwardedRequestUriAttr);
+        }
+
+        sb.append("\", request_method=\"").append(requestMethod)
           .append("\", query_string=\"").append(queryString)
           .append("\", request_headers=\"").append(headersString)
           .append("\"");
@@ -195,6 +208,24 @@ public class ApiExceptionHandlerUtils {
         }
 
         return errorUid;
+    }
+
+    protected @Nullable Object extractOrigErrorRequestUriAttr(@NotNull RequestInfoForLogging request) {
+        // Corresponds to javax.servlet.RequestDispatcher.ERROR_REQUEST_URI.
+        return request.getAttribute("javax.servlet.error.request_uri");
+    }
+
+    protected @Nullable Object extractOrigForwardedRequestUriAttr(@NotNull RequestInfoForLogging request) {
+        // Corresponds to javax.servlet.RequestDispatcher.FORWARD_REQUEST_URI.
+        Object forwardedRequestUriAttr = request.getAttribute("javax.servlet.forward.request_uri");
+
+        if (forwardedRequestUriAttr != null) {
+            return forwardedRequestUriAttr;
+        }
+
+        // The forwarded request URI attr was null. Try the path info attr as a last resort.
+        //      Corresponds to javax.servlet.RequestDispatcher.FORWARD_PATH_INFO.
+        return request.getAttribute("javax.servlet.forward.path_info");
     }
 
     /**

@@ -15,7 +15,8 @@ dependencies {
             project(":backstopper-jackson"),
     )
     compileOnly(
-            "org.springframework:spring-webmvc:$springVersion",
+            "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
+            "org.springframework:spring-webmvc:$spring4Version",
             "javax.servlet:javax.servlet-api:$servletApiVersion",
     )
     testCompile(
@@ -26,10 +27,10 @@ dependencies {
             "org.assertj:assertj-core:$assertJVersion",
             "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
             "org.hamcrest:hamcrest-all:$hamcrestVersion",
-            "org.springframework:spring-test:$springVersion",
+            "org.springframework:spring-test:$spring4Version",
             "org.hibernate:hibernate-validator:$hibernateValidatorVersion",
             "javax.servlet:javax.servlet-api:$servletApiVersion",
-            "org.springframework:spring-webmvc:$springVersion",
+            "org.springframework:spring-webmvc:$spring4Version",
             "org.springframework.security:spring-security-core:$springSecurityVersion",
     )
 }

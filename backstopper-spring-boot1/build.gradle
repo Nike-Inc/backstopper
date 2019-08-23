@@ -1,0 +1,33 @@
+evaluationDependsOn(':')
+
+compileTestJava {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+ext {
+    // Springboot 1 requires Servlet API to be at least version 3.1
+    servletApiForSpringboot1Version = '3.1.0'
+}
+
+dependencies {
+    compile(
+            project(":backstopper-spring-web-mvc"),
+    )
+    compileOnly(
+            "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
+            "org.springframework.boot:spring-boot-autoconfigure:$springboot1Version",
+            "org.springframework:spring-webmvc:$spring4Version",
+            "javax.servlet:javax.servlet-api:$servletApiForSpringboot1Version",
+    )
+    testCompile(
+            "junit:junit:$junitVersion",
+            "org.mockito:mockito-core:$mockitoVersion",
+            "ch.qos.logback:logback-classic:$logbackVersion",
+            "org.assertj:assertj-core:$assertJVersion",
+            "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
+            "io.rest-assured:rest-assured:$restAssuredVersion",
+            "javax.servlet:javax.servlet-api:$servletApiForSpringboot1Version",
+            "org.springframework.boot:spring-boot-starter-web:$springboot1Version",
+    )
+}

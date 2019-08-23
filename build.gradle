@@ -67,25 +67,36 @@ jar.enabled = false
 sourcesJar.enabled = false
 javadocJar.enabled = false
 
+// No javadoc for sample or testonly modules.
+configure(subprojects.findAll { it.name.startsWith("sample") || it.name.startsWith("testonly") }) {
+    javadoc.enabled = false
+    javadocJar.enabled = false
+}
+
 // ========== PROPERTIES FOR GRADLE BUILD - DEPENDENCY VERSIONS / ETC
 ext {
     slf4jVersion = '1.7.7'
     javaxInjectVersion = '1'
     javaxValidationVersion = '1.0.0.GA'
     servletApiVersion = '3.0.1'
-    springVersion = '4.3.2.RELEASE'
+    spring4Version = '4.3.2.RELEASE'
+    spring5Version = '5.1.8.RELEASE'
+    springboot1Version = '1.5.2.RELEASE'
+    springboot2Version = '2.1.6.RELEASE'
     jersey1Version = '1.19.2'
     jersey2Version = '2.23.2'
     jaxRsVersion = '2.0.1'
 
     junitVersion = '4.12'
     mockitoVersion = '1.9.5'
-    logbackVersion = '1.1.2'
+    logbackVersion = '1.2.3'
     jacksonVersion = '2.4.2'
     assertJVersion = '3.12.2'
     junitDataproviderVersion = '1.10.1'
     hamcrestVersion = '1.3'
     hibernateValidatorVersion = '4.3.0.Final'
+
+    jetbrainsAnnotationsVersion = '16.0.3'
 
     orgReflectionsVersion = '0.9.11'
     javassistVersion = '3.18.2-GA'
@@ -94,7 +105,7 @@ ext {
     restAssuredVersion = '3.0.1'
 
     // JACOCO PROPERTIES
-    jacocoToolVersion = '0.8.0'
+    jacocoToolVersion = '0.8.4'
     // Anything in this jacocoExclusions list will be excluded from coverage reports. The format is paths to class
     //      files, with wildcards allowed. e.g.: jacocoExclusions = [ "com/nike/Foo.class", "**/Bar*.*" ]
     jacocoExclusions = []

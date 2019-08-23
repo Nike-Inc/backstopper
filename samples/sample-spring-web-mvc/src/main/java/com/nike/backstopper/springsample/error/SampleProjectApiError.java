@@ -38,7 +38,10 @@ public enum SampleProjectApiError implements ApiError {
     // This is a wrapper around a core error. It will have the same error code, message, and HTTP status code,
     //      but will show up in the logs with contributing_errors="SOME_MEANINGFUL_ERROR_NAME", allowing you to
     //      distinguish the context of the error vs. the core GENERIC_SERVICE_ERROR at a glance.
-    SOME_MEANINGFUL_ERROR_NAME(SampleCoreApiError.GENERIC_SERVICE_ERROR);
+    SOME_MEANINGFUL_ERROR_NAME(SampleCoreApiError.GENERIC_SERVICE_ERROR),
+    ERROR_THROWN_IN_SERVLET_FILTER_OUTSIDE_SPRING(
+        99150, "An error occurred in a Servlet Filter outside Spring", HttpStatus.INTERNAL_SERVER_ERROR.value()
+    );
 
     private final ApiError delegate;
 

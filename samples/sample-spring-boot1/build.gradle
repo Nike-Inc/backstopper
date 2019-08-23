@@ -1,0 +1,39 @@
+evaluationDependsOn(':')
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+ext {
+    // Springboot requires Servlet API to be at least version 3.1
+    servletApiForTestsVersion = '3.1.0'
+}
+
+dependencies {
+    compile(
+            project(":backstopper-spring-boot1"),
+            project(":backstopper-custom-validators"),
+            "ch.qos.logback:logback-classic:$logbackVersion",
+            "org.hibernate:hibernate-validator:$hibernateValidatorVersion",
+            "org.springframework.boot:spring-boot-starter-web:$springboot1Version",
+            "javax.servlet:javax.servlet-api:$servletApiForTestsVersion",
+    )
+    compileOnly(
+            "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
+    )
+    testCompile(
+            project(":backstopper-reusable-tests"),
+            "junit:junit:$junitVersion",
+            "org.mockito:mockito-core:$mockitoVersion",
+            "ch.qos.logback:logback-classic:$logbackVersion",
+            "org.assertj:assertj-core:$assertJVersion",
+            "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
+            "io.rest-assured:rest-assured:$restAssuredVersion",
+    )
+}
+
+apply plugin: "application"
+mainClassName = "com.nike.backstopper.springbootsample.Main"
+
+run {
+    systemProperties = System.getProperties()
+}

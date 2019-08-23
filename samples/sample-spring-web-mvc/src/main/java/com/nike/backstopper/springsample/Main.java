@@ -1,5 +1,8 @@
 package com.nike.backstopper.springsample;
 
+import com.nike.backstopper.exception.ApiException;
+import com.nike.backstopper.springsample.error.SampleProjectApiError;
+
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
@@ -8,9 +11,17 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.DispatcherServlet;
 
 import java.io.IOException;
+import java.util.EnumSet;
+
+import javax.servlet.DispatcherType;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Starts up the Backstopper Spring Web MVC Sample server (on port 8080 by default).
@@ -46,6 +57,9 @@ public class Main {
         contextHandler.setContextPath("/");
         contextHandler.addServlet(new ServletHolder(generateDispatcherServlet(context)), "/*");
         contextHandler.addEventListener(new ContextLoaderListener(context));
+        contextHandler.addFilter(
+            ExplodingFilter.class, "/*", EnumSet.allOf(DispatcherType.class)
+        );
         return contextHandler;
     }
 
@@ -68,5 +82,23 @@ public class Main {
         //      which is much preferred - you don't lose any context that way.
         dispatcherServlet.setThrowExceptionIfNoHandlerFound(true);
         return dispatcherServlet;
+    }
+
+    public static class ExplodingFilter extends OncePerRequestFilter {
+
+        @Override
+        protected void doFilterInternal(
+            HttpServletRequest request, HttpServletResponse response, FilterChain filterChain
+        ) throws ServletException, IOException {
+            if ("true".equals(request.getHeader("throw-servlet-filter-exception"))) {
+                throw ApiException
+                    .newBuilder()
+                    .withApiErrors(SampleProjectApiError.ERROR_THROWN_IN_SERVLET_FILTER_OUTSIDE_SPRING)
+                    .withExceptionMessage("Exception thrown from Servlet Filter outside Spring")
+                    .build();
+            }
+            filterChain.doFilter(request, response);
+        }
+
     }
 }
