@@ -9,10 +9,89 @@ Note that the `nike-internal-util` library is technically version-independent ev
 Backstopper is used heavily and is stable internally at Nike, however the wider community may have needs or use cases that we haven't considered. Therefore Backstopper will live at a sub-1.0 version for a short time after its initial open source release to give it time to respond quickly to the open source community without ballooning the version numbers. Once its public APIs have stabilized again as an open source project it will be switched to the normal post-1.0 semantic versioning system.
 
 #### 0.x Releases
-   
+
+- `0.12.x` Releases - [0.12.0](#0120)    
 - `0.11.x` Releases - [0.11.5](#0115), [0.11.4](#0114), [0.11.3](#0113), [0.11.2](#0112), [0.11.1](#0111), [0.11.0](#0110)
 - `0.10.x` Releases - [0.10.0](#0100)                     
 - `0.9.x` Releases - [0.9.2](#092), [0.9.1.1](#0911), [0.9.1](#091), [0.9.0.1](#0901), [0.9.0](#090)
+
+## [0.12.0](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.12.0)
+
+Released on 2019-08-23.
+
+### Potentially breaking changes
+
+* Stack dependencies have been moved to compile-only to avoid exporting transitive stack dependencies. This was done
+to prevent runtime version conflicts with whatever stack version dependencies you're using in your application 
+environment. This should not affect most users since the Backstopper libraries are likely to be used in an environment
+where the required stack dependencies are already on the classpath at runtime, however if you receive class-not-found
+errors related to the stack classes then you'll need to pull the necessary dependencies into your project. The 
+stack-specific Backstopper module readmes for your stack will contain details on which dependencies you might need to 
+pull into your project. This includes the following Backstopper libraries and their stack dependencies:
+    - [backstopper-servlet-api](backstopper-servlet-api): Servlet API
+    - [backstopper-jaxrs](backstopper-jaxrs): Servlet API, JAX-RS API
+    - [backstopper-jersey1](backstopper-jersey1): Servlet API, Jersey 1 Server
+    - [backstopper-jersey2](backstopper-jersey2): Servlet API, JAX-RS API Jersey 2 Server 
+    - [backstopper-spring-web-mvc](backstopper-spring-web-mvc): Servlet API, Spring Web MVC
+* The `OneOffSpringFrameworkExceptionHandlerListener` class has been split to accommodate both Spring Web MVC and
+Spring WebFlux apps. There's now an abstract `OneOffSpringCommonFrameworkExceptionHandlerListener` that contains
+code common to both Web MVC and WebFlux, and specific `OneOffSpringWebMvcFrameworkExceptionHandlerListener`
+and `OneOffSpringWebFluxFrameworkExceptionHandlerListener` classes that should be used in their respective Web MVC
+and WebFlux environments. This shouldn't affect most Backstopper users unless you were overriding the old 
+now-missing class for some reason. If you are an existing user affected by this change, the fix should simply be to 
+use `OneOffSpringWebMvcFrameworkExceptionHandlerListener`.
+    
+### Added
+
+* Added Spring WebFlux support. If you're running a Spring WebFlux app, you can integrate Backstopper easily with 
+the new [backstopper-spring-web-flux](backstopper-spring-web-flux) library. Click that link to go to the readme
+with full integration setup instructions. See the new 
+[Spring Boot 2 WebFlux Sample App](samples/sample-spring-boot2-webflux) for a concrete example of 
+Backstopper+Spring WebFlux.
+    - Added by [Nic Munroe][contrib_nicmunroe] in pull request [#41](https://github.com/Nike-Inc/backstopper/pull/41).
+* Added Spring Boot 1 and Spring Boot 2 (Web MVC) Backstopper libraries. If you're using Spring Boot 1 or 
+Spring Boot 2 (with Web MVC, not WebFlux), then you should use these libraries *instead of 
+`backstopper-spring-web-mvc`*:
+[backstopper-spring-boot1](backstopper-spring-boot1) or 
+[backstopper-spring-boot2-webmvc](backstopper-spring-boot2-webmvc). See the readmes in those modules for full
+configuration details. See the new [Spring Boot 1 Sample App](samples/sample-spring-boot1) or 
+[Spring Boot 2 Web MVC Sample App](samples/sample-spring-boot2-webmvc) for a concrete example.
+    - Added by [Nic Munroe][contrib_nicmunroe] in pull request [#40](https://github.com/Nike-Inc/backstopper/pull/40).
+* Added support to Spring Web MVC based Backstopper apps for Servlet container errors that happen outside Spring
+to still be handled by Backstopper (e.g. 404 errors that are caught by the Servlet container and never reach Spring).
+To utilize this feature on non-Springboot apps you'll need to configure your Servlet container to route 
+Servlet-container-caught errors to `/error`. For Springboot apps you'll need to pull in and use the new
+[backstopper-spring-boot1](backstopper-spring-boot1) or 
+[backstopper-spring-boot2-webmvc](backstopper-spring-boot2-webmvc) library (whichever is appropriate) instead of
+`backstopper-spring-web-mvc`, and this new feature will be configured automatically.
+    - Added by [Nic Munroe][contrib_nicmunroe] in pull request [#40](https://github.com/Nike-Inc/backstopper/pull/40). 
+* Added support for a few missing Spring framework exception types and added some extra log details for others.
+In particular, added support for many Spring Security exceptions (`AccessDeniedException` will now map to a 403,
+for example). 
+    - Added by [Nic Munroe][contrib_nicmunroe] in pull request [#38](https://github.com/Nike-Inc/backstopper/pull/38).
+    - Resolves issue [#35](https://github.com/Nike-Inc/backstopper/issues/35).
+* Added some `testonly-spring*` modules to this repository to cover all the various Spring combinations:
+Spring Web MVC 4, Spring Web MVC 5, Spring Boot 1, Spring Boot 2 Web MVC, and Spring Boot 2 WebFlux - testing both
+direct import of the Backstopper Spring integration bean as well as blanket `com.nike.backstopper` component scanning
+in each case. 
+    - Added by [Nic Munroe][contrib_nicmunroe] in pull requests [#40](https://github.com/Nike-Inc/backstopper/pull/40)
+    and [#41](https://github.com/Nike-Inc/backstopper/pull/41).     
+
+### Changed
+
+* Changed `SpringApiExceptionHandler`'s order to be highest plus 1, to allow for Spring Boot's `DefaultErrorAttributes` 
+to execute and populate the request attributes with its error info.
+    - Changed by [Nic Munroe][contrib_nicmunroe] in pull request [#37](https://github.com/Nike-Inc/backstopper/pull/37).
+    
+### Project Build
+
+* Upgraded to Gradle `5.5.1` and got rid of plugins for console summaries.
+    - Upgraded by [Nic Munroe][contrib_nicmunroe] in pull request [#36](https://github.com/Nike-Inc/backstopper/pull/36).
+* Changed the Travis CI config to use `openjdk8` instead of `oraclejdk8`. 
+    - Changed by [Nic Munroe][contrib_nicmunroe] in pull request [#36](https://github.com/Nike-Inc/backstopper/pull/36).
+* Upgraded Jacoco to `0.8.4`.
+    - Upgraded by [Nic Munroe][contrib_nicmunroe] in pull request [#40](https://github.com/Nike-Inc/backstopper/pull/40). 
+* Upgraded `gradle-bintray-plugin` to `1.8.4`.
 
 ## [0.11.5](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.11.5)
 
