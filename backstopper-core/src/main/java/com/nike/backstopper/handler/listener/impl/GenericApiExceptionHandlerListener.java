@@ -45,6 +45,11 @@ public class GenericApiExceptionHandlerListener implements ApiExceptionHandlerLi
         if (StringUtils.isNotBlank(ex.getMessage()))
             messages.add(Pair.of("api_exception_message", ex.getMessage()));
 
+        if (ex.getCause() != null) {
+            messages.add(Pair.of("exception_cause_class", ex.getCause().getClass().getName()));
+            messages.add(Pair.of("exception_cause_message", ex.getCause().getMessage()));
+        }
+
         return ApiExceptionHandlerListenerResult.handleResponse(errors, messages, headers);
     }
 }
