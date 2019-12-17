@@ -80,4 +80,14 @@ public class GenericApiExceptionHandlerListenerTest extends ListenerTestBase {
         assertThat(result.extraDetailsForLogging.get(0), is(Pair.of("api_exception_message", "Nice message")));
     }
 
+    @Test
+    public void shouldAddExceptionCauseIfExceptionCauseIsNonEmpty() {
+        ApiError error = BarebonesCoreApiErrorForTesting.NOT_FOUND;
+        ApiException ex = ApiException.newBuilder().withApiErrors(error).withExceptionCause(new Exception("intentional test exception")).build();
+        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
+        assertThat(result.extraDetailsForLogging.size(), is(3));
+        assertThat(result.extraDetailsForLogging.get(1), is(Pair.of("exception_cause_class", "java.lang.Exception")));
+        assertThat(result.extraDetailsForLogging.get(2), is(Pair.of("exception_cause_message", "intentional test exception")));
+    }
+
 }
