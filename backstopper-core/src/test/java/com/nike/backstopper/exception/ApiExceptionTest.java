@@ -18,6 +18,7 @@ import java.util.List;
 import static com.nike.backstopper.apierror.testutil.BarebonesCoreApiErrorForTesting.GENERIC_SERVICE_ERROR;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 /**
  * Tests the functionality of {@link com.nike.backstopper.exception.ApiException} and its builder
@@ -45,11 +46,20 @@ public class ApiExceptionTest {
     private Exception cause = new Exception("intentional test exception");
 
     @DataProvider(value = {
-        "true",
-        "false"
-    })
+        "true   |   FORCE_STACK_TRACE",
+        "true   |   FORCE_NO_STACK_TRACE",
+        "true   |   DEFER_TO_DEFAULT_BEHAVIOR",
+        "true   |   null",
+        "false  |   FORCE_STACK_TRACE",
+        "false  |   FORCE_NO_STACK_TRACE",
+        "false  |   DEFER_TO_DEFAULT_BEHAVIOR",
+        "false  |   null",
+    }, splitBy = "\\|")
     @Test
-    public void builder_works_as_expected(boolean includeCause) {
+    public void builder_dot_build_and_constructor_that_takes_builder_arg_are_identical_and_work_as_expected(
+        boolean includeCause,
+        StackTraceLoggingBehavior desiredStackTraceLoggingBehavior
+    ) {
         // given
         ApiException.Builder builder = ApiException.newBuilder()
                 .withApiErrors(Arrays.asList(apiError1, apiError2))
@@ -59,31 +69,97 @@ public class ApiExceptionTest {
                 .withExtraResponseHeaders(Arrays.asList(headerPair1, headerPair2))
                 .withExtraResponseHeaders(headerPair3, headerPair4)
                 .withExceptionMessage(exceptionMessage)
-                .withStackTraceLoggingBehaviorAs(StackTraceLoggingBehavior.FORCE_STACK_TRACE);
+                .withStackTraceLoggingBehavior(desiredStackTraceLoggingBehavior);
 
         if (includeCause)
             builder.withExceptionCause(cause);
 
+        StackTraceLoggingBehavior expectedStackTraceLoggingBehavior =
+            (desiredStackTraceLoggingBehavior == null)
+            ? StackTraceLoggingBehavior.DEFER_TO_DEFAULT_BEHAVIOR
+            : desiredStackTraceLoggingBehavior;
+
         // when
-        ApiException apiException = builder.build();
+        ApiException apiExceptionFromBuilder = builder.build();
+        ApiException apiExceptionFromConstructor = new ApiException(builder);
 
         // then
-        assertThat(apiException.getApiErrors()).isEqualTo(Arrays.asList(apiError1, apiError2, apiError3, apiError4));
-        assertThat(apiException.getExtraDetailsForLogging()).isEqualTo(Arrays.asList(logPair1, logPair2, logPair3, logPair4));
-        assertThat(apiException.getExtraResponseHeaders()).isEqualTo(Arrays.asList(headerPair1, headerPair2, headerPair3, headerPair4));
-        assertThat(apiException.getMessage()).isEqualTo(exceptionMessage);
-        assertThat(apiException.getStackTraceLoggingBehavior()).isEqualTo(StackTraceLoggingBehavior.FORCE_STACK_TRACE);
+        assertThat(apiExceptionFromBuilder.getApiErrors())
+            .isEqualTo(apiExceptionFromConstructor.getApiErrors())
+            .isEqualTo(Arrays.asList(apiError1, apiError2, apiError3, apiError4));
 
-        if (includeCause)
-            assertThat(apiException.getCause()).isSameAs(cause);
-        else
-            assertThat(apiException.getCause()).isNull();
+        assertThat(apiExceptionFromBuilder.getExtraDetailsForLogging())
+            .isEqualTo(apiExceptionFromConstructor.getExtraDetailsForLogging())
+            .isEqualTo(Arrays.asList(logPair1, logPair2, logPair3, logPair4));
+
+        assertThat(apiExceptionFromBuilder.getExtraResponseHeaders())
+            .isEqualTo(apiExceptionFromConstructor.getExtraResponseHeaders())
+            .isEqualTo(Arrays.asList(headerPair1, headerPair2, headerPair3, headerPair4));
+
+        assertThat(apiExceptionFromBuilder.getMessage())
+            .isEqualTo(apiExceptionFromConstructor.getMessage())
+            .isEqualTo(exceptionMessage);
+
+        assertThat(apiExceptionFromBuilder.getStackTraceLoggingBehavior())
+            .isEqualTo(apiExceptionFromConstructor.getStackTraceLoggingBehavior())
+            .isEqualTo(expectedStackTraceLoggingBehavior);
+
+        if (includeCause) {
+            assertThat(apiExceptionFromBuilder.getCause())
+                .isSameAs(apiExceptionFromConstructor.getCause())
+                .isSameAs(cause);
+        }
+        else {
+            assertThat(apiExceptionFromBuilder.getCause())
+                .isEqualTo(apiExceptionFromConstructor.getCause())
+                .isNull();
+        }
+    }
+
+    @Test
+    public void constructor_with_builder_arg_uses_expected_defaults_when_optional_builder_fields_are_null() {
+        // given
+        List<ApiError> apiErrors = Arrays.asList(apiError1, apiError2);
+
+        ApiException.Builder builder = ApiException
+            .newBuilder()
+            .withApiErrors(apiErrors)
+            .withStackTraceLoggingBehavior(null)
+            .withExceptionMessage(null)
+            .withExceptionCause(null);
+
+        String expectedMessage = ApiException.extractMessage(apiErrors, null);
+        StackTraceLoggingBehavior expectedStackTraceLoggingBehavior =
+            StackTraceLoggingBehavior.DEFER_TO_DEFAULT_BEHAVIOR;
+
+        // when
+        ApiException apiException = new ApiException(builder);
+
+        // then
+        assertThat(apiException.getApiErrors()).isEqualTo(apiErrors);
+        assertThat(apiException.getStackTraceLoggingBehavior()).isEqualTo(expectedStackTraceLoggingBehavior);
+        assertThat(apiException.getMessage()).isEqualTo(expectedMessage);
+        assertThat(apiException.getCause()).isNull();
+    }
+
+    @Test
+    public void constructor_with_builder_arg_throws_IllegalArgumentException_when_passed_empty_ApiError_list() {
+        // given
+        ApiException.Builder builder = ApiException.newBuilder();
+
+        // when
+        Throwable ex = catchThrowable(() -> new ApiException(builder));
+
+        // then
+        assertThat(ex)
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("The Builder's apiErrors cannot be empty");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void single_error_constructor_fails_if_passed_null_arg() {
         // expect
-        new ApiException(null);
+        new ApiException((ApiError)null);
     }
 
     @Test
@@ -97,7 +173,6 @@ public class ApiExceptionTest {
         assertThat(apiException.getApiErrors().contains(GENERIC_SERVICE_ERROR)).isTrue();
         assertThat(apiException.getExtraDetailsForLogging().isEmpty()).isTrue();
         assertThat(apiException.getExtraResponseHeaders().isEmpty()).isTrue();
-
     }
 
     @DataProvider(value = {

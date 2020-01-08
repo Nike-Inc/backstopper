@@ -26,7 +26,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
-import static com.nike.backstopper.exception.StackTraceLoggingBehavior.*;
+import static com.nike.backstopper.exception.StackTraceLoggingBehavior.FORCE_NO_STACK_TRACE;
+import static com.nike.backstopper.exception.StackTraceLoggingBehavior.FORCE_STACK_TRACE;
 
 /**
  * The base class for a main API exception handler. Generally speaking there will be different extension classes for
@@ -265,7 +266,7 @@ public abstract class ApiExceptionHandlerBase<T> {
      * RequestInfoForLogging)} to generate the appropriate response for the client.
      *  @param clientErrors The ApiErrors that the originalException converted into.
      * @param extraDetailsForLogging Any extra details that should be logged along with the usual request/error info.
-     * @param extraResponseHeaders
+     * @param extraResponseHeaders Any extra response headers that should be sent to the caller in the HTTP response.
      * @param originalException The original exception that we are handling.
      * @param request The incoming request.
      */
@@ -368,25 +369,33 @@ public abstract class ApiExceptionHandlerBase<T> {
      *
      * @return true if the given originalException should be logged at error log level with a stack trace, false if it
      *          should be logged at warn log level with only the class type and message. By default this method
-     *          will return false for 4xx HTTP status code errors, true for everything else. Override this method
-     *          if you need different behavior.
+     *          will return false for 4xx HTTP status code errors, true for everything else. This method honors
+     *          the case where coreException is an {@link ApiException} and {@link
+     *          ApiException#getStackTraceLoggingBehavior()} asks to force the stack trace logging on or off.
+     *          Override this method if you need different behavior.
      */
     @SuppressWarnings("UnusedParameters")
     protected boolean shouldLogStackTrace(
         int statusCode, Collection<ApiError> filteredClientErrors, Throwable originalException,
         Throwable coreException, RequestInfoForLogging request
     ) {
-        if(coreException instanceof ApiException) {
-            StackTraceLoggingBehavior stackTraceLoggingBehavior = ((ApiException)coreException).getStackTraceLoggingBehavior();
-            if(stackTraceLoggingBehavior == null || stackTraceLoggingBehavior.equals(DEFER_TO_DEFAULT_BEHAVIOR)) {
-                return statusCode < 400 || statusCode >= 500;
-            } else {
-                return stackTraceLoggingBehavior.equals(FORCE_STACK_TRACE);
+        if (coreException instanceof ApiException) {
+            // See if this ApiException is explicitly requesting stack trace logging to be forced on or off.
+            StackTraceLoggingBehavior stackTraceLoggingBehavior =
+                ((ApiException)coreException).getStackTraceLoggingBehavior();
+
+            if (stackTraceLoggingBehavior == FORCE_STACK_TRACE) {
+                return true;
             }
-        } else {
-            //If coreException is not an ApiException we fallback to default behavior
-            // By default, 4xx should *not* log stack trace. Everything else should.
-            return statusCode < 400 || statusCode >= 500;
+            else if (stackTraceLoggingBehavior == FORCE_NO_STACK_TRACE) {
+                return false;
+            }
+
+            // If we reach here then stackTraceLoggingBehavior is null or DEFER_TO_DEFAULT_BEHAVIOR.
+            //      In either case, we want the default logic to be used to determine whether the stack trace is logged.
         }
+
+        // By default, 4xx should *not* log stack trace. Everything else should.
+        return statusCode < 400 || statusCode >= 500;
     }
 }
