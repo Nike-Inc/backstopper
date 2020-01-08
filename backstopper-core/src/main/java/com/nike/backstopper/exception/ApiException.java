@@ -40,6 +40,11 @@ public class ApiException extends RuntimeException {
     private final List<Pair<String, List<String>>> extraResponseHeaders;
 
     /**
+     * Allow users to override the default behavior (not logging 4xx errors) and instead force stack trace on/off if they want to override the default 4xx vs. 5xx decision behavior.
+     */
+    private StackTraceLoggingBehavior stackTraceLoggingBehavior = StackTraceLoggingBehavior.DEFER_TO_DEFAULT_BEHAVIOR;
+
+    /**
      * Handles the simple common case where you just want to throw a single {@link ApiError} and nothing else.
      */
     public ApiException(ApiError error) {
@@ -192,6 +197,14 @@ public class ApiException extends RuntimeException {
         return StringUtils.join(apiErrorMessages, ", ", "[", "]");
     }
 
+    public StackTraceLoggingBehavior getStackTraceLoggingBehavior() {
+        return stackTraceLoggingBehavior;
+    }
+
+    public void setStackTraceLoggingBehavior(StackTraceLoggingBehavior stackTraceLoggingBehavior) {
+        this.stackTraceLoggingBehavior = stackTraceLoggingBehavior;
+    }
+
     /**
      * Builder for {@link ApiException}.
      */
@@ -202,6 +215,7 @@ public class ApiException extends RuntimeException {
         private List<Pair<String, List<String>>> extraResponseHeaders = new ArrayList<>();
         private String message;
         private Throwable cause;
+        private StackTraceLoggingBehavior stackTraceLoggingBehavior;
 
         public Builder() {}
 
@@ -277,13 +291,28 @@ public class ApiException extends RuntimeException {
         }
 
         /**
+         * Adds the stackTraceLoggingBehavior to what will ultimately become {@link ApiException#stackTraceLoggingBehavior}.
+         */
+        public Builder withStackTraceLoggingBehaviorAs(StackTraceLoggingBehavior stackTraceLoggingBehavior) {
+            this.stackTraceLoggingBehavior = stackTraceLoggingBehavior;
+            return this;
+        }
+
+        /**
          * Creates the {@link ApiException} from the data this builder contains.
          */
         public ApiException build() {
-            if (this.cause == null)
-                return new ApiException(apiErrors, extraDetailsForLogging, extraResponseHeaders, message);
-            else
-                return new ApiException(apiErrors, extraDetailsForLogging, extraResponseHeaders, message, cause);
+            if (this.cause == null) {
+                ApiException apiException = new ApiException(apiErrors, extraDetailsForLogging, extraResponseHeaders, message);
+                apiException.setStackTraceLoggingBehavior(this.stackTraceLoggingBehavior);
+                return apiException;
+            }
+
+            else {
+                ApiException apiException = new ApiException(apiErrors, extraDetailsForLogging, extraResponseHeaders, message, cause);
+                apiException.setStackTraceLoggingBehavior(this.stackTraceLoggingBehavior);
+                return apiException;
+            }
         }
     }
 }

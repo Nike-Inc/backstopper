@@ -8,6 +8,7 @@ import com.nike.backstopper.apierror.projectspecificinfo.ProjectSpecificErrorCod
 import com.nike.backstopper.apierror.testutil.BarebonesCoreApiErrorForTesting;
 import com.nike.backstopper.apierror.testutil.ProjectApiErrorsForTesting;
 import com.nike.backstopper.exception.ApiException;
+import com.nike.backstopper.exception.StackTraceLoggingBehavior;
 import com.nike.backstopper.exception.WrapperException;
 import com.nike.backstopper.exception.network.ServerTimeoutException;
 import com.nike.backstopper.handler.listener.ApiExceptionHandlerListener;
@@ -472,6 +473,131 @@ public class ApiExceptionHandlerBaseTest {
         Assertions.assertThat(result.headersToAddToResponse.get("error_uid"))
                   .isNotEqualTo(extraHeadersArg.get(0).getRight())
                   .isEqualTo(singletonList(result.frameworkRepresentationObj.erv.error_id));
+    }
+
+    @Test
+    public void shouldLogStackTrace_should_log_all_errors_when_set_to_StackTraceLoggingBehavior_is_set_to_ForceStackTrace_only_for_an_ApiException() {
+        // given
+        StackTraceLoggingBehavior stackTraceloggingBehavior = StackTraceLoggingBehavior.FORCE_STACK_TRACE;
+        ApiExceptionHandlerBase<TestDTO> handler = new TestApiExceptionHandler();
+
+        List<ApiError> filteredClientErrors = Arrays.<ApiError>asList(new ApiErrorBase("SOME_500_API_ERROR", 99043,
+                "some message", 500), new ApiErrorBase("CUSTOM_400_API_ERROR", 99042, "some message", 400));
+        Exception originalException = new Exception("something erroneous");
+
+        ApiException apiException = ApiException
+                .newBuilder()
+                .withApiErrors(testProjectApiErrors.getGenericServiceError())
+                .withStackTraceLoggingBehaviorAs(stackTraceloggingBehavior)
+                .build();
+
+        // when
+        boolean result = handler.shouldLogStackTrace(500, filteredClientErrors, originalException, apiException, reqMock);
+
+        // then
+        Assertions.assertThat(result).isEqualTo(true);
+    }
+
+    @Test
+    public void shouldLogStackTrace_should_log_all_5xx_errors_when_StackTraceLoggingBehavior_is_Default_for_an_ApiException() {
+        // given
+        ApiExceptionHandlerBase<TestDTO> handler = new TestApiExceptionHandler();
+
+        List<ApiError> filteredClientErrors = Arrays.<ApiError>asList(new ApiErrorBase("SOME_500_API_ERROR", 99043,
+                "some message", 500), new ApiErrorBase("CUSTOM_400_API_ERROR", 99042, "some message", 400));
+        Exception originalException = new Exception("something erroneous");
+
+        ApiException apiException = ApiException
+                .newBuilder()
+                .withApiErrors(testProjectApiErrors.getGenericServiceError())
+                .build();
+
+        // when
+        boolean result = handler.shouldLogStackTrace(500, filteredClientErrors, originalException, apiException, reqMock);
+
+        // then
+        Assertions.assertThat(result).isEqualTo(true);
+    }
+
+
+    @Test
+    public void shouldLogStackTrace_should_not_log_any_4xx_errors_when_StackTraceLoggingBehavior_is_Default_for_an_ApiException() {
+        // given
+        ApiExceptionHandlerBase<TestDTO> handler = new TestApiExceptionHandler();
+
+        List<ApiError> filteredClientErrors = Arrays.<ApiError>asList(new ApiErrorBase("SOME_500_API_ERROR", 99043,
+                "some message", 500), new ApiErrorBase("CUSTOM_400_API_ERROR", 99042, "some message", 400));
+        Exception originalException = new Exception("something erroneous");
+
+        ApiException apiException = ApiException
+                .newBuilder()
+                .withApiErrors(testProjectApiErrors.getGenericServiceError())
+                .build();
+
+        // when
+        boolean result = handler.shouldLogStackTrace(400, filteredClientErrors, originalException, apiException, reqMock);
+
+        // then
+        Assertions.assertThat(result).isEqualTo(false);
+    }
+
+    @Test
+    public void shouldLogStackTrace_should_log_all_errors_when_coreException_is_not_an_ApiException_and_statusCode_is_500() {
+        // given
+        ApiExceptionHandlerBase<TestDTO> handler = new TestApiExceptionHandler();
+
+        List<ApiError> filteredClientErrors = Arrays.<ApiError>asList(new ApiErrorBase("SOME_500_API_ERROR", 99043,
+                "some message", 500));
+        Exception originalException = new Exception("something erroneous");
+
+        Exception coreException = new Exception("I am not an ApiException");
+
+        // when
+        boolean result = handler.shouldLogStackTrace(500, filteredClientErrors, originalException, coreException, reqMock);
+
+        // then
+        Assertions.assertThat(result).isEqualTo(true);
+    }
+
+
+    @Test
+    public void shouldLogStackTrace_should_not_log_all_errors_when_coreException_is_not_an_ApiException_and_statusCode_is_400() {
+        // given
+        ApiExceptionHandlerBase<TestDTO> handler = new TestApiExceptionHandler();
+
+        List<ApiError> filteredClientErrors = Arrays.<ApiError>asList(new ApiErrorBase("SOME_400_API_ERROR", 99044,
+                "some message", 400));
+        Exception originalException = new Exception("something erroneous");
+
+        Exception coreException = new Exception("I am not an ApiException");
+
+        // when
+        boolean result = handler.shouldLogStackTrace(400, filteredClientErrors, originalException, coreException, reqMock);
+
+        // then
+        Assertions.assertThat(result).isEqualTo(false);
+    }
+
+    @Test
+    public void shouldLogStackTrace_should_not_log_all_errors_when_StackTraceLoggingBehavior_is_FORCE_NO_STACK_TRACE() {
+        // given
+        StackTraceLoggingBehavior stackTraceloggingBehavior = StackTraceLoggingBehavior.FORCE_NO_STACK_TRACE;
+        ApiExceptionHandlerBase<TestDTO> handler = new TestApiExceptionHandler();
+
+        List<ApiError> filteredClientErrors = Arrays.<ApiError>asList(new ApiErrorBase("CUSTOM_400_API_ERROR", 99042, "some message", 400));
+        Exception originalException = new Exception("something erroneous");
+
+        ApiException apiException = ApiException
+                .newBuilder()
+                .withApiErrors(testProjectApiErrors.getGenericServiceError())
+                .withStackTraceLoggingBehaviorAs(stackTraceloggingBehavior)
+                .build();
+
+        // when
+        boolean result = handler.shouldLogStackTrace(400, filteredClientErrors, originalException, apiException, reqMock);
+
+        // then
+        Assertions.assertThat(result).isEqualTo(false);
     }
 
     // DEFAULT_WRAPPER_EXCEPTION_CLASS_NAMES should contain at least WrapperException, ExecutionException, CompletionException

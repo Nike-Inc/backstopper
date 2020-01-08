@@ -3,6 +3,8 @@ package com.nike.backstopper.handler;
 import com.nike.backstopper.apierror.ApiError;
 import com.nike.backstopper.apierror.SortedApiErrorSet;
 import com.nike.backstopper.apierror.projectspecificinfo.ProjectApiErrors;
+import com.nike.backstopper.exception.ApiException;
+import com.nike.backstopper.exception.StackTraceLoggingBehavior;
 import com.nike.backstopper.exception.WrapperException;
 import com.nike.backstopper.exception.network.NetworkExceptionBase;
 import com.nike.backstopper.handler.listener.ApiExceptionHandlerListener;
@@ -23,6 +25,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+
+import static com.nike.backstopper.exception.StackTraceLoggingBehavior.*;
 
 /**
  * The base class for a main API exception handler. Generally speaking there will be different extension classes for
@@ -372,11 +376,17 @@ public abstract class ApiExceptionHandlerBase<T> {
         int statusCode, Collection<ApiError> filteredClientErrors, Throwable originalException,
         Throwable coreException, RequestInfoForLogging request
     ) {
-        // By default, 4xx should *not* log stack trace. Everything else should.
-        //noinspection RedundantIfStatement
-        if (statusCode >= 400 && statusCode < 500)
-            return false;
-
-        return true;
+        if(coreException instanceof ApiException) {
+            StackTraceLoggingBehavior stackTraceLoggingBehavior = ((ApiException)coreException).getStackTraceLoggingBehavior();
+            if(stackTraceLoggingBehavior == null || stackTraceLoggingBehavior.equals(DEFER_TO_DEFAULT_BEHAVIOR)) {
+                return statusCode < 400 || statusCode >= 500;
+            } else {
+                return stackTraceLoggingBehavior.equals(FORCE_STACK_TRACE);
+            }
+        } else {
+            //If coreException is not an ApiException we fallback to default behavior
+            // By default, 4xx should *not* log stack trace. Everything else should.
+            return statusCode < 400 || statusCode >= 500;
+        }
     }
 }

@@ -58,7 +58,8 @@ public class ApiExceptionTest {
                 .withExtraDetailsForLogging(logPair3, logPair4)
                 .withExtraResponseHeaders(Arrays.asList(headerPair1, headerPair2))
                 .withExtraResponseHeaders(headerPair3, headerPair4)
-                .withExceptionMessage(exceptionMessage);
+                .withExceptionMessage(exceptionMessage)
+                .withStackTraceLoggingBehaviorAs(StackTraceLoggingBehavior.FORCE_STACK_TRACE);
 
         if (includeCause)
             builder.withExceptionCause(cause);
@@ -71,6 +72,8 @@ public class ApiExceptionTest {
         assertThat(apiException.getExtraDetailsForLogging()).isEqualTo(Arrays.asList(logPair1, logPair2, logPair3, logPair4));
         assertThat(apiException.getExtraResponseHeaders()).isEqualTo(Arrays.asList(headerPair1, headerPair2, headerPair3, headerPair4));
         assertThat(apiException.getMessage()).isEqualTo(exceptionMessage);
+        assertThat(apiException.getStackTraceLoggingBehavior()).isEqualTo(StackTraceLoggingBehavior.FORCE_STACK_TRACE);
+
         if (includeCause)
             assertThat(apiException.getCause()).isSameAs(cause);
         else
