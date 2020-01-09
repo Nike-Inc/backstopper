@@ -21,11 +21,13 @@ dependencies {
             "javax.validation:validation-api:$javaxValidationVersion",
             "junit:junit:$junitVersion",
             "org.mockito:mockito-core:$mockitoVersion",
-            "ch.qos.logback:logback-classic:$logbackVersion",
             "org.assertj:assertj-core:$assertJ2Version",
             "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
             "org.hamcrest:hamcrest-all:$hamcrestVersion",
             "org.reflections:reflections:$orgReflectionsVersion",
             "org.javassist:javassist:$javassistVersion"
+    )
+    testCompile(
+            "ch.qos.logback:logback-classic:$logbackVersion",
     )
 }
