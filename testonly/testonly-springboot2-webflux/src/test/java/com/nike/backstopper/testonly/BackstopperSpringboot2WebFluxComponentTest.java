@@ -665,6 +665,28 @@ public class BackstopperSpringboot2WebFluxComponentTest {
 
     @UseDataProvider("serverScenarioDataProvider")
     @Test
+    public void verify_sample_post_fails_with_MALFORMED_REQUEST_if_passed_junk_json(
+        ServerScenario scenario
+    ) {
+        ExtractableResponse response =
+            given()
+                .baseUri("http://localhost")
+                .port(scenario.serverPort)
+                .basePath(SAMPLE_PATH)
+                .contentType(ContentType.JSON)
+                .body("{notjson blah")
+                .log().all()
+                .when()
+                .post()
+                .then()
+                .log().all()
+                .extract();
+
+        verifyErrorReceived(response, SampleCoreApiError.MALFORMED_REQUEST);
+    }
+
+    @UseDataProvider("serverScenarioDataProvider")
+    @Test
     public void verify_sample_post_fails_with_MALFORMED_REQUEST_if_passed_bad_json_body(
         ServerScenario scenario
     ) throws IOException {
