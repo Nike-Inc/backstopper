@@ -10,10 +10,44 @@ Backstopper is used heavily and is stable internally at Nike, however the wider 
 
 #### 0.x Releases
 
+- `0.13.x` Releases - [0.13.0](#0130) 
 - `0.12.x` Releases - [0.12.0](#0120)    
 - `0.11.x` Releases - [0.11.5](#0115), [0.11.4](#0114), [0.11.3](#0113), [0.11.2](#0112), [0.11.1](#0111), [0.11.0](#0110)
 - `0.10.x` Releases - [0.10.0](#0100)                     
 - `0.9.x` Releases - [0.9.2](#092), [0.9.1.1](#0911), [0.9.1](#091), [0.9.0.1](#0901), [0.9.0](#090)
+
+## [0.13.0](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.13.0)
+
+Released on 2020-01-08.
+
+### Added
+
+* Added two new detail key/value pairs to the Backstopper log message when an `ApiException` is handled: 
+`exception_cause_class` and `exception_cause_message`. This lets you always know what the cause of the `ApiException` 
+was in the case that the `ApiError`(s) in the `ApiException` are too generic, the thrower of the `ApiException` doesn't 
+include any extra logging details, and the whole thing ultimately maps to a 4xx (and therefore no stack trace shows up 
+in the logs). 
+    - Added by [Aniket Joshi][contrib_apjo] in pull request [#46](https://github.com/Nike-Inc/backstopper/pull/46).
+    - Resolves issue [#43](https://github.com/Nike-Inc/backstopper/issues/43).
+* Added a new feature to `ApiException` to allow you to force stack trace logging on or off, no matter what
+HTTP response code is associated with the error. This lets you force stack trace logging on for 4xx errors, or off for
+5xx errors, on a per-`ApiException` basis. You specify this using the `ApiException` builder (see 
+`ApiException.Builder.withStackTraceLoggingBehavior(...)`).
+    - Added by [Aniket Joshi][contrib_apjo] and [Nic Munroe][contrib_nicmunroe] in pull requests 
+    [#47](https://github.com/Nike-Inc/backstopper/pull/47) and [#48](https://github.com/Nike-Inc/backstopper/pull/48).
+    - Resolves issue [#44](https://github.com/Nike-Inc/backstopper/issues/44).
+    
+### Fixed
+
+* The `backstopper-reusable-tests` module no longer exports the `ch.qos.logback:logback-classic` dependency 
+(it was moved from from a `compile` dependency to `testCompile`). This could conflict with whatever logger impl an 
+importing project happened to be using.  
+    - Fixed by [Nic Munroe][contrib_nicmunroe] in pull request [#50](https://github.com/Nike-Inc/backstopper/pull/50).   
+    
+### Deprecated
+
+* Deprecated most of the constructors in `ApiException`. Please move to using the builder.
+    - Deprecated by [Nic Munroe][contrib_nicmunroe] in pull request [#48](https://github.com/Nike-Inc/backstopper/pull/48).
 
 ## [0.12.0](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.12.0)
 
@@ -237,3 +271,4 @@ Released on 2016-09-20.
 [contrib_nicmunroe]: https://github.com/nicmunroe
 [contrib_mikesir87]: https://github.com/mikesir87 
 [contrib_rabeyta]: https://github.com/rabeyta
+[contrib_apjo]: https://github.com/apjo
