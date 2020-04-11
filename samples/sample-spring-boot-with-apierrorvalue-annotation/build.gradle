@@ -1,0 +1,26 @@
+evaluationDependsOn(':')
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+dependencies {
+    annotationProcessor(
+            project(":backstopper-annotation-post-processor")
+    )
+    compile(
+            project(":backstopper-spring-boot1"),
+            "org.hibernate:hibernate-validator:$hibernateValidatorVersion",
+            "org.springframework.boot:spring-boot-starter-web:$springboot1Version"
+    )
+    testCompile(
+            "junit:junit:$junitVersion",
+            "org.springframework.boot:spring-boot-starter-test:1.5.2.RELEASE"
+    )
+}
+
+apply plugin: "application"
+mainClassName = "com.nike.backstopper.springbootsample.Main"
+
+run {
+    systemProperties = System.getProperties()
+}

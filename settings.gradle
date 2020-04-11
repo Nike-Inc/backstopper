@@ -15,6 +15,7 @@ include "nike-internal-util",
         "backstopper-jaxrs",
         "backstopper-jersey1",
         "backstopper-jersey2",
+        "backstopper-annotation-post-processor",
         // Test-only modules (not published)
         "testonly:testonly-spring-reusable-test-support",
         "testonly:testonly-spring4-webmvc",
@@ -28,4 +29,5 @@ include "nike-internal-util",
         "samples:sample-spring-boot2-webmvc",
         "samples:sample-spring-boot2-webflux",
         "samples:sample-jersey1",
-        "samples:sample-jersey2"
+        "samples:sample-jersey2",
+        "samples:sample-spring-boot-with-apierrorvalue-annotation"

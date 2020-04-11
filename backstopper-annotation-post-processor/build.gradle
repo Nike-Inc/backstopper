@@ -1,0 +1,23 @@
+evaluationDependsOn(':')
+
+compileTestJava {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+dependencies {
+    compile(project(":backstopper-core")
+    )
+    compileOnly(
+            "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
+    )
+    testCompile(
+            "junit:junit:$junitVersion",
+            "org.mockito:mockito-core:$mockitoVersion",
+            "org.assertj:assertj-core:$assertJVersion",
+            "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
+            "org.hamcrest:hamcrest-all:$hamcrestVersion",
+            "javax.validation:validation-api:2.0.1.Final",
+            "com.google.testing.compile:compile-testing:0.18"
+    )
+}

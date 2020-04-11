@@ -62,6 +62,25 @@ throw ApiException.newBuilder()
                   .build();
 ```  
 
+##### --AND/OR-- 
+##### 2c. Define your API's errors using @ApiErrorValue annotation
+
+> currently supported Spring 4/Spring Boot 1.x/Spring 2.x
+
+```java
+public class Payload {
+
+     @ApiErrorValue
+     @NotBlank
+     public String foo;
+
+     @ApiErrorValue(errorCode = "BLANK_BAR", httpStatusCode = 400)
+     @NotBlank(message = "bar should not be blank")
+     public String bar;
+     // -- SNIP -- 
+}
+```
+
 ##### 3. Send payload that will cause errors to be thrown
 
 `POST /profile`
@@ -113,6 +132,7 @@ throw ApiException.newBuilder()
 * [backstopper-jackson](backstopper-jackson/) - Contains a few utilities that help integrate Backstopper and Jackson for serializing error contracts to JSON. Optional.
 * [backstopper-servlet-api](backstopper-servlet-api/) - Intermediate library intended to ease integration with Servlet-based frameworks. If you're building a Backstopper integration library for a Servlet-based framework that we don't already have support for then you'll want to use this.
 * [nike-internal-util](nike-internal-util/) - A small utilities library that provides some reusable helper methods and classes. It is "internal" in the sense that it is not intended to be directly pulled in and used by non-Nike projects. That said you can use it if you want to, just be aware that some liberties might be taken regarding version numbers, backwards compatibility, etc over time when compared with libraries specifically intended for public consumption. 
+* [backstopper-annotation-post-processor](backstopper-annotation-post-processor/) - The annotation Processor that writes metadata file for `@ApiErrorValue` annotation including enclosed JSR 303 constraint annotations or a valid constraint annotation such as Hibernate/custom. 
 
 <a name="framework_modules"></a>
 ### Framework-Specific Modules 
@@ -152,6 +172,7 @@ Note that the sample apps are an excellent source for framework integration exam
 * [samples/sample-spring-boot1](samples/sample-spring-boot1/)
 * [samples/sample-spring-boot2-webmvc](samples/sample-spring-boot2-webmvc/)
 * [samples/sample-spring-boot2-webflux](samples/sample-spring-boot2-webflux/)
+* [sample/spring-boot-with-apierrorvalue-annotation](samples/sample-spring-boot-with-apierrorvalue-annotation/)
 
 <a name="quickstart"></a>
 ## Quickstart
