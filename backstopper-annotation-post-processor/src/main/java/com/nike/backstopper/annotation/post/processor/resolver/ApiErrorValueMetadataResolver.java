@@ -134,11 +134,10 @@ public class ApiErrorValueMetadataResolver {
             }
             return Collections.unmodifiableSet(apiErrorValuesMetadata);
 
-        } else {
-            messager.printMessage(ERROR, String.format("%s annotation processing failed, invalid values - "
-                            + "'errorCode': %s, 'httpStatusCode': %s, constraint annotation's 'message': %s",
-                    API_ERROR_VALUE_ANNOTATION_NAME, errorCode, httpStatusCode, messages));
         }
+        messager.printMessage(ERROR, String.format("%s annotation processing failed, invalid values - "
+                        + "'errorCode': %s, 'httpStatusCode': %s, constraint annotation's 'message': %s",
+                API_ERROR_VALUE_ANNOTATION_NAME, errorCode, httpStatusCode, messages));
         return Collections.emptySet();
     }
 
