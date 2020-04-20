@@ -6,6 +6,8 @@ import com.nike.backstopper.apierror.ApiErrorValue;
 import com.nike.backstopper.apierror.projectspecificinfo.ProjectApiErrors;
 import org.hibernate.validator.constraints.NotBlank;
 
+import javax.validation.constraints.Pattern;
+
 /**
  * Simple model class showing JSR 303 Bean Validation integration in Backstopper using {@link ApiErrorValue},
  * that provides the ability to autoconfigure {@link ProjectApiErrors} with {@link ApiError}s.
@@ -28,10 +30,11 @@ public class SampleModel {
     public final String foo;
 
     /**
-     * Shows customized {@link ApiErrorValue#errorCode()} and {@link NotBlank#message()}.
+     * Shows customized {@link ApiErrorValue#errorCode()}, {@link NotBlank#message()} and {@link Pattern#message()}.
      */
-    @ApiErrorValue(errorCode = "BLANK_BAR", httpStatusCode = 400)
+    @ApiErrorValue(errorCode = "INVALID_BAR_VALUE", httpStatusCode = 400)
     @NotBlank(message = "bar should not be blank")
+    @Pattern(regexp = "bar", message = "should match {bar}")
     public final String bar;
 
     public SampleModel(@JsonProperty("foo") String foo,

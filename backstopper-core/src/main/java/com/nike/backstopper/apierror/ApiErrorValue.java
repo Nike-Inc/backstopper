@@ -17,7 +17,6 @@ import static java.lang.annotation.ElementType.PARAMETER;
 /**
  * This annotation provides the ability to autoconfigure {@link ProjectApiErrors} with {@link ApiError}s
  * and can be used with already existing {@link ProjectApiErrors} and {@link ApiError}s:
- *
  * <pre>
  * {@code
  *
@@ -29,13 +28,14 @@ import static java.lang.annotation.ElementType.PARAMETER;
  *
  *     @ApiErrorValue(errorCode = "BLANK_BAR", httpStatusCode = 400)
  *     @NotBlank(message = "bar should not be blank")
+ *     @Pattern(regexp = "bar", message = "should match {bar}")
  *     public String bar;
  *     // -- SNIP --
  * }
  *
  * }
  * </pre>
- * bad request's response will be as follows:
+ * the response to an empty request will be as follows:
  * <pre>
  * {@code
  *
@@ -61,12 +61,39 @@ import static java.lang.annotation.ElementType.PARAMETER;
  *
  * }
  * </pre>
+ * the response to the request with an empty {@code foo} and an invalid {@code bar} will be as follows:
+ * <pre>
+ * {@code
+ *
+ * {
+ *   "error_id": "d3d5d6d9-af31-48bf-96a7-7d91cff29cd5",
+ *   "errors": [
+ *     {
+ *       "code": "INVALID_VALUE",
+ *       "message": "may not be empty",
+ *       "metadata": {
+ *         "field": "foo"
+ *       }
+ *     },
+ *     {
+ *       "code": "BLANK_BAR",
+ *       "message": "should match {bar}",
+ *       "metadata": {
+ *         "field": "bar"
+ *       }
+ *     }
+ *   ]
+ * }
+ *
+ * }
+ * </pre>
+ * <p>
  * Supports:
  * 1. default {@code org/hibernate/validator/ValidationMessages.properties} without localization
  * 2. custom {@code ValidationMessages.properties} without localization, has higher priority than default
  * 3. for each element, one {@link ApiErrorValue} with N constraint annotations can be used,
  * including inheritance (annotation over annotation)
- * 4. Spring 4/Spring Boot 1.x/Spring 2.x
+ * 4. Spring 4.x/5.x, Spring Boot 1.x/2.x
  * 5. JDK 7 or later
  * 6. multi module Gradle/Maven projects
  * <p>
@@ -79,9 +106,11 @@ import static java.lang.annotation.ElementType.PARAMETER;
  * 5. the constraint annotations should not contains {@code null} or blank {@link String} value
  * for a {@code message} method
  * 6. only one {@link ApiErrorValue} will be applied for one element,
- * in case of collision only the first one and excluding the inheriting one
+ * in case of collision only the first one and excluding the inheriting one (can also be seen in compilation logs)
  * <p>
- * Notice:
+ * If the requirements are not met then the compilation will be interrupted with an error and the corresponding message.
+ * <p>
+ * Notices:
  * If some {@code message} value is not unique in some model,
  * it is recommended to use the same {@link ApiErrorValue#errorCode()} and {@link ApiErrorValue#httpStatusCode()}
  * values in this model:
@@ -90,11 +119,11 @@ import static java.lang.annotation.ElementType.PARAMETER;
  *
  * public class SampleModel {
  *
- *     @ApiErrorValue(errorCode = "BLANK_VALUE", httpStatusCode = 400)
+ *     @ApiErrorValue(errorCode = "SOME_ERROR_CODE", httpStatusCode = 400)
  *     @NotBlank(message = "value should not be blank")
  *     public final String foo;
  *
- *     @ApiErrorValue(errorCode = "BLANK_VALUE", httpStatusCode = 400)
+ *     @ApiErrorValue(errorCode = "SOME_ERROR_CODE", httpStatusCode = 400)
  *     @NotBlank(message = "value should not be blank")
  *     public final String bar;
  *     // -- SNIP --
@@ -120,9 +149,18 @@ import static java.lang.annotation.ElementType.PARAMETER;
  * }
  *
  * }
- * if the validation failed, an {@link ApiError} will be found by {@code message} value on the first match.
+ * if the validation failed, an {@link ApiError} will be found by {@code message} value on the first match
+ * and determine {@link ApiError#getErrorCode()} and {@link ApiError#getHttpStatusCode()} by the first found,
+ * otherwise you can configure {@link ProjectApiErrors#getStatusCodePriorityOrder()}.
  * <p>
- * Implementation of auto-configuration at runtime:
+ * Testing:
+ * 1. if you use {@link ApiErrorValue} with existing {@link ProjectApiErrors} and {@link ApiError}s,
+ * you do not need to change your implementation based on the {@code backstopper-reusable-tests},
+ * since {@link ApiErrorValue}-based {@link ProjectApiErrors} and {@link ApiError}s is already checked at compile time.
+ * 2. if you use only {@link ApiErrorValue} you do not need to use the {@code backstopper-reusable-tests},
+ * as mentioned above this is already checked at compile time.
+ * <p>
+ * Details of auto-configuration implementation at runtime:
  * 1. if {@link ApiErrorValue} is used with already existing {@link ProjectApiErrors} with {@link ApiError}s
  * in this case {@link ProjectApiErrors} are redefined by merging
  * auto-configured {@link ApiError}s based on {@link ApiErrorValue}
@@ -131,11 +169,14 @@ import static java.lang.annotation.ElementType.PARAMETER;
  * 2.1. {@code SampleProjectApiErrorsBase#getProjectSpecificApiErrors()} using auto-configured
  * {@link ApiError}s based on {@link ApiErrorValue},
  * 2.2. {@code SampleProjectApiErrorsBase#getProjectSpecificErrorCodeRange()} using
- * {@link ProjectSpecificErrorCodeRange#ALLOW_ALL_ERROR_CODES}
+ * {@link ProjectSpecificErrorCodeRange#ALLOW_ALL_ERROR_CODES},
+ * if the default implementation {@link SampleProjectApiErrorsBase} is not suitable for you,
+ * you can provide custom implementation of {@link ProjectApiErrors}
+ * with empty {@code ProjectApiErrors#getProjectSpecificApiErrors()}.
  *
  * @author Andrey Tsarenko
  */
-@Retention(RetentionPolicy.CLASS)
+@Retention(RetentionPolicy.RUNTIME)
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER})
 public @interface ApiErrorValue {
 

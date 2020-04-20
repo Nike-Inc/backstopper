@@ -65,7 +65,7 @@ throw ApiException.newBuilder()
 ##### --AND/OR-- 
 ##### 2c. Define your API's errors using @ApiErrorValue annotation
 
-> currently supported Spring 4/Spring Boot 1.x/Spring 2.x
+> currently supported Spring 4.x/5.x, Spring Boot 1.x/2.x
 
 ```java
 public class Payload {
@@ -80,6 +80,8 @@ public class Payload {
      // -- SNIP -- 
 }
 ```
+
+> See `@ApiErrorValue` javaDoc for further information.
 
 ##### 3. Send payload that will cause errors to be thrown
 

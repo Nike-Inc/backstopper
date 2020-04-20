@@ -11,7 +11,7 @@ This submodule contains a sample application based on Spring Boot 1 that fully i
 
 ## @ApiErrorValue annotation overview
 
-> currently supported Spring 4/Spring Boot 1.x/Spring 2.x
+> currently supported Spring 4.x/5.x, Spring Boot 1.x/2.x
 
 Simple model class showing JSR 303 Bean Validation integration in Backstopper using `@ApiErrorValue`,
 that provides the ability to autoconfigure `ProjectApiErrors` with `ApiError`s.         
@@ -26,34 +26,61 @@ public class SampleModel {
 
      @ApiErrorValue(errorCode = "BLANK_BAR", httpStatusCode = 400)
      @NotBlank(message = "bar should not be blank")
+     @Pattern(regexp = "bar", message = "should match {bar}")
      public String bar;
      // -- SNIP -- 
 }
 ```
 
-bad request's response will be as follows:
+the response to an empty request will be as follows:
 
 ```json
 {
-   "error_id": "c6bbec89-c39a-4164-9155-fd8e1c1a5cbc",
-   "errors": [
-     {
-       "code": "INVALID_VALUE",
-       "message": "may not be empty",
-       "metadata": {
-         "field": "foo"
-       }
-     },
-     {
-       "code": "BLANK_BAR",
-       "message": "bar should not be blank",
-       "metadata": {
-         "field": "bar"
-       }
-     }
-   ]
+  "error_id": "c6bbec89-c39a-4164-9155-fd8e1c1a5cbc",
+  "errors": [
+    {
+      "code": "INVALID_VALUE",
+      "message": "may not be empty",
+      "metadata": {
+        "field": "foo"
+      }
+    },
+    {
+      "code": "BLANK_BAR",
+      "message": "bar should not be blank",
+      "metadata": {
+        "field": "bar"
+      }
+    }
+  ]
 }
 ``` 
+
+the response to the request with an empty `foo` and an invalid `bar` will be as follows:
+
+```json
+{
+  "error_id": "d3d5d6d9-af31-48bf-96a7-7d91cff29cd5",
+  "errors": [
+    {
+      "code": "INVALID_VALUE",
+       "message": "may not be empty",
+      "metadata": {
+        "field": "foo"
+      }
+    },
+    {
+      "code": "BLANK_BAR",
+      "message": "should match {bar}",
+      "metadata": {
+        "field": "bar"
+      }
+    }
+  ]
+}
+```
+
+> See `@ApiErrorValue` javaDoc for further information.
 
 ## More Info
 

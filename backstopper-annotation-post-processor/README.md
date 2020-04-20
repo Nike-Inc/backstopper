@@ -24,7 +24,7 @@ public class SampleModel {
 }
 ```
 
-bad request's response will be as follows:
+the response to an empty request will be as follows:
 
 ```json
 {
@@ -47,6 +47,8 @@ bad request's response will be as follows:
    ]
 }
 ```
+
+> See `@ApiErrorValue` javaDoc for further information.
 
 ## More Info
 

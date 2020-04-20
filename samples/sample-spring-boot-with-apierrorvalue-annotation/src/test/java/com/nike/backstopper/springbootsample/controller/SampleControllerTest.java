@@ -70,8 +70,23 @@ public class SampleControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors", hasSize(1)))
 
-                .andExpect(jsonPath("$.errors[0].code", equalTo("BLANK_BAR")))
+                .andExpect(jsonPath("$.errors[0].code", equalTo("INVALID_BAR_VALUE")))
                 .andExpect(jsonPath("$.errors[0].message", equalTo("bar should not be blank")))
+                .andExpect(jsonPath("$.errors[0].metadata.field", equalTo("bar")));
+    }
+
+    @Test
+    public void postSampleModelWithInvalidBarPattern() throws Exception {
+        SampleModel sampleModel = new SampleModel("foo", "barr");
+
+        this.mockMvc.perform(post("/sample/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(sampleModel)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors", hasSize(1)))
+
+                .andExpect(jsonPath("$.errors[0].code", equalTo("INVALID_BAR_VALUE")))
+                .andExpect(jsonPath("$.errors[0].message", equalTo("should match {bar}")))
                 .andExpect(jsonPath("$.errors[0].metadata.field", equalTo("bar")));
     }
 
@@ -85,7 +100,7 @@ public class SampleControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors", hasSize(2)))
 
-                .andExpect(jsonPath("$.errors[0].code", equalTo("BLANK_BAR")))
+                .andExpect(jsonPath("$.errors[0].code", equalTo("INVALID_BAR_VALUE")))
                 .andExpect(jsonPath("$.errors[0].message", equalTo("bar should not be blank")))
                 .andExpect(jsonPath("$.errors[0].metadata.field", equalTo("bar")))
 

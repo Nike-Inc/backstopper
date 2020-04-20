@@ -89,7 +89,7 @@ public class ApiErrorValueProcessor extends AbstractProcessor {
     }
 
     /**
-     * Process {@link ApiErrorValue} annotation including enclosed JSR 303 constraint annotations
+     * Processes {@link ApiErrorValue} annotation including enclosed JSR 303 constraint annotations
      * or a valid constraint annotations such as Hibernate/custom and writes {@link ApiErrorValueMetadata}s
      * to {@code META-INF/api-error-value-metadata} file if valid metadata is collected.
      *
