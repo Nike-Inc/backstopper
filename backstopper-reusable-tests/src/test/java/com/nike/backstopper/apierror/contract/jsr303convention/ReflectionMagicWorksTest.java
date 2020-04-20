@@ -1,5 +1,6 @@
 package com.nike.backstopper.apierror.contract.jsr303convention;
 
+import com.nike.backstopper.apierror.ApiErrorValue;
 import com.nike.internal.util.Pair;
 
 import com.google.common.base.Predicate;
@@ -141,6 +142,11 @@ public class ReflectionMagicWorksTest {
     public static class DifferentValidationAnnotationOptions {
         @Min(value = 1, message = "I am a field annotated with a constraint")
         private Integer annotatedField;
+
+        // should be excluded, since such elements annotated by @ApiErrorValue are already checked at compile time
+        @ApiErrorValue
+        @Max(value = 2)
+        private Integer annotatedFieldWithApiErrorValue;
 
         @AssertTrue(message = "I am a constructor annotated with a constraint even though it doesn't really make sense")
         public DifferentValidationAnnotationOptions(String nonAnnotatedConstructorParam,

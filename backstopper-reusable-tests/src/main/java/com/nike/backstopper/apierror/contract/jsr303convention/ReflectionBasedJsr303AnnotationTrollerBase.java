@@ -1,5 +1,6 @@
 package com.nike.backstopper.apierror.contract.jsr303convention;
 
+import com.nike.backstopper.apierror.ApiErrorValue;
 import com.nike.backstopper.validation.constraints.StringConvertsToClassType;
 import com.nike.internal.util.Pair;
 
@@ -404,7 +405,7 @@ public abstract class ReflectionBasedJsr303AnnotationTrollerBase {
     private List<Pair<Annotation, AnnotatedElement>> setupAllConstraintAnnotationsMasterList(
         Reflections reflectionsArg, List<Class<? extends Annotation>> constraintAnnotationClassesArg
     ) {
-        List<Pair<Annotation, AnnotatedElement>> masterList = new ArrayList<>();
+        List<Pair<Annotation, AnnotatedElement>> masterList = new FilteredAnnotatedElementList();
         for (Class<? extends Annotation> constraintAnnotationClass : constraintAnnotationClassesArg) {
             // We will need to treat multi-value and single Constraints differently
             boolean isMultiValueConstraint = isMultiValueConstraintClass(constraintAnnotationClass);
@@ -698,4 +699,21 @@ public abstract class ReflectionBasedJsr303AnnotationTrollerBase {
 
         return sb.toString();
     }
+
+    /**
+     * Provides the ability to exclude elements annotated with {@link ApiErrorValue} annotation,
+     * since such elements are already checked at compile time.
+     */
+    private static class FilteredAnnotatedElementList extends ArrayList<Pair<Annotation, AnnotatedElement>> {
+
+        @Override
+        public boolean add(Pair<Annotation, AnnotatedElement> pair) {
+            if (pair.getRight().isAnnotationPresent(ApiErrorValue.class)) {
+                return false;
+            }
+            return super.add(pair);
+        }
+
+    }
+
 }
