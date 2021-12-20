@@ -136,6 +136,47 @@ public class UnhandledServletContainerErrorHelperTest {
         }
     }
 
+    private enum Synthetic403Scenario {
+        INT_403(403),
+        STRING_403("403");
+
+        public final Object statusCodeAttr;
+
+        Synthetic403Scenario(Object statusCodeAttr) {
+            this.statusCodeAttr = statusCodeAttr;
+        }
+    }
+
+    @DataProvider
+    public static List<List<Synthetic403Scenario>> synthetic403DataProvider() {
+        return Stream.of(Synthetic403Scenario.values())
+          .map(Collections::singletonList)
+          .collect(Collectors.toList());
+    }
+
+    @UseDataProvider("synthetic403DataProvider")
+    @Test
+    public void extractOrGenerateErrorForRequest_generates_synthetic_ApiException_for_403_when_no_exception_found_in_attrs_and_status_code_is_403(
+      Synthetic403Scenario scenario
+    ) {
+        // given
+        doReturn(scenario.statusCodeAttr).when(requestMock).getAttribute("javax.servlet.error.status_code");
+
+        // when
+        Throwable result = helper.extractOrGenerateErrorForRequest(requestMock, projectApiErrors);
+
+        // then
+        assertThat(result)
+          .isInstanceOf(ApiException.class)
+          .hasMessage("Synthetic exception for container 403.");
+
+        ApiException apiEx = (ApiException)result;
+        assertThat(apiEx.getApiErrors()).isEqualTo(singletonList(projectApiErrors.getNotFoundApiError()));
+        assertThat(apiEx.getExtraDetailsForLogging()).isEqualTo(
+          singletonList(Pair.of("synthetic_exception_for_container_403", "true"))
+        );
+    }
+    
     private enum Synthetic404Scenario {
         INT_404(404),
         STRING_404("404");
