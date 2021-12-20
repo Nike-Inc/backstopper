@@ -98,6 +98,20 @@ public class UnhandledServletContainerErrorHelper {
                 )
                 .build();
         }
+        // When spring security enforces scopes via  http.anyRequest().hasAnyAuthority("SCOPE_use:adminApi", "ROLE_ARMORY_ADMIN"),
+        // a 403 will be returned if principal is missing scope
+        if (errorStatusCode != null && errorStatusCode == 403) {
+            // It's a 403, but without an exception. Create a synthetic-but-generic exception to cover this
+            //      that will be mapped by backstopper to a 403.
+            return ApiException
+              .newBuilder()
+              .withApiErrors(projectApiErrors.getForbiddenApiError())
+              .withExceptionMessage("Synthetic exception for container 403.")
+              .withExtraDetailsForLogging(
+                Pair.of("synthetic_exception_for_container_403", "true")
+              )
+              .build();
+        }
         else {
             // It's not a 404. Create a synthetic-but-generic exception to cover this that will be mapped
             //      by backstopper to a 500.
