@@ -14,7 +14,7 @@ ext {
 }
 
 dependencies {
-    compile(
+    implementation(
             project(":backstopper-spring-web-mvc"),
             project(":backstopper-custom-validators"),
             "org.springframework:spring-webmvc:$spring5Version",
@@ -26,7 +26,7 @@ dependencies {
             "org.glassfish:javax.el:$elImplVersion",
             "org.eclipse.jetty:jetty-webapp:$jettyVersion",
     )
-    testCompile(
+    testImplementation(
             project(":backstopper-reusable-tests"),
             project(":testonly:testonly-spring-reusable-test-support"),
             "junit:junit:$junitVersion",

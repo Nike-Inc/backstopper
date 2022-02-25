@@ -10,7 +10,7 @@ ext {
 }
 
 dependencies {
-    compile(
+    api(
             project(":backstopper-servlet-api"),
             project(":backstopper-jackson"),
             project(":backstopper-spring-web"),
@@ -20,7 +20,7 @@ dependencies {
             "org.springframework:spring-webmvc:$spring4Version",
             "javax.servlet:javax.servlet-api:$servletApiVersion",
     )
-    testCompile(
+    testImplementation(
             project(":backstopper-core").sourceSets.test.output,
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
             "junit:junit:$junitVersion",

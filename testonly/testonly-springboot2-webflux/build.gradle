@@ -16,14 +16,14 @@ apply plugin: 'org.springframework.boot'
 apply plugin: "io.spring.dependency-management"
 
 dependencies {
-    compile(
+    implementation(
             project(":backstopper-spring-web-flux"),
             project(":backstopper-custom-validators"),
             "ch.qos.logback:logback-classic:$logbackVersion",
             "org.springframework.boot:spring-boot-dependencies:$springboot2Version",
             "org.springframework.boot:spring-boot-starter-webflux",
     )
-    testCompile(
+    testImplementation(
             project(":backstopper-reusable-tests"),
             project(":testonly:testonly-spring-reusable-test-support"),
             "junit:junit:$junitVersion",

@@ -16,7 +16,7 @@ apply plugin: 'org.springframework.boot'
 apply plugin: "io.spring.dependency-management"
 
 dependencies {
-    compile(
+    implementation(
             project(":backstopper-spring-web-flux"),
             project(":backstopper-custom-validators"),
             "ch.qos.logback:logback-classic:$logbackVersion",
@@ -26,7 +26,7 @@ dependencies {
     compileOnly(
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
     )
-    testCompile(
+    testImplementation(
             project(":backstopper-reusable-tests"),
             "junit:junit:$junitVersion",
             "org.mockito:mockito-core:$mockitoVersion",

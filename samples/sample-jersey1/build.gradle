@@ -4,7 +4,7 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 dependencies {
-    compile(
+    implementation(
             project(":backstopper-jersey1"),
             project(":backstopper-custom-validators"),
             "com.sun.jersey:jersey-servlet:$jersey1Version",
@@ -14,7 +14,7 @@ dependencies {
             "org.hibernate:hibernate-validator:$hibernateValidatorVersion",
             "org.eclipse.jetty:jetty-webapp:$jettyVersion"
     )
-    testCompile(
+    testImplementation(
             project(":backstopper-reusable-tests"),
             "junit:junit:$junitVersion",
             "org.mockito:mockito-core:$mockitoVersion",

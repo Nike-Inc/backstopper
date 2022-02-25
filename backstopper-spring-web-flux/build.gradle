@@ -4,7 +4,7 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 dependencies {
-    compile(
+    api(
             project(":backstopper-jackson"),
             project(":backstopper-spring-web"),
     )
@@ -13,7 +13,7 @@ dependencies {
             "org.springframework:spring-webflux:$spring5Version",
             "org.springframework:spring-context:$spring5Version",
     )
-    testCompile(
+    testImplementation(
             project(":backstopper-core").sourceSets.test.output,
             project(":backstopper-custom-validators"),
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",

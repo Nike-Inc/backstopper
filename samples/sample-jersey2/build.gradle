@@ -4,7 +4,7 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 dependencies {
-    compile(
+    implementation(
             project(":backstopper-jersey2"),
             project(":backstopper-custom-validators"),
             "ch.qos.logback:logback-classic:$logbackVersion",
@@ -15,7 +15,7 @@ dependencies {
             "org.eclipse.jetty:jetty-server:$jettyVersion",
             "org.eclipse.jetty:jetty-servlet:$jettyVersion"
     )
-    testCompile(
+    testImplementation(
             project(":backstopper-reusable-tests"),
             "junit:junit:$junitVersion",
             "org.mockito:mockito-core:$mockitoVersion",
