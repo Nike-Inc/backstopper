@@ -112,6 +112,7 @@ public class SpringWebfluxApiExceptionHandlerTest {
 
         doReturn(serverHttpRequestMock).when(serverWebExchangeMock).getRequest();
         doReturn(uri).when(serverHttpRequestMock).getURI();
+        doReturn(new HttpHeaders()).when(serverHttpRequestMock).getHeaders();
 
         doReturn(serverHttpResponseMock).when(serverWebExchangeMock).getResponse();
         doReturn(serverHttpResponseHeadersMock).when(serverHttpResponseMock).getHeaders();
