@@ -24,5 +24,7 @@ dependencies {
             "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
             "io.rest-assured:rest-assured:$restAssuredVersion",
             "org.springframework.boot:spring-boot-starter-webflux:$springboot2Version",
+            // The jaxb-api is needed for building on the java 11 JDK as these classes were moved out of the Java SE libs.
+            "javax.xml.bind:jaxb-api:$jaxbApiVersion",
     )
 }

@@ -29,5 +29,7 @@ dependencies {
             "io.rest-assured:rest-assured:$restAssuredVersion",
             "javax.servlet:javax.servlet-api:$servletApiForSpringboot1Version",
             "org.springframework.boot:spring-boot-starter-web:$springboot1Version",
+            // The jaxb-api is needed for building on the java 11 JDK as these classes were moved out of the Java SE libs.
+            "javax.xml.bind:jaxb-api:$jaxbApiVersion",
     )
 }
