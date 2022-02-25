@@ -23,8 +23,14 @@ dependencies {
             "org.assertj:assertj-core:$assertJVersion",
             "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
             "io.rest-assured:rest-assured:$restAssuredVersion",
-            "org.springframework.boot:spring-boot-starter-webflux:$springboot2Version",
+            "org.hibernate:hibernate-validator:$hibernateValidatorVersionForNewerSpring",
+            "javax.el:javax.el-api:$elApiVersion", // The el-api and el-impl are needed for the JSR 303 validation
+            "org.glassfish:javax.el:$elImplVersion",
             // The jaxb-api is needed for building on the java 11 JDK as these classes were moved out of the Java SE libs.
             "javax.xml.bind:jaxb-api:$jaxbApiVersion",
     )
+    // No idea why spring decided to package up mockito as a transitive dependency, but their version breaks us.
+    testImplementation("org.springframework.boot:spring-boot-starter-webflux:$springboot2Version") {
+        exclude group: 'org.mockito', module: 'mockito-core'
+    }
 }

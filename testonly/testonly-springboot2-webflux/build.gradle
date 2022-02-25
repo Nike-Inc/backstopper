@@ -22,6 +22,9 @@ dependencies {
             "ch.qos.logback:logback-classic:$logbackVersion",
             "org.springframework.boot:spring-boot-dependencies:$springboot2Version",
             "org.springframework.boot:spring-boot-starter-webflux",
+            "org.hibernate:hibernate-validator:$hibernateValidatorVersionForNewerSpring",
+            "javax.el:javax.el-api:$elApiVersion", // The el-api and el-impl are needed for the JSR 303 validation
+            "org.glassfish:javax.el:$elImplVersion",
     )
     testImplementation(
             project(":backstopper-reusable-tests"),
