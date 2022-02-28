@@ -10,11 +10,35 @@ Backstopper is used heavily and is stable internally at Nike, however the wider 
 
 #### 0.x Releases
 
+- `0.14.x` Releases - [0.14.0](#0140)
 - `0.13.x` Releases - [0.13.0](#0130) 
 - `0.12.x` Releases - [0.12.0](#0120)    
 - `0.11.x` Releases - [0.11.5](#0115), [0.11.4](#0114), [0.11.3](#0113), [0.11.2](#0112), [0.11.1](#0111), [0.11.0](#0110)
 - `0.10.x` Releases - [0.10.0](#0100)                     
 - `0.9.x` Releases - [0.9.2](#092), [0.9.1.1](#0911), [0.9.1](#091), [0.9.0.1](#0901), [0.9.0](#090)
+
+## [0.14.0](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.14.0)
+                                  
+No functional changes in version `0.14.0` - this version is just for exercising the Gradle upgrade and migration 
+from Bintray to Maven Central.
+
+### Potentially Breaking Changes
+
+* The upgrade to Gradle required adjusting how library dependencies are declared. Mostly this means dependencies
+  declared in gradle as `compile` scope turned into `api` scope. This shouldn't affect you - the resulting POMs
+  published to Maven Central appear to be identical. Just calling it out as a possibility that something unexpected
+  might result.
+* The upgrade to Gradle required updating SpringBoot 2 dependency version, which in turn required changing the 
+  `backstopper-spring-boot2-webmvc` module to build on Java 8. Since SpringBoot 2.x itself requires Java 8 this 
+  shouldn't affect anyone, however it is Spring so things may break anyway for some users.
+
+### Project Build
+
+- Cleaned up bit-rot and generally de-rusted the project. The main changes were bringing the project up to gradle
+  `7.4`, migrating to Github Actions for CI build, and setting things up to publish directly to Maven Central.
+  + Cleaned up by [Nic Munroe][contrib_nicmunroe] in pull requests
+    [#56](https://github.com/Nike-Inc/backstopper/pull/56), [#57](https://github.com/Nike-Inc/backstopper/pull/57),
+    [#58](https://github.com/Nike-Inc/backstopper/pull/58), and [#59](https://github.com/Nike-Inc/backstopper/pull/59).
 
 ## [0.13.0](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.13.0)
 
