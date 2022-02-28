@@ -6,11 +6,11 @@ compileTestJava {
 }
 
 dependencies {
-    compile(
+    api(
             "org.slf4j:slf4j-api:$slf4jVersion",
             "javax.validation:validation-api:$javaxValidationVersion"
     )
-    testCompile(
+    testImplementation(
             "junit:junit:$junitVersion",
             "org.mockito:mockito-core:$mockitoVersion",
             "ch.qos.logback:logback-classic:$logbackVersion",

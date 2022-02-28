@@ -2,6 +2,8 @@
 
 Backstopper is a framework-agnostic API error handling and (optional) model validation solution for Java 7 and greater.
 
+**NOTE: While the core of Backstopper only requires Java 7, you will need Java 8 for this Spring Boot 2 library.**
+
 This readme focuses specifically on the Backstopper Spring Boot 2 integration utilizing the Spring Web MVC framework. 
 If you are looking for a different framework integration check out the 
 [relevant section](../README.md#framework_modules) of the base readme to see if one already exists. The 

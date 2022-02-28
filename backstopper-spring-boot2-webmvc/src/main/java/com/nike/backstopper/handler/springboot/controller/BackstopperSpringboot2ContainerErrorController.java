@@ -59,7 +59,8 @@ public class BackstopperSpringboot2ContainerErrorController implements ErrorCont
         throw unhandledServletContainerErrorHelper.extractOrGenerateErrorForRequest(request, projectApiErrors);
     }
 
-    @Override
+    // This used to be part of the ErrorController interface in earlier versions of Springboot 2, but now it's not
+    //      in more recent versions. So we can't use the @Override annotation.
     public String getErrorPath() {
         return errorPath;
     }

@@ -9,7 +9,7 @@ ext {
 }
 
 dependencies {
-    compile(
+    implementation(
             project(":backstopper-spring-boot1"),
             project(":backstopper-custom-validators"),
             "ch.qos.logback:logback-classic:$logbackVersion",
@@ -17,7 +17,7 @@ dependencies {
             "org.springframework.boot:spring-boot-starter-web:$springboot1Version",
             "javax.servlet:javax.servlet-api:$servletApiForTestsVersion",
     )
-    testCompile(
+    testImplementation(
             project(":backstopper-reusable-tests"),
             project(":testonly:testonly-spring-reusable-test-support"),
             "junit:junit:$junitVersion",

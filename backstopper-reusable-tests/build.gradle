@@ -11,7 +11,7 @@ ext {
 }
 
 dependencies {
-    compile(
+    api(
             project(":backstopper-core"),
             project(":backstopper-custom-validators"),
             "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
@@ -27,7 +27,7 @@ dependencies {
             "org.reflections:reflections:$orgReflectionsVersion",
             "org.javassist:javassist:$javassistVersion"
     )
-    testCompile(
+    testImplementation(
             "ch.qos.logback:logback-classic:$logbackVersion",
     )
 }

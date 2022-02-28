@@ -2,7 +2,6 @@ evaluationDependsOn(':')
 
 buildscript {
     repositories {
-        jcenter()
         mavenCentral()
     }
     dependencies {
@@ -17,17 +16,20 @@ apply plugin: 'org.springframework.boot'
 apply plugin: "io.spring.dependency-management"
 
 dependencies {
-    compile(
+    implementation(
             project(":backstopper-spring-web-flux"),
             project(":backstopper-custom-validators"),
             "ch.qos.logback:logback-classic:$logbackVersion",
             "org.springframework.boot:spring-boot-dependencies:$springboot2Version",
             "org.springframework.boot:spring-boot-starter-webflux",
+            "org.hibernate:hibernate-validator:$hibernateValidatorVersionForNewerSpring",
+            "javax.el:javax.el-api:$elApiVersion", // The el-api and el-impl are needed for the JSR 303 validation
+            "org.glassfish:javax.el:$elImplVersion",
     )
     compileOnly(
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
     )
-    testCompile(
+    testImplementation(
             project(":backstopper-reusable-tests"),
             "junit:junit:$junitVersion",
             "org.mockito:mockito-core:$mockitoVersion",
@@ -35,6 +37,10 @@ dependencies {
             "org.assertj:assertj-core:$assertJVersion",
             "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
             "io.rest-assured:rest-assured:$restAssuredVersion",
+            // Thanks Springboot BOM! :/
+            // https://stackoverflow.com/questions/44993615/java-lang-noclassdeffounderror-io-restassured-mapper-factory-gsonobjectmapperfa
+            "io.rest-assured:json-path:$restAssuredVersion",
+            "io.rest-assured:xml-path:$restAssuredVersion",
             // The jaxb-api is needed for building on the java 11 JDK as these classes were moved out of the Java SE libs.
             "javax.xml.bind:jaxb-api:$jaxbApiVersion",
     )

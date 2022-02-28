@@ -6,13 +6,13 @@ compileTestJava {
 }
 
 dependencies {
-    compile(
+    api(
             project(":backstopper-jaxrs"),
     )
     compileOnly(
             "org.glassfish.jersey.core:jersey-server:$jersey2Version",
     )
-    testCompile(
+    testImplementation(
             project(":backstopper-core").sourceSets.test.output,
             "junit:junit:$junitVersion",
             "org.mockito:mockito-core:$mockitoVersion",

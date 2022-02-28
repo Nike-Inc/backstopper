@@ -6,14 +6,14 @@ compileTestJava {
 }
 
 dependencies {
-    compile(
+    api(
             project(":backstopper-core"),
     )
     compileOnly(
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
             "javax.servlet:javax.servlet-api:$servletApiVersion",
     )
-    testCompile(
+    testImplementation(
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
             "junit:junit:$junitVersion",
             "org.mockito:mockito-core:$mockitoVersion",

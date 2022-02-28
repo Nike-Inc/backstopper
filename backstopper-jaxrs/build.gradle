@@ -6,7 +6,7 @@ compileTestJava {
 }
 
 dependencies {
-    compile(
+    api(
             project(":backstopper-servlet-api"),
             project(":backstopper-jackson"),
     )
@@ -14,7 +14,7 @@ dependencies {
             "javax.ws.rs:javax.ws.rs-api:$jaxRsVersion",
             "javax.servlet:javax.servlet-api:$servletApiVersion",
     )
-    testCompile(
+    testImplementation(
             project(":backstopper-core").sourceSets.test.output,
             "junit:junit:$junitVersion",
             "org.mockito:mockito-core:$mockitoVersion",

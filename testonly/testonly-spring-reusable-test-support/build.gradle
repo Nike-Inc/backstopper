@@ -17,7 +17,7 @@ dependencies {
             "io.rest-assured:rest-assured:$restAssuredVersion",
             "org.assertj:assertj-core:$assertJVersion",
     )
-    testCompile(
+    testImplementation(
             project(":backstopper-reusable-tests"),
             "org.springframework:spring-webmvc:$spring4Version",
     )

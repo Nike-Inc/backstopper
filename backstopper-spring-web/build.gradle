@@ -10,14 +10,14 @@ ext {
 }
 
 dependencies {
-    compile(
+    api(
             project(":backstopper-core"),
     )
     compileOnly(
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
             "org.springframework:spring-web:$spring4Version",
     )
-    testCompile(
+    testImplementation(
             project(":backstopper-core").sourceSets.test.output,
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
             "junit:junit:$junitVersion",

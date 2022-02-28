@@ -6,9 +6,6 @@ import com.nike.backstopper.apierror.testutil.ProjectApiErrorsForTesting;
 import com.nike.backstopper.handler.ApiExceptionHandlerUtils;
 import com.nike.backstopper.handler.ErrorResponseInfo;
 import com.nike.backstopper.handler.RequestInfoForLogging;
-import com.nike.backstopper.handler.spring.webflux.SpringWebfluxApiExceptionHandler;
-import com.nike.backstopper.handler.spring.webflux.SpringWebfluxApiExceptionHandlerUtils;
-import com.nike.backstopper.handler.spring.webflux.SpringWebfluxUnhandledExceptionHandler;
 import com.nike.backstopper.model.DefaultErrorContractDTO;
 import com.nike.backstopper.model.util.JsonUtilWithDefaultErrorContractDTOSupport;
 import com.nike.internal.util.MapBuilder;
@@ -104,6 +101,7 @@ public class SpringWebfluxUnhandledExceptionHandlerTest {
 
         doReturn(serverHttpRequestMock).when(serverWebExchangeMock).getRequest();
         doReturn(uri).when(serverHttpRequestMock).getURI();
+        doReturn(new HttpHeaders()).when(serverHttpRequestMock).getHeaders();
 
         doReturn(serverHttpResponseMock).when(serverWebExchangeMock).getResponse();
         doReturn(serverHttpResponseHeadersMock).when(serverHttpResponseMock).getHeaders();

@@ -4,7 +4,7 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 dependencies {
-    compile(
+    api(
             project(":backstopper-jackson"),
             project(":backstopper-spring-web"),
     )
@@ -13,7 +13,7 @@ dependencies {
             "org.springframework:spring-webflux:$spring5Version",
             "org.springframework:spring-context:$spring5Version",
     )
-    testCompile(
+    testImplementation(
             project(":backstopper-core").sourceSets.test.output,
             project(":backstopper-custom-validators"),
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
@@ -24,6 +24,10 @@ dependencies {
             "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
             "io.rest-assured:rest-assured:$restAssuredVersion",
             "org.springframework.boot:spring-boot-starter-webflux:$springboot2Version",
+            "javax.validation:validation-api:$javaxValidationVersionForNewerSpring",
+            "org.hibernate:hibernate-validator:$hibernateValidatorVersionForNewerSpring",
+            "javax.el:javax.el-api:$elApiVersion", // The el-api and el-impl are needed for the JSR 303 validation
+            "org.glassfish:javax.el:$elImplVersion",
             // The jaxb-api is needed for building on the java 11 JDK as these classes were moved out of the Java SE libs.
             "javax.xml.bind:jaxb-api:$jaxbApiVersion",
     )

@@ -10,7 +10,7 @@ compileTestJava {
 }
 
 dependencies {
-    testCompile(
+    testImplementation(
             "junit:junit:$junitVersion",
             "org.mockito:mockito-core:$mockitoVersion",
             "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",

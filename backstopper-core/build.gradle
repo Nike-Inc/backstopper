@@ -6,7 +6,7 @@ compileTestJava {
 }
 
 dependencies {
-    compile(
+    api(
             project(":nike-internal-util"),
             "org.slf4j:slf4j-api:$slf4jVersion",
             "javax.inject:javax.inject:$javaxInjectVersion",
@@ -15,7 +15,7 @@ dependencies {
     compileOnly(
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
     )
-    testCompile(
+    testImplementation(
             "junit:junit:$junitVersion",
             "org.mockito:mockito-core:$mockitoVersion",
             "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
