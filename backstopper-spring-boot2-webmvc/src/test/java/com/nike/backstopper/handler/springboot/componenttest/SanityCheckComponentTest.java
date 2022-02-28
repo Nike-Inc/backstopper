@@ -35,7 +35,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -55,6 +54,7 @@ import io.restassured.response.ExtractableResponse;
 import static com.nike.backstopper.handler.springboot.componenttest.SanityCheckComponentTest.SanityCheckController.ERROR_THROWING_ENDPOINT_PATH;
 import static com.nike.backstopper.handler.springboot.componenttest.SanityCheckComponentTest.SanityCheckController.NON_ERROR_ENDPOINT_PATH;
 import static com.nike.backstopper.handler.springboot.componenttest.SanityCheckComponentTest.SanityCheckController.NON_ERROR_RESPONSE_PAYLOAD;
+import static com.nike.internal.util.testing.TestUtils.findFreePort;
 import static io.restassured.RestAssured.given;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -81,14 +81,6 @@ public class SanityCheckComponentTest {
     @AfterClass
     public static void afterClass() {
         SpringApplication.exit(serverAppContext);
-    }
-
-    private static int findFreePort() {
-        try (ServerSocket serverSocket = new ServerSocket(0)) {
-            return serverSocket.getLocalPort();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Before
