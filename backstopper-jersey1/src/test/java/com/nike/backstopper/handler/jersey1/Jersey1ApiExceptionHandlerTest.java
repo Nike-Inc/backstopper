@@ -13,6 +13,7 @@ import com.nike.backstopper.handler.UnexpectedMajorExceptionHandlingError;
 import com.nike.backstopper.handler.jersey1.config.Jersey1BackstopperConfigHelper;
 import com.nike.backstopper.handler.jersey1.config.Jersey1BackstopperConfigHelper.ApiExceptionHandlerListenerList;
 import com.nike.backstopper.model.DefaultErrorContractDTO;
+import com.nike.internal.util.testing.Glassbox;
 
 import com.sun.jersey.api.NotFoundException;
 
@@ -20,7 +21,6 @@ import org.assertj.core.api.ThrowableAssert;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.List;
 import java.util.UUID;
@@ -73,8 +73,8 @@ public class Jersey1ApiExceptionHandlerTest {
             testProjectApiErrors,
             listenerList,
             ApiExceptionHandlerUtils.DEFAULT_IMPL, unhandledSpy));
-        Whitebox.setInternalState(handlerSpy, "request", mockRequest);
-        Whitebox.setInternalState(handlerSpy, "response", mock(HttpServletResponse.class));
+        Glassbox.setInternalState(handlerSpy, "request", mockRequest);
+        Glassbox.setInternalState(handlerSpy, "response", mock(HttpServletResponse.class));
     }
 
     @Test

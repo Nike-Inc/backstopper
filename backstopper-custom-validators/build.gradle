@@ -11,6 +11,7 @@ dependencies {
             "javax.validation:validation-api:$javaxValidationVersion"
     )
     testImplementation(
+            project(":nike-internal-util"),
             "junit:junit:$junitVersion",
             "org.mockito:mockito-core:$mockitoVersion",
             "ch.qos.logback:logback-classic:$logbackVersion",

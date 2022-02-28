@@ -12,6 +12,7 @@ import com.nike.backstopper.handler.ErrorResponseInfo;
 import com.nike.backstopper.handler.UnexpectedMajorExceptionHandlingError;
 import com.nike.backstopper.handler.jaxrs.config.JaxRsApiExceptionHandlerListenerList;
 import com.nike.backstopper.model.DefaultErrorContractDTO;
+import com.nike.internal.util.testing.Glassbox;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -21,7 +22,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.UUID;
 
@@ -77,8 +77,8 @@ public class JaxRsApiExceptionHandlerTest {
             testProjectApiErrors,
             listenerList,
             ApiExceptionHandlerUtils.DEFAULT_IMPL, unhandledSpy));
-        Whitebox.setInternalState(handlerSpy, "request", mockRequest);
-        Whitebox.setInternalState(handlerSpy, "response", mock(HttpServletResponse.class));
+        Glassbox.setInternalState(handlerSpy, "request", mockRequest);
+        Glassbox.setInternalState(handlerSpy, "response", mock(HttpServletResponse.class));
     }
 
     @Test

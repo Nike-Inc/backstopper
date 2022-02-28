@@ -1,6 +1,7 @@
 package com.nike.backstopper.validation.constraints.impl;
 
 import com.nike.backstopper.validation.constraints.StringConvertsToClassType;
+import com.nike.internal.util.testing.Glassbox;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -8,7 +9,6 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.Set;
 
@@ -173,8 +173,8 @@ public class StringConvertsToClassTypeValidatorTest {
     }
 
     protected void doValidationTest(CorrectAnnotationPlacement testMe, String value, Class<?> desiredClass, boolean allowCaseInsensitiveEnumMatch, boolean expectedResult) {
-        Whitebox.setInternalState(validatorImpl, "desiredClass", desiredClass);
-        Whitebox.setInternalState(validatorImpl, "allowCaseInsensitiveEnumMatch", allowCaseInsensitiveEnumMatch);
+        Glassbox.setInternalState(validatorImpl, "desiredClass", desiredClass);
+        Glassbox.setInternalState(validatorImpl, "allowCaseInsensitiveEnumMatch", allowCaseInsensitiveEnumMatch);
         boolean directValidationResult = validatorImpl.isValid(value, null);
         Set<ConstraintViolation<CorrectAnnotationPlacement>> validatorResult = validator.validate(testMe);
 
