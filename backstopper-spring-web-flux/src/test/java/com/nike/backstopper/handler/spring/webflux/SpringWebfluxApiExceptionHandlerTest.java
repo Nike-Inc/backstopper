@@ -11,6 +11,7 @@ import com.nike.backstopper.handler.spring.webflux.SpringWebfluxApiExceptionHand
 import com.nike.backstopper.handler.spring.webflux.listener.SpringWebFluxApiExceptionHandlerListenerList;
 import com.nike.backstopper.model.DefaultErrorContractDTO;
 import com.nike.internal.util.MapBuilder;
+import com.nike.internal.util.testing.Glassbox;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -20,7 +21,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
@@ -132,10 +132,10 @@ public class SpringWebfluxApiExceptionHandlerTest {
         );
 
         // then
-        assertThat(Whitebox.getInternalState(handler, "projectApiErrors")).isSameAs(projectApiErrorsMock);
-        assertThat(Whitebox.getInternalState(handler, "apiExceptionHandlerListenerList"))
+        assertThat(Glassbox.getInternalState(handler, "projectApiErrors")).isSameAs(projectApiErrorsMock);
+        assertThat(Glassbox.getInternalState(handler, "apiExceptionHandlerListenerList"))
             .isSameAs(listenerList.listeners);
-        assertThat(Whitebox.getInternalState(handler, "utils")).isSameAs(generalUtils);
+        assertThat(Glassbox.getInternalState(handler, "utils")).isSameAs(generalUtils);
         assertThat(handler.springUtils).isEqualTo(springUtilsMock);
         assertThat(handler.messageReaders).isEqualTo(messageReaders);
         assertThat(handler.messageWriters).isEqualTo(messageWriters);

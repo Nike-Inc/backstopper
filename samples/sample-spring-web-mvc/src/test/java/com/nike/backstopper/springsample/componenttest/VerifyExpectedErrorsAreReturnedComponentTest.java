@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -44,6 +43,7 @@ import static com.nike.backstopper.springsample.controller.SampleController.next
 import static com.nike.backstopper.springsample.error.SampleProjectApiError.INVALID_RANGE_VALUE;
 import static com.nike.backstopper.springsample.error.SampleProjectApiError.NOT_RGB_COLOR_ENUM;
 import static com.nike.backstopper.springsample.error.SampleProjectApiError.RGB_COLOR_CANNOT_BE_NULL;
+import static com.nike.internal.util.testing.TestUtils.findFreePort;
 import static io.restassured.RestAssured.given;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
@@ -72,14 +72,6 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
             Thread.sleep(100);
         }
         throw new IllegalStateException("Server is not up after waiting 10 seconds. Aborting tests.");
-    }
-
-    private static int findFreePort() {
-        try (ServerSocket serverSocket = new ServerSocket(0)) {
-            return serverSocket.getLocalPort();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @AfterClass

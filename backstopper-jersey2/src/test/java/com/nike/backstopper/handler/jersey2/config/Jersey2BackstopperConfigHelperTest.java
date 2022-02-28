@@ -6,15 +6,16 @@ import com.nike.backstopper.handler.ApiExceptionHandlerUtils;
 import com.nike.backstopper.handler.jaxrs.JaxRsUnhandledExceptionHandler;
 import com.nike.backstopper.handler.jaxrs.listener.impl.JaxRsWebApplicationExceptionHandlerListener;
 import com.nike.backstopper.handler.jersey2.Jersey2ApiExceptionHandler;
-import com.nike.backstopper.handler.jersey2.config.Jersey2BackstopperConfigHelper.Jersey2ApiExceptionHandlerListenerList;
 import com.nike.backstopper.handler.jersey2.config.Jersey2BackstopperConfigHelper.BackstopperOnlyExceptionMapperFactory;
 import com.nike.backstopper.handler.jersey2.config.Jersey2BackstopperConfigHelper.ExceptionMapperFactoryOverrideBinder;
+import com.nike.backstopper.handler.jersey2.config.Jersey2BackstopperConfigHelper.Jersey2ApiExceptionHandlerListenerList;
 import com.nike.backstopper.handler.jersey2.listener.impl.Jersey2WebApplicationExceptionHandlerListener;
 import com.nike.backstopper.handler.listener.ApiExceptionHandlerListener;
 import com.nike.backstopper.handler.listener.impl.ClientDataValidationErrorHandlerListener;
 import com.nike.backstopper.handler.listener.impl.DownstreamNetworkExceptionHandlerListener;
 import com.nike.backstopper.handler.listener.impl.GenericApiExceptionHandlerListener;
 import com.nike.backstopper.handler.listener.impl.ServersideValidationErrorHandlerListener;
+import com.nike.internal.util.testing.Glassbox;
 
 import com.fasterxml.jackson.jaxrs.base.JsonMappingExceptionMapper;
 import com.fasterxml.jackson.jaxrs.base.JsonParseExceptionMapper;
@@ -28,7 +29,6 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.spi.ExceptionMappers;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.List;
 import java.util.Set;
@@ -55,7 +55,7 @@ public class Jersey2BackstopperConfigHelperTest {
     private ApiExceptionHandlerUtils utils = mock(ApiExceptionHandlerUtils.class);
 
     private void verifyContainsExpectedField(Object obj, String fieldName, Object expectedValue) {
-        assertThat(Whitebox.getInternalState(obj, fieldName)).isEqualTo(expectedValue);
+        assertThat(Glassbox.getInternalState(obj, fieldName)).isEqualTo(expectedValue);
     }
 
     private void verifyDefaultListenerList(List<ApiExceptionHandlerListener> listeners) {
@@ -94,12 +94,12 @@ public class Jersey2BackstopperConfigHelperTest {
 
     private void verifyDefaultJersey2ApiExceptionHandler(Jersey2ApiExceptionHandler handler) {
         verifyDefaultListenerList(
-            (List<ApiExceptionHandlerListener>) Whitebox.getInternalState(handler, "apiExceptionHandlerListenerList")
+            (List<ApiExceptionHandlerListener>) Glassbox.getInternalState(handler, "apiExceptionHandlerListenerList")
         );
         verifyContainsExpectedField(handler, "projectApiErrors", projectApiErrors);
         verifyContainsExpectedField(handler, "utils", utils);
         JaxRsUnhandledExceptionHandler unhandledHandler =
-            (JaxRsUnhandledExceptionHandler) Whitebox.getInternalState(handler, "jerseyUnhandledExceptionHandler");
+            (JaxRsUnhandledExceptionHandler) Glassbox.getInternalState(handler, "jerseyUnhandledExceptionHandler");
         verifyContainsExpectedField(unhandledHandler, "projectApiErrors", projectApiErrors);
         verifyContainsExpectedField(unhandledHandler, "utils", utils);
     }

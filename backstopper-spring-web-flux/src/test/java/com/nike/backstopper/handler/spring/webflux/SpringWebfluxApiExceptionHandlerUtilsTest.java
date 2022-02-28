@@ -3,10 +3,10 @@ package com.nike.backstopper.handler.spring.webflux;
 import com.nike.backstopper.apierror.ApiError;
 import com.nike.backstopper.apierror.ApiErrorBase;
 import com.nike.backstopper.handler.RequestInfoForLogging;
-import com.nike.backstopper.handler.spring.webflux.SpringWebfluxApiExceptionHandlerUtils;
 import com.nike.backstopper.model.DefaultErrorContractDTO;
 import com.nike.backstopper.model.util.JsonUtilWithDefaultErrorContractDTOSupport;
 import com.nike.internal.util.MapBuilder;
+import com.nike.internal.util.testing.Glassbox;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -14,7 +14,6 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
@@ -77,7 +76,7 @@ public class SpringWebfluxApiExceptionHandlerUtilsTest {
         assertThat(result.headers().getContentType()).isEqualTo(expectedResponseContentType);
         // Yes this is awful. But figuring out how to spit out the ServerResponse's body to something assertable
         //      in this test is also awful.
-        assertThat(Whitebox.getInternalState(result, "entity")).isEqualTo(expectedSerializedContract);
+        assertThat(Glassbox.getInternalState(result, "entity")).isEqualTo(expectedSerializedContract);
     }
 
     @DataProvider(value = {

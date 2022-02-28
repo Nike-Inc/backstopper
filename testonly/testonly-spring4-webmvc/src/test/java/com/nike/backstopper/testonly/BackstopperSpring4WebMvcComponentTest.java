@@ -36,6 +36,7 @@ import testonly.componenttest.spring.reusable.jettyserver.SpringMvcJettyComponen
 import testonly.componenttest.spring.reusable.model.RgbColor;
 import testonly.componenttest.spring.reusable.model.SampleModel;
 
+import static com.nike.internal.util.testing.TestUtils.findFreePort;
 import static io.restassured.RestAssured.given;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,7 +48,6 @@ import static testonly.componenttest.spring.reusable.error.SampleProjectApiError
 import static testonly.componenttest.spring.reusable.error.SampleProjectApiError.INVALID_RANGE_VALUE;
 import static testonly.componenttest.spring.reusable.error.SampleProjectApiError.NOT_RGB_COLOR_ENUM;
 import static testonly.componenttest.spring.reusable.error.SampleProjectApiError.RGB_COLOR_CANNOT_BE_NULL;
-import static testonly.componenttest.spring.reusable.testutil.TestUtils.findFreePort;
 import static testonly.componenttest.spring.reusable.testutil.TestUtils.randomizedSampleModel;
 import static testonly.componenttest.spring.reusable.testutil.TestUtils.verifyErrorReceived;
 

@@ -27,7 +27,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -47,6 +46,7 @@ import static com.nike.backstopper.springboot2webmvcsample.controller.SampleCont
 import static com.nike.backstopper.springboot2webmvcsample.error.SampleProjectApiError.INVALID_RANGE_VALUE;
 import static com.nike.backstopper.springboot2webmvcsample.error.SampleProjectApiError.NOT_RGB_COLOR_ENUM;
 import static com.nike.backstopper.springboot2webmvcsample.error.SampleProjectApiError.RGB_COLOR_CANNOT_BE_NULL;
+import static com.nike.internal.util.testing.TestUtils.findFreePort;
 import static io.restassured.RestAssured.given;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
@@ -73,14 +73,6 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
     @AfterClass
     public static void afterClass() {
         SpringApplication.exit(serverAppContext);
-    }
-
-    private static int findFreePort() {
-        try (ServerSocket serverSocket = new ServerSocket(0)) {
-            return serverSocket.getLocalPort();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Before

@@ -7,7 +7,6 @@ import com.nike.backstopper.model.DefaultErrorDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -26,14 +25,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestUtils {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
-
-    public static int findFreePort() {
-        try (ServerSocket serverSocket = new ServerSocket(0)) {
-            return serverSocket.getLocalPort();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public static void verifyErrorReceived(ExtractableResponse response, ApiError expectedError) {
         verifyErrorReceived(response, singleton(expectedError), expectedError.getHttpStatusCode());

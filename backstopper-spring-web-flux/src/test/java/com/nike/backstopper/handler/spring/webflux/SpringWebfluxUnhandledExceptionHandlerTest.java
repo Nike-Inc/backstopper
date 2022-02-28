@@ -9,6 +9,7 @@ import com.nike.backstopper.handler.RequestInfoForLogging;
 import com.nike.backstopper.model.DefaultErrorContractDTO;
 import com.nike.backstopper.model.util.JsonUtilWithDefaultErrorContractDTOSupport;
 import com.nike.internal.util.MapBuilder;
+import com.nike.internal.util.testing.Glassbox;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -17,7 +18,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -120,8 +120,8 @@ public class SpringWebfluxUnhandledExceptionHandlerTest {
         );
 
         // then
-        assertThat(Whitebox.getInternalState(handler, "projectApiErrors")).isSameAs(testProjectApiErrors);
-        assertThat(Whitebox.getInternalState(handler, "utils")).isSameAs(generalUtils);
+        assertThat(Glassbox.getInternalState(handler, "projectApiErrors")).isSameAs(testProjectApiErrors);
+        assertThat(Glassbox.getInternalState(handler, "utils")).isSameAs(generalUtils);
         assertThat(handler.springUtils).isEqualTo(springUtilsMock);
         assertThat(handler.messageReaders).isEqualTo(messageReaders);
         assertThat(handler.messageWriters).isEqualTo(messageWriters);
@@ -267,7 +267,7 @@ public class SpringWebfluxUnhandledExceptionHandlerTest {
         assertThat(serverResponse.headers().getContentType()).isEqualTo(MediaType.APPLICATION_JSON_UTF8);
         // Yes this is awful. But figuring out how to spit out the ServerResponse's body to something assertable
         //      in this test is also awful.
-        assertThat(Whitebox.getInternalState(serverResponse, "entity")).isEqualTo(expectedBodyPayload);
+        assertThat(Glassbox.getInternalState(serverResponse, "entity")).isEqualTo(expectedBodyPayload);
     }
 
     @Test

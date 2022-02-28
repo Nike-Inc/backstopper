@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,6 +42,7 @@ import static com.nike.backstopper.jersey1sample.resource.SampleResource.TRIGGER
 import static com.nike.backstopper.jersey1sample.resource.SampleResource.WITH_INT_QUERY_PARAM_SUBPATH;
 import static com.nike.backstopper.jersey1sample.resource.SampleResource.nextRandomColor;
 import static com.nike.backstopper.jersey1sample.resource.SampleResource.nextRangeInt;
+import static com.nike.internal.util.testing.TestUtils.findFreePort;
 import static io.restassured.RestAssured.given;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
@@ -71,14 +71,6 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
             Thread.sleep(100);
         }
         throw new IllegalStateException("Server is not up after waiting 10 seconds. Aborting tests.");
-    }
-
-    private static int findFreePort() {
-        try (ServerSocket serverSocket = new ServerSocket(0)) {
-            return serverSocket.getLocalPort();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @AfterClass

@@ -8,6 +8,7 @@ import com.nike.backstopper.exception.ApiException;
 import com.nike.backstopper.handler.listener.ApiExceptionHandlerListenerResult;
 import com.nike.backstopper.handler.listener.impl.ListenerTestBase;
 import com.nike.internal.util.Pair;
+import com.nike.internal.util.testing.Glassbox;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -16,7 +17,6 @@ import org.assertj.core.api.Assertions;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.springframework.core.MethodParameter;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -54,7 +54,7 @@ public class ConventionBasedSpringValidationErrorToApiErrorHandlerListenerTest e
     @BeforeClass
     public static void setupClass() {
         listener = new ConventionBasedSpringValidationErrorToApiErrorHandlerListener(testProjectApiErrors);
-        Whitebox.setInternalState(listener, "projectApiErrors", testProjectApiErrors);
+        Glassbox.setInternalState(listener, "projectApiErrors", testProjectApiErrors);
     }
 
     @Test

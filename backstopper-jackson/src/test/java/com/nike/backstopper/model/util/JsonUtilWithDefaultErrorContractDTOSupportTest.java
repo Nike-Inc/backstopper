@@ -6,6 +6,7 @@ import com.nike.backstopper.model.util.JsonUtilWithDefaultErrorContractDTOSuppor
 import com.nike.backstopper.model.util.JsonUtilWithDefaultErrorContractDTOSupport.MetadataPropertyWriter;
 import com.nike.backstopper.model.util.JsonUtilWithDefaultErrorContractDTOSupport.SmartErrorCodePropertyWriter;
 import com.nike.internal.util.MapBuilder;
+import com.nike.internal.util.testing.Glassbox;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,7 +18,6 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -286,7 +286,7 @@ public class JsonUtilWithDefaultErrorContractDTOSupportTest {
     public void writeValueAsString_does_not_blow_up_on_null_metadata() {
         // given
         DefaultErrorDTO error = new DefaultErrorDTO(42, "bar", null);
-        Whitebox.setInternalState(error, "metadata", null);
+        Glassbox.setInternalState(error, "metadata", null);
 
         // when
         String result = JsonUtilWithDefaultErrorContractDTOSupport.writeValueAsString(error);

@@ -7,6 +7,7 @@ import com.nike.backstopper.apierror.testutil.ProjectApiErrorsForTesting;
 import com.nike.backstopper.model.DefaultErrorContractDTO;
 import com.nike.backstopper.model.DefaultErrorDTO;
 import com.nike.internal.util.MapBuilder;
+import com.nike.internal.util.testing.Glassbox;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -17,7 +18,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
@@ -73,7 +73,7 @@ public class UnhandledExceptionHandlerBaseTest {
         // given
         Exception exceptionToThrow = new Exception("kaboom");
         Logger loggerMock = mock(Logger.class);
-        Whitebox.setInternalState(exHandlerSpy, "logger", loggerMock);
+        Glassbox.setInternalState(exHandlerSpy, "logger", loggerMock);
         final List<StringBuilder> sbHolder = new ArrayList<>();
         doAnswer(new Answer() {
             @Override

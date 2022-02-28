@@ -10,6 +10,7 @@ import com.nike.backstopper.exception.ApiException;
 import com.nike.backstopper.handler.ApiExceptionHandlerUtils;
 import com.nike.backstopper.handler.listener.ApiExceptionHandlerListenerResult;
 import com.nike.internal.util.Pair;
+import com.nike.internal.util.testing.Glassbox;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -18,7 +19,6 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.core.MethodParameter;
@@ -77,8 +77,8 @@ public class OneOffSpringWebFluxFrameworkExceptionHandlerListenerTest {
             impl = new OneOffSpringWebFluxFrameworkExceptionHandlerListener(projectErrorsMock, utilsMock);
 
         // then
-        assertThat(Whitebox.getInternalState(impl, "projectApiErrors")).isSameAs(projectErrorsMock);
-        assertThat(Whitebox.getInternalState(impl, "utils")).isSameAs(utilsMock);
+        assertThat(Glassbox.getInternalState(impl, "projectApiErrors")).isSameAs(projectErrorsMock);
+        assertThat(Glassbox.getInternalState(impl, "utils")).isSameAs(utilsMock);
     }
 
     @Test
