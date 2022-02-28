@@ -6,7 +6,17 @@ Note that the `backstopper-*` libraries are version-independent even though they
 
 #### 0.x Releases
 
+- `0.10.x` Releases - [0.10.0](#0100)
 - `0.9.x` Releases - [0.9.0.1](#0901), [0.9.0](#090)
+
+## [0.10.0](https://github.com/Nike-Inc/backstopper/releases/tag/nike-internal-util-v0.10.0)
+
+Released on 2022-02-28.
+
+### Added
+
+- Added `Glassbox` and `TestUtils` classes. These are helpers intended for use during testing.
+    + Added by [Nic Munroe][contrib_nicmunroe] in pull request [#60](https://github.com/Nike-Inc/backstopper/pull/60).
 
 ## [0.9.0.1](https://github.com/Nike-Inc/backstopper/releases/tag/nike-internal-util-v0.9.0.1)
 

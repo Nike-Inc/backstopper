@@ -29,9 +29,14 @@ configure(subprojects.findAll {
     apply plugin: 'signing'
 
     ext {
-        isReleaseVersion = !version.toString().endsWith("SNAPSHOT")
-
         def isNikeInternalUtilProject = project.getName() == "nike-internal-util"
+
+        def versionToUse = (isNikeInternalUtilProject)
+            ? nikeInternalUtilVersion
+            : version
+
+        isReleaseVersion = !versionToUse.endsWith("SNAPSHOT")
+
         descriptionForPom = (isNikeInternalUtilProject)
             ? "Nike internal utilities library"
             : "Backstopper module ${project.getName()}"
