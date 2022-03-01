@@ -10,15 +10,33 @@ Backstopper is used heavily and is stable internally at Nike, however the wider 
 
 #### 0.x Releases
 
-- `0.14.x` Releases - [0.14.0](#0140)
+- `0.14.x` Releases - [0.14.1](#0141), [0.14.0](#0140)
 - `0.13.x` Releases - [0.13.0](#0130) 
 - `0.12.x` Releases - [0.12.0](#0120)    
 - `0.11.x` Releases - [0.11.5](#0115), [0.11.4](#0114), [0.11.3](#0113), [0.11.2](#0112), [0.11.1](#0111), [0.11.0](#0110)
 - `0.10.x` Releases - [0.10.0](#0100)                     
 - `0.9.x` Releases - [0.9.2](#092), [0.9.1.1](#0911), [0.9.1](#091), [0.9.0.1](#0901), [0.9.0](#090)
 
+## [0.14.1](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.14.1)
+
+Released on 2022-02-28.
+
+### Updated
+
+* Updated dependency versions to the latest for transitive dependencies exported by Backstopper (where possible due 
+  to Java 7 restrictions):
+  - SLF4J `1.7.7` -> `1.7.36`
+  - Jackson `2.4.2` -> `2.12.6`
+  - (`backstopper-reusable-tests` only) JUnit `4.12` -> `4.13.2`
+  - (`backstopper-reusable-tests` only) JUnit Dataprovider `1.10.1` -> `1.13.1`
+  - (`backstopper-reusable-tests` only) Javassist `3.18.2-GA` -> `3.23.2-GA`
+  - (`backstopper-reusable-tests` only) Mockito `1.9.5` -> `2.28.2`
+  - Updated by [Nic Munroe][contrib_nicmunroe] in pull request [#63](https://github.com/Nike-Inc/backstopper/pull/63).
+
 ## [0.14.0](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.14.0)
-                                  
+
+Released on 2022-02-28.
+
 No functional changes in version `0.14.0` - this version is just for exercising the Gradle upgrade and migration 
 from Bintray to Maven Central.
 
