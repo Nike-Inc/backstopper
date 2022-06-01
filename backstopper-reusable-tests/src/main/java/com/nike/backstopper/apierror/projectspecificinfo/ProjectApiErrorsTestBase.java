@@ -87,8 +87,10 @@ import static org.mockito.Mockito.mock;
  *       case of this example we're only testing the base class with its core errors, so this works fine since by
  *       default {@link ProjectApiErrors} includes all the {@link ProjectApiErrors#getCoreApiErrors()}.
  *
+ * @deprecated This is the JUnit 4 version and will not be maintained long term. Please migrate to the JUnit 5 module: backstopper-reusable-tests-junit5
  * @author Nic Munroe
  */
+@Deprecated
 @SuppressWarnings("WeakerAccess")
 public abstract class ProjectApiErrorsTestBase {
 

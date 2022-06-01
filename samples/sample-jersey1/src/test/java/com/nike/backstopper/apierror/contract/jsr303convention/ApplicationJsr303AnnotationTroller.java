@@ -2,11 +2,10 @@ package com.nike.backstopper.apierror.contract.jsr303convention;
 
 import com.nike.internal.util.Pair;
 
-import com.google.common.base.Predicate;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * Extension of {@link ReflectionBasedJsr303AnnotationTrollerBase} for use with this sample project. This is used by JSR
@@ -41,9 +40,7 @@ public final class ApplicationJsr303AnnotationTroller extends ReflectionBasedJsr
     }
 
     @Override
-    protected List<Predicate<Pair<Annotation, AnnotatedElement>>> specificAnnotationDeclarationExclusionsForProject()
-        throws
-        Exception {
+    protected List<Predicate<Pair<Annotation, AnnotatedElement>>> specificAnnotationDeclarationExclusionsForProject() {
         return null;
     }
 }

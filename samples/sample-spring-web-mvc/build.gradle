@@ -3,6 +3,10 @@ evaluationDependsOn(':')
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
+test {
+    useJUnitPlatform()
+}
+
 dependencies {
     implementation(
             project(":backstopper-spring-web-mvc"),
@@ -16,14 +20,15 @@ dependencies {
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
     )
     testImplementation(
-            project(":backstopper-reusable-tests"),
-            "junit:junit:$junitVersion",
+            project(":backstopper-reusable-tests-junit5"),
+            "org.junit.jupiter:junit-jupiter-api:$junit5Version",
+            "org.junit.jupiter:junit-jupiter-engine:$junit5Version",
+            "org.junit.jupiter:junit-jupiter-params:$junit5Version",
             "org.mockito:mockito-core:$mockitoVersion",
             "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
             "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
             "ch.qos.logback:logback-classic:$logbackVersion",
             "org.assertj:assertj-core:$assertJVersion",
-            "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
             "io.rest-assured:rest-assured:$restAssuredVersion",
             // The jaxb-api is needed for building on the java 11 JDK as these classes were moved out of the Java SE libs.
             "javax.xml.bind:jaxb-api:$jaxbApiVersion",

@@ -12,8 +12,10 @@ import java.util.List;
  * values for the core errors and special error method return values. You can pass in whatever you want for {@link #getProjectSpecificApiErrors()}
  * and {@link #getProjectSpecificErrorCodeRange()} via the constructor (including null if that's what your test calls for).
  *
+ * @deprecated This is the JUnit 4 version and will not be maintained long term. Please migrate to the JUnit 5 module: backstopper-reusable-tests-junit5
  * @author Nic Munroe
  */
+@Deprecated
 public abstract class ProjectApiErrorsForTesting extends ProjectApiErrors {
 
     private static final List<ApiError> BAREBONES_CORE_API_ERRORS_AS_LIST = Arrays.<ApiError>asList(BarebonesCoreApiErrorForTesting.values());

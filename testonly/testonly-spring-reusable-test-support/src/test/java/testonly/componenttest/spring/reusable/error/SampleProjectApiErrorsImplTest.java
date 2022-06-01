@@ -11,7 +11,7 @@ import com.nike.backstopper.apierror.projectspecificinfo.ProjectApiErrorsTestBas
  */
 public class SampleProjectApiErrorsImplTest extends ProjectApiErrorsTestBase {
 
-    private ProjectApiErrors projectApiErrors = new SampleProjectApiErrorsImpl();
+    private final ProjectApiErrors projectApiErrors = new SampleProjectApiErrorsImpl();
 
     @Override
     protected ProjectApiErrors getProjectApiErrors() {
