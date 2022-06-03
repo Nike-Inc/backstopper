@@ -9,10 +9,11 @@ import com.nike.backstopper.handler.listener.impl.DownstreamNetworkExceptionHand
 import com.nike.backstopper.handler.listener.impl.GenericApiExceptionHandlerListener;
 import com.nike.backstopper.handler.listener.impl.ServersideValidationErrorHandlerListener;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * Collection {@link Singleton} class that provides a collection of default {@link ApiExceptionHandlerListener}s.

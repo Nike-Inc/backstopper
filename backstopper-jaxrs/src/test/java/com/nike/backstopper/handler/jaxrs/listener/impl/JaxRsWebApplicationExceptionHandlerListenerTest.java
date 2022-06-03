@@ -1,6 +1,5 @@
 package com.nike.backstopper.handler.jaxrs.listener.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nike.backstopper.apierror.ApiError;
 import com.nike.backstopper.apierror.SortedApiErrorSet;
 import com.nike.backstopper.apierror.projectspecificinfo.ProjectApiErrors;
@@ -9,19 +8,23 @@ import com.nike.backstopper.exception.ApiException;
 import com.nike.backstopper.handler.ApiExceptionHandlerUtils;
 import com.nike.backstopper.handler.listener.ApiExceptionHandlerListenerResult;
 import com.nike.backstopper.handler.listener.impl.ListenerTestBase;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Collections;
+
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

@@ -9,7 +9,6 @@ import com.nike.backstopper.handler.ApiExceptionHandlerUtils;
 import com.nike.backstopper.handler.listener.ApiExceptionHandlerListenerResult;
 import com.nike.backstopper.handler.listener.impl.ListenerTestBase;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -21,10 +20,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Collections;
-
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
 
 import static org.assertj.core.api.Assertions.assertThat;

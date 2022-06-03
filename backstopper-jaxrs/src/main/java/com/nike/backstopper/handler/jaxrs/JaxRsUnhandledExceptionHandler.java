@@ -9,14 +9,15 @@ import com.nike.backstopper.handler.UnhandledExceptionHandlerServletApiBase;
 import com.nike.backstopper.model.DefaultErrorContractDTO;
 import com.nike.backstopper.model.util.JsonUtilWithDefaultErrorContractDTOSupport;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import javax.ws.rs.core.Response;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.ws.rs.core.Response;
 
 /**
  * An extension of {@link UnhandledExceptionHandlerServletApiBase} that acts as a final catch-all exception handler.

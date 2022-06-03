@@ -3,9 +3,9 @@ package com.nike.backstopper.springboot2webmvcsample.controller;
 import com.nike.backstopper.exception.ApiException;
 import com.nike.backstopper.service.ClientDataValidationService;
 import com.nike.backstopper.springboot2webmvcsample.error.SampleProjectApiError;
-import com.nike.internal.util.Pair;
 import com.nike.backstopper.springboot2webmvcsample.model.RgbColor;
 import com.nike.backstopper.springboot2webmvcsample.model.SampleModel;
+import com.nike.internal.util.Pair;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;

@@ -2,10 +2,10 @@ package com.nike.backstopper.springbootsample.controller;
 
 import com.nike.backstopper.exception.ApiException;
 import com.nike.backstopper.service.ClientDataValidationService;
-import com.nike.internal.util.Pair;
 import com.nike.backstopper.springbootsample.error.SampleProjectApiError;
 import com.nike.backstopper.springbootsample.model.RgbColor;
 import com.nike.backstopper.springbootsample.model.SampleModel;
+import com.nike.internal.util.Pair;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
