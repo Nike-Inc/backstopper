@@ -4,8 +4,8 @@ import com.nike.backstopper.apierror.ApiError;
 import com.nike.backstopper.apierror.ApiErrorBase;
 import com.nike.backstopper.apierror.ApiErrorWithMetadata;
 import com.nike.backstopper.apierror.sample.SampleCoreApiError;
-import com.nike.internal.util.MapBuilder;
 import com.nike.backstopper.springboot2webmvcsample.model.RgbColor;
+import com.nike.internal.util.MapBuilder;
 
 import org.springframework.http.HttpStatus;
 

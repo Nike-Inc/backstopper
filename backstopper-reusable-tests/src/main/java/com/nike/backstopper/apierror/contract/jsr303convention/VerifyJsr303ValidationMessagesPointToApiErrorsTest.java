@@ -25,9 +25,11 @@ import static org.hamcrest.Matchers.notNullValue;
  * ReflectionBasedJsr303AnnotationTrollerBase#specificAnnotationDeclarationsExcludedFromStrictMessageRequirement} lists
  * appropriately.
  *
+ * @deprecated This is the JUnit 4 version and will not be maintained long term. Please migrate to the JUnit 5 module: backstopper-reusable-tests-junit5
  * @author Nic Munroe
  * @see com.nike.backstopper.apierror.contract.jsr303convention.ReflectionBasedJsr303AnnotationTrollerBase
  */
+@Deprecated
 public abstract class VerifyJsr303ValidationMessagesPointToApiErrorsTest {
 
     /**

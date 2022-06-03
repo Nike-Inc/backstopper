@@ -11,15 +11,17 @@ import com.nike.backstopper.handler.RequestInfoForLogging;
 import com.nike.backstopper.model.DefaultErrorContractDTO;
 import com.nike.backstopper.model.util.JsonUtilWithDefaultErrorContractDTOSupport;
 import com.nike.internal.util.MapBuilder;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.Response;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;

@@ -4,6 +4,7 @@ import com.nike.internal.util.MapBuilder;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

@@ -22,8 +22,10 @@ import static com.nike.backstopper.apierror.ApiErrorConstants.HTTP_STATUS_CODE_U
  * A barebones set of core errors that can be used for testing. See {@link ProjectApiErrorsForTesting} for a {@link
  * ProjectApiErrors} impl that uses this and is also intended for testing.
  *
+ * @deprecated This is the JUnit 4 version and will not be maintained long term. Please migrate to the JUnit 5 module: backstopper-reusable-tests-junit5
  * @author Nic Munroe
  */
+@Deprecated
 public enum BarebonesCoreApiErrorForTesting implements ApiError {
     GENERIC_SERVICE_ERROR(10, "An error occurred while fulfilling the request", HTTP_STATUS_CODE_INTERNAL_SERVER_ERROR),
     OUTSIDE_DEPENDENCY_RETURNED_AN_UNRECOVERABLE_ERROR(GENERIC_SERVICE_ERROR),

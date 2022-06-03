@@ -1,6 +1,5 @@
 package com.nike.backstopper.handler.jaxrs.listener.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nike.backstopper.apierror.ApiError;
 import com.nike.backstopper.apierror.SortedApiErrorSet;
 import com.nike.backstopper.apierror.projectspecificinfo.ProjectApiErrors;
@@ -9,14 +8,17 @@ import com.nike.backstopper.handler.listener.ApiExceptionHandlerListener;
 import com.nike.backstopper.handler.listener.ApiExceptionHandlerListenerResult;
 import com.nike.internal.util.Pair;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.nike.backstopper.apierror.SortedApiErrorSet.singletonSortedSetOf;
 

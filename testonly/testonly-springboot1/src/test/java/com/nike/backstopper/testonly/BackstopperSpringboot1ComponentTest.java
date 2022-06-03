@@ -8,26 +8,21 @@ import com.nike.internal.util.Pair;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
@@ -58,7 +53,6 @@ import static testonly.componenttest.spring.reusable.testutil.TestUtils.verifyEr
  *
  * @author Nic Munroe
  */
-@RunWith(DataProviderRunner.class)
 public class BackstopperSpringboot1ComponentTest {
 
     private static final int CLASSPATH_SCAN_SERVER_PORT = findFreePort();
@@ -68,7 +62,7 @@ public class BackstopperSpringboot1ComponentTest {
     private static ConfigurableApplicationContext classpathScanServerAppContext;
     private static ConfigurableApplicationContext directImportServerAppContext;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         assertThat(CLASSPATH_SCAN_SERVER_PORT).isNotEqualTo(DIRECT_IMPORT_SERVER_PORT);
         classpathScanServerAppContext = SpringApplication.run(
@@ -79,7 +73,7 @@ public class BackstopperSpringboot1ComponentTest {
         );
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() {
         SpringApplication.exit(classpathScanServerAppContext);
         SpringApplication.exit(directImportServerAppContext);
@@ -97,16 +91,11 @@ public class BackstopperSpringboot1ComponentTest {
         }
     }
 
-    @DataProvider
-    public static List<List<ServerScenario>> serverScenarioDataProvider() {
-        return Stream.of(ServerScenario.values()).map(Collections::singletonList).collect(Collectors.toList());
-    }
-
     // *************** SUCCESSFUL (NON ERROR) CALLS ******************
-    @UseDataProvider("serverScenarioDataProvider")
-    @Test
+    @EnumSource(ServerScenario.class)
+    @ParameterizedTest
     public void verify_basic_sample_get(ServerScenario scenario) throws IOException {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(scenario.serverPort)
@@ -129,13 +118,13 @@ public class BackstopperSpringboot1ComponentTest {
         assertThat(responseBody.throw_manual_error).isFalse();
     }
 
-    @UseDataProvider("serverScenarioDataProvider")
-    @Test
+    @EnumSource(ServerScenario.class)
+    @ParameterizedTest
     public void verify_basic_sample_post(ServerScenario scenario) throws IOException {
         SampleModel requestPayload = randomizedSampleModel();
         String requestPayloadAsString = objectMapper.writeValueAsString(requestPayload);
 
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(scenario.serverPort)
@@ -194,25 +183,24 @@ public class BackstopperSpringboot1ComponentTest {
         }
     }
 
-    @DataProvider
-    public static List<List<Object>> jsr303ValidationErrorScenariosDataProvider() {
-        List<List<Object>> result = new ArrayList<>();
+    public static List<Object[]> jsr303ValidationErrorScenariosDataProvider() {
+        List<Object[]> result = new ArrayList<>();
         for (Jsr303SampleModelValidationScenario violationScenario : Jsr303SampleModelValidationScenario.values()) {
             for (ServerScenario serverScenario : ServerScenario.values()) {
-                result.add(Arrays.asList(violationScenario, serverScenario));
+                result.add(new Object[]{violationScenario, serverScenario});
             }
         }
         return result;
     }
 
-    @UseDataProvider("jsr303ValidationErrorScenariosDataProvider")
-    @Test
+    @MethodSource("jsr303ValidationErrorScenariosDataProvider")
+    @ParameterizedTest
     public void verify_jsr303_validation_errors(
         Jsr303SampleModelValidationScenario violationScenario, ServerScenario serverScenario
     ) throws JsonProcessingException {
         String requestPayloadAsString = objectMapper.writeValueAsString(violationScenario.model);
 
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(serverScenario.serverPort)
@@ -249,13 +237,13 @@ public class BackstopperSpringboot1ComponentTest {
         verifyErrorReceived(response, expectedErrors, 400);
     }
 
-    @UseDataProvider("serverScenarioDataProvider")
-    @Test
+    @EnumSource(ServerScenario.class)
+    @ParameterizedTest
     public void verify_MANUALLY_THROWN_ERROR_is_thrown_when_requested(ServerScenario scenario) throws IOException {
         SampleModel requestPayload = new SampleModel("bar", "42", "RED", true);
         String requestPayloadAsString = objectMapper.writeValueAsString(requestPayload);
 
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(scenario.serverPort)
@@ -275,10 +263,10 @@ public class BackstopperSpringboot1ComponentTest {
         assertThat(response.headers().getValues("otherExtraMultivalueHeader")).isEqualTo(Arrays.asList("foo", "bar"));
     }
 
-    @UseDataProvider("serverScenarioDataProvider")
-    @Test
+    @EnumSource(ServerScenario.class)
+    @ParameterizedTest
     public void verify_SOME_MEANINGFUL_ERROR_NAME_is_thrown_when_correct_endpoint_is_hit(ServerScenario scenario) {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(scenario.serverPort)
@@ -293,10 +281,10 @@ public class BackstopperSpringboot1ComponentTest {
         verifyErrorReceived(response, SampleProjectApiError.SOME_MEANINGFUL_ERROR_NAME);
     }
 
-    @UseDataProvider("serverScenarioDataProvider")
-    @Test
+    @EnumSource(ServerScenario.class)
+    @ParameterizedTest
     public void verify_GENERIC_SERVICE_ERROR_is_thrown_when_correct_endpoint_is_hit(ServerScenario scenario) {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(scenario.serverPort)
@@ -313,10 +301,10 @@ public class BackstopperSpringboot1ComponentTest {
 
     // *************** FRAMEWORK ERRORS ******************
 
-    @UseDataProvider("serverScenarioDataProvider")
-    @Test
+    @EnumSource(ServerScenario.class)
+    @ParameterizedTest
     public void verify_NOT_FOUND_returned_if_unknown_path_is_requested(ServerScenario scenario) {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(scenario.serverPort)
@@ -331,12 +319,12 @@ public class BackstopperSpringboot1ComponentTest {
         verifyErrorReceived(response, SampleCoreApiError.NOT_FOUND);
     }
 
-    @UseDataProvider("serverScenarioDataProvider")
-    @Test
+    @EnumSource(ServerScenario.class)
+    @ParameterizedTest
     public void verify_ERROR_THROWN_IN_SERVLET_FILTER_OUTSIDE_SPRING_returned_if_servlet_filter_trigger_occurs(
         ServerScenario scenario
     ) {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(scenario.serverPort)
@@ -352,12 +340,12 @@ public class BackstopperSpringboot1ComponentTest {
         verifyErrorReceived(response, SampleProjectApiError.ERROR_THROWN_IN_SERVLET_FILTER_OUTSIDE_SPRING);
     }
 
-    @UseDataProvider("serverScenarioDataProvider")
-    @Test
+    @EnumSource(ServerScenario.class)
+    @ParameterizedTest
     public void verify_METHOD_NOT_ALLOWED_returned_if_known_path_is_requested_with_invalid_http_method(
         ServerScenario scenario
     ) {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(scenario.serverPort)
@@ -372,12 +360,12 @@ public class BackstopperSpringboot1ComponentTest {
         verifyErrorReceived(response, SampleCoreApiError.METHOD_NOT_ALLOWED);
     }
 
-    @UseDataProvider("serverScenarioDataProvider")
-    @Test
+    @EnumSource(ServerScenario.class)
+    @ParameterizedTest
     public void verify_sample_get_fails_with_NO_ACCEPTABLE_REPRESENTATION_if_passed_invalid_accept_header(
         ServerScenario scenario
     ) {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(scenario.serverPort)
@@ -393,15 +381,15 @@ public class BackstopperSpringboot1ComponentTest {
         verifyErrorReceived(response, SampleCoreApiError.NO_ACCEPTABLE_REPRESENTATION);
     }
 
-    @UseDataProvider("serverScenarioDataProvider")
-    @Test
+    @EnumSource(ServerScenario.class)
+    @ParameterizedTest
     public void verify_sample_post_fails_with_UNSUPPORTED_MEDIA_TYPE_if_passed_invalid_content_type(
         ServerScenario scenario
     ) throws IOException {
         SampleModel requestPayload = randomizedSampleModel();
         String requestPayloadAsString = objectMapper.writeValueAsString(requestPayload);
 
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(scenario.serverPort)
@@ -418,12 +406,12 @@ public class BackstopperSpringboot1ComponentTest {
         verifyErrorReceived(response, SampleCoreApiError.UNSUPPORTED_MEDIA_TYPE);
     }
 
-    @UseDataProvider("serverScenarioDataProvider")
-    @Test
+    @EnumSource(ServerScenario.class)
+    @ParameterizedTest
     public void verify_MALFORMED_REQUEST_is_thrown_when_required_data_is_missing(
         ServerScenario scenario
     ) {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(scenario.serverPort)
@@ -445,12 +433,12 @@ public class BackstopperSpringboot1ComponentTest {
         );
     }
 
-    @UseDataProvider("serverScenarioDataProvider")
-    @Test
+    @EnumSource(ServerScenario.class)
+    @ParameterizedTest
     public void verify_TYPE_CONVERSION_ERROR_is_thrown_when_framework_cannot_convert_type(
         ServerScenario scenario
     ) {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(scenario.serverPort)
@@ -472,12 +460,12 @@ public class BackstopperSpringboot1ComponentTest {
         ));
     }
 
-    @UseDataProvider("serverScenarioDataProvider")
-    @Test
+    @EnumSource(ServerScenario.class)
+    @ParameterizedTest
     public void verify_sample_post_fails_with_MISSING_EXPECTED_CONTENT_if_passed_empty_body(
         ServerScenario scenario
     ) {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(scenario.serverPort)
@@ -494,8 +482,8 @@ public class BackstopperSpringboot1ComponentTest {
         verifyErrorReceived(response, SampleCoreApiError.MISSING_EXPECTED_CONTENT);
     }
 
-    @UseDataProvider("serverScenarioDataProvider")
-    @Test
+    @EnumSource(ServerScenario.class)
+    @ParameterizedTest
     public void verify_sample_post_fails_with_MALFORMED_REQUEST_if_passed_bad_json_body(
         ServerScenario scenario
     ) throws IOException {
@@ -506,7 +494,7 @@ public class BackstopperSpringboot1ComponentTest {
         badRequestPayloadAsMap.put("throw_manual_error", "not-a-boolean");
         String badJsonPayloadAsString = objectMapper.writeValueAsString(badRequestPayloadAsMap);
 
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(scenario.serverPort)

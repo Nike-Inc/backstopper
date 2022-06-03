@@ -91,10 +91,11 @@ ext {
     jaxbApiVersion = '2.4.0-b180830.0359'
 
     junitVersion = '4.13.2'
+    junit5Version = '5.8.2'
     mockitoVersion = '1.9.5'
     logbackVersion = '1.2.3'
-    jacksonVersion = '2.12.6'
-    assertJVersion = '3.12.2'
+    jacksonVersion = '2.12.7'
+    assertJVersion = '3.23.1'
     junitDataproviderVersion = '1.13.1'
     hamcrestVersion = '1.3'
     hibernateValidatorVersion = '4.3.0.Final'
@@ -143,8 +144,12 @@ ext {
     }
     // Configure which subprojects we're doing jacoco for.
     isSubprojectIncludedInJacocoReports = { Project subProj ->
-        // For this repo we'll include everything that's not a sample or testonly module.
-        return !subProj.name.startsWith("sample") && !subProj.getName().startsWith("testonly")
+        // For this repo we'll include everything that's not a sample or testonly module. We'll also exclude the
+        //      deprecated backstopper-reusable-tests module because it has class name conflicts with
+        //      backstopper-reusable-tests-junit5.
+        return !subProj.name.startsWith("sample") &&
+               !subProj.getName().startsWith("testonly") &&
+               subProj.getName() != "backstopper-reusable-tests"
     }
 }
 

@@ -2,9 +2,9 @@ package com.nike.backstopper.springbootsample.model;
 
 import com.nike.backstopper.apierror.ApiError;
 import com.nike.backstopper.apierror.sample.SampleCoreApiError;
-import com.nike.backstopper.validation.constraints.StringConvertsToClassType;
 import com.nike.backstopper.springbootsample.error.SampleProjectApiError;
 import com.nike.backstopper.springbootsample.error.SampleProjectApiErrorsImpl;
+import com.nike.backstopper.validation.constraints.StringConvertsToClassType;
 
 import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.Range;

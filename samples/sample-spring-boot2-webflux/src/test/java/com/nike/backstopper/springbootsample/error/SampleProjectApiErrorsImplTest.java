@@ -12,7 +12,7 @@ import com.nike.backstopper.springboot2webfluxsample.error.SampleProjectApiError
  */
 public class SampleProjectApiErrorsImplTest extends ProjectApiErrorsTestBase {
 
-    private ProjectApiErrors projectApiErrors = new SampleProjectApiErrorsImpl();
+    private final ProjectApiErrors projectApiErrors = new SampleProjectApiErrorsImpl();
 
     @Override
     protected ProjectApiErrors getProjectApiErrors() {

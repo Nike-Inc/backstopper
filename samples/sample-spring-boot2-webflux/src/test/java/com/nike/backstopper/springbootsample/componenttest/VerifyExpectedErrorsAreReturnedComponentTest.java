@@ -15,15 +15,14 @@ import com.nike.internal.util.Pair;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
@@ -62,7 +61,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Nic Munroe
  */
-@RunWith(DataProviderRunner.class)
 public class VerifyExpectedErrorsAreReturnedComponentTest {
 
     private static final int SERVER_PORT = findFreePort();
@@ -70,25 +68,25 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
     
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         serverAppContext = SpringApplication.run(Main.class, "--server.port=" + SERVER_PORT);
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() {
         SpringApplication.exit(serverAppContext);
     }
 
-    @Before
+    @BeforeEach
     public void beforeMethod() {
     }
 
-    @After
+    @AfterEach
     public void afterMethod() {
     }
 
-    private void verifyErrorReceived(ExtractableResponse response, ApiError expectedError) {
+    private void verifyErrorReceived(ExtractableResponse<?> response, ApiError expectedError) {
         verifyErrorReceived(response, singleton(expectedError), expectedError.getHttpStatusCode());
     }
 
@@ -101,7 +99,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
         return null;
     }
 
-    private void verifyErrorReceived(ExtractableResponse response, Collection<ApiError> expectedErrors, int expectedHttpStatusCode) {
+    private void verifyErrorReceived(ExtractableResponse<?> response, Collection<ApiError> expectedErrors, int expectedHttpStatusCode) {
         assertThat(response.statusCode()).isEqualTo(expectedHttpStatusCode);
         try {
             DefaultErrorContractDTO errorContract = objectMapper.readValue(response.asString(), DefaultErrorContractDTO.class);
@@ -127,7 +125,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
     // *************** SUCCESSFUL (NON ERROR) CALLS ******************
     @Test
     public void verify_basic_sample_get() throws IOException {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -159,7 +157,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
         SampleModel requestPayload = randomizedSampleModel();
         String requestPayloadAsString = objectMapper.writeValueAsString(requestPayload);
 
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -184,7 +182,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
 
     @Test
     public void verify_router_function_sample_get() throws IOException {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -203,7 +201,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
 
     @Test
     public void verify_flux_sample_get() throws IOException {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -226,14 +224,18 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
 
     // *************** JSR 303 AND ENDPOINT ERRORS ******************
 
-    @DataProvider(value = {
-        "null   |   42  |   GREEN   |   FOO_STRING_CANNOT_BE_BLANK  |   400",
-        "bar    |   -1  |   GREEN   |   INVALID_RANGE_VALUE         |   400",
-        "bar    |   42  |   null    |   RGB_COLOR_CANNOT_BE_NULL    |   400",
-        "bar    |   42  |   car     |   NOT_RGB_COLOR_ENUM          |   400",
-        "       |   99  |   tree    |   FOO_STRING_CANNOT_BE_BLANK,INVALID_RANGE_VALUE,NOT_RGB_COLOR_ENUM   |   400",
-    }, splitBy = "\\|")
-    @Test
+    @CsvSource(
+        value = {
+            "null   |   42  |   GREEN   |   FOO_STRING_CANNOT_BE_BLANK  |   400",
+            "bar    |   -1  |   GREEN   |   INVALID_RANGE_VALUE         |   400",
+            "bar    |   42  |   null    |   RGB_COLOR_CANNOT_BE_NULL    |   400",
+            "bar    |   42  |   car     |   NOT_RGB_COLOR_ENUM          |   400",
+            "       |   99  |   tree    |   FOO_STRING_CANNOT_BE_BLANK,INVALID_RANGE_VALUE,NOT_RGB_COLOR_ENUM   |   400",
+        },
+        delimiter = '|',
+        nullValues = { "null" }
+    )
+    @ParameterizedTest
     public void verify_jsr303_validation_errors(
         String fooString, String rangeString, String rgbColorString,
         String expectedErrorsComboString, int expectedResponseHttpStatusCode) throws JsonProcessingException
@@ -241,7 +243,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
         SampleModel requestPayload = new SampleModel(fooString, rangeString, rgbColorString, false);
         String requestPayloadAsString = objectMapper.writeValueAsString(requestPayload);
 
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -279,7 +281,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
         SampleModel requestPayload = new SampleModel("bar", "42", "RED", true);
         String requestPayloadAsString = objectMapper.writeValueAsString(requestPayload);
 
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -301,7 +303,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
 
     @Test
     public void verify_SOME_MEANINGFUL_ERROR_NAME_is_thrown_when_correct_endpoint_is_hit() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -318,7 +320,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
 
     @Test
     public void verify_GENERIC_SERVICE_ERROR_is_thrown_when_correct_endpoint_is_hit() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -335,7 +337,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
 
     @Test
     public void verify_WEBFLUX_MONO_ERROR_is_thrown_when_correct_endpoint_is_hit() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -352,7 +354,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
 
     @Test
     public void verify_WEBFLUX_FLUX_ERROR_is_thrown_when_correct_endpoint_is_hit() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -371,7 +373,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
 
     @Test
     public void verify_NOT_FOUND_returned_if_unknown_path_is_requested() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -386,15 +388,19 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
         verifyErrorReceived(response, SampleCoreApiError.NOT_FOUND);
     }
 
-    @DataProvider(value = {
-        "throw-web-filter-exception             |   ERROR_THROWN_IN_WEB_FILTER",
-        "return-exception-in-web-filter-mono    |   ERROR_RETURNED_IN_WEB_FILTER_MONO"
-    }, splitBy = "\\|")
-    @Test
+    @CsvSource(
+        value = {
+            "throw-web-filter-exception             |   ERROR_THROWN_IN_WEB_FILTER",
+            "return-exception-in-web-filter-mono    |   ERROR_RETURNED_IN_WEB_FILTER_MONO"
+        },
+        delimiter = '|',
+        nullValues = { "null" }
+    )
+    @ParameterizedTest
     public void verify_expected_error_returned_if_web_filter_trigger_occurs(
         String triggeringHeader, SampleProjectApiError expectedError
     ) {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -410,15 +416,19 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
         verifyErrorReceived(response, expectedError);
     }
 
-    @DataProvider(value = {
-        "throw-handler-filter-function-exception            |   ERROR_THROWN_IN_HANDLER_FILTER_FUNCTION",
-        "return-exception-in-handler-filter-function-mono   |   ERROR_RETURNED_IN_HANDLER_FILTER_FUNCTION_MONO"
-    }, splitBy = "\\|")
-    @Test
+    @CsvSource(
+        value = {
+            "throw-handler-filter-function-exception            |   ERROR_THROWN_IN_HANDLER_FILTER_FUNCTION",
+            "return-exception-in-handler-filter-function-mono   |   ERROR_RETURNED_IN_HANDLER_FILTER_FUNCTION_MONO"
+        },
+        delimiter = '|',
+        nullValues = { "null" }
+    )
+    @ParameterizedTest
     public void verify_expected_error_returned_if_handler_filter_function_trigger_occurs(
         String triggeringHeader, SampleProjectApiError expectedError
     ) {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -436,7 +446,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
 
     @Test
     public void verify_METHOD_NOT_ALLOWED_returned_if_known_path_is_requested_with_invalid_http_method() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -453,7 +463,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
 
     @Test
     public void verify_sample_get_fails_with_NO_ACCEPTABLE_REPRESENTATION_if_passed_invalid_accept_header() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -474,7 +484,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
         SampleModel requestPayload = randomizedSampleModel();
         String requestPayloadAsString = objectMapper.writeValueAsString(requestPayload);
 
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -493,7 +503,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
 
     @Test
     public void verify_MALFORMED_REQUEST_is_thrown_when_required_data_is_missing() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -517,7 +527,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
 
     @Test
     public void verify_TYPE_CONVERSION_ERROR_is_thrown_when_framework_cannot_convert_type() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -542,7 +552,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
 
     @Test
     public void verify_sample_post_fails_with_MISSING_EXPECTED_CONTENT_if_passed_empty_body() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -568,7 +578,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
         badRequestPayloadAsMap.put("throw_manual_error", "not-a-boolean");
         String badJsonPayloadAsString = objectMapper.writeValueAsString(badRequestPayloadAsMap);
 
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)

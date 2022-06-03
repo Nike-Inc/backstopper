@@ -109,7 +109,8 @@ It's easy for typos to cause this naming convention to fail, so make sure you're
 <a name="reusable_tests"></a>
 ## Reusable Unit Tests for Enforcing Backstopper Rules and Conventions
 
-The [backstopper-reusable-tests](backstopper-reusable-tests/) library contains several reusable unit tests for making sure your project conforms to the Backstopper rules and conventions.
+The [backstopper-reusable-tests-junit5](backstopper-reusable-tests-junit5) library contains several reusable unit 
+tests for making sure your project conforms to the Backstopper rules and conventions.
 
 <a name="setup_jsr303_convention_unit_tests"></a>
 ### Unit Tests to Guarantee JSR 303 Annotation Message Naming Convention Conformance

@@ -1,5 +1,8 @@
 # Backstopper - reusable-tests
 
+**DEPRECATED - This module is based on JUnit 4, and should be considered deprecated. For the JUnit 5 version of this 
+module see [here](../backstopper-reusable-tests-junit5).**
+
 Backstopper is a framework-agnostic API error handling and (optional) model validation solution for Java 7 and greater.
 
 This library contains some reusable unit test classes that should be integrated into every Backstopper-enabled project to guarantee that the conventions and rules that Backstopper requires are followed. This is a fairly easy process and is described in detail in the Backstopper User Guide in the [Reusable Unit Tests for Enforcing Backstopper Rules and Conventions](../USER_GUIDE.md#reusable_tests) section.

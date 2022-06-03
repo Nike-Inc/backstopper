@@ -15,6 +15,10 @@ targetCompatibility = JavaVersion.VERSION_1_8
 apply plugin: 'org.springframework.boot'
 apply plugin: "io.spring.dependency-management"
 
+test {
+    useJUnitPlatform()
+}
+
 dependencies {
     implementation(
             project(":backstopper-spring-web-flux"),
@@ -27,12 +31,13 @@ dependencies {
             "org.glassfish:javax.el:$elImplVersion",
     )
     testImplementation(
-            project(":backstopper-reusable-tests"),
+            project(":backstopper-reusable-tests-junit5"),
             project(":testonly:testonly-spring-reusable-test-support"),
-            "junit:junit:$junitVersion",
+            "org.junit.jupiter:junit-jupiter-api:$junit5Version",
+            "org.junit.jupiter:junit-jupiter-engine:$junit5Version",
+            "org.junit.jupiter:junit-jupiter-params:$junit5Version",
             "org.mockito:mockito-core:$mockitoVersion",
             "org.assertj:assertj-core:$assertJVersion",
-            "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
             "io.rest-assured:rest-assured:$restAssuredVersion",
             // Thanks Springboot BOM! :/
             // https://stackoverflow.com/questions/44993615/java-lang-noclassdeffounderror-io-restassured-mapper-factory-gsonobjectmapperfa

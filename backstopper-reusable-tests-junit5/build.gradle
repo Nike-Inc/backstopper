@@ -1,0 +1,37 @@
+evaluationDependsOn(':')
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+ext {
+    mockito3Version = '3.12.4'
+    javassistJava8Version = '3.29.0-GA'
+    orgReflectionsUpdatedVersion = '0.9.12'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+dependencies {
+    api(
+            project(":backstopper-core"),
+            project(":backstopper-custom-validators"),
+            "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
+            "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
+            "org.junit.jupiter:junit-jupiter-api:$junit5Version",
+            "org.junit.jupiter:junit-jupiter-engine:$junit5Version",
+            "org.junit.jupiter:junit-jupiter-params:$junit5Version",
+            "org.mockito:mockito-core:$mockito3Version",
+            "org.assertj:assertj-core:$assertJVersion",
+            "org.reflections:reflections:$orgReflectionsUpdatedVersion",
+            "org.javassist:javassist:$javassistJava8Version"
+    )
+    compileOnly(
+            "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
+    )
+    testImplementation(
+            "org.slf4j:slf4j-api:$slf4jVersion",
+            "ch.qos.logback:logback-classic:$logbackVersion",
+    )
+}

@@ -156,8 +156,10 @@ import javax.validation.Constraint;
  *     </li>
  * </ul>
  *
+ * @deprecated This is the JUnit 4 version and will not be maintained long term. Please migrate to the JUnit 5 module: backstopper-reusable-tests-junit5
  * @author Nic Munroe
  */
+@Deprecated
 @SuppressWarnings("WeakerAccess")
 public abstract class ReflectionBasedJsr303AnnotationTrollerBase {
 

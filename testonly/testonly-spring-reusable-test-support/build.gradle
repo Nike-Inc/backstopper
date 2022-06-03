@@ -3,6 +3,10 @@ evaluationDependsOn(':')
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
+test {
+    useJUnitPlatform()
+}
+
 dependencies {
     compileOnly(
             project(":backstopper-spring-web-mvc"),
@@ -18,7 +22,7 @@ dependencies {
             "org.assertj:assertj-core:$assertJVersion",
     )
     testImplementation(
-            project(":backstopper-reusable-tests"),
+            project(":backstopper-reusable-tests-junit5"),
             "org.springframework:spring-webmvc:$spring4Version",
     )
 }
