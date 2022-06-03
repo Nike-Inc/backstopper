@@ -10,12 +10,41 @@ Backstopper is used heavily and is stable internally at Nike, however the wider 
 
 #### 0.x Releases
 
+- `0.15.x` Releases - [0.15.0](#0150)
 - `0.14.x` Releases - [0.14.1](#0141), [0.14.0](#0140)
 - `0.13.x` Releases - [0.13.0](#0130) 
 - `0.12.x` Releases - [0.12.0](#0120)    
 - `0.11.x` Releases - [0.11.5](#0115), [0.11.4](#0114), [0.11.3](#0113), [0.11.2](#0112), [0.11.1](#0111), [0.11.0](#0110)
 - `0.10.x` Releases - [0.10.0](#0100)                     
 - `0.9.x` Releases - [0.9.2](#092), [0.9.1.1](#0911), [0.9.1](#091), [0.9.0.1](#0901), [0.9.0](#090)
+
+## [0.15.0](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.15.0)
+
+Released on 2022-06-03.
+
+### Added
+
+* Added a new [backstopper-reusable-tests-junit5](backstopper-reusable-tests-junit5) library to replace the 
+  JUnit-4-based [backstopper-reusable-tests](backstopper-reusable-tests).
+  - Added by [Nic Munroe][contrib_nicmunroe] in pull request [#65](https://github.com/Nike-Inc/backstopper/pull/65).
+
+### Deprecated
+
+* Deprecated the JUnit-4-based [backstopper-reusable-tests](backstopper-reusable-tests) (please migrate to the 
+  [backstopper-reusable-tests-junit5](backstopper-reusable-tests-junit5) library that does the same thing but for 
+  JUnit 5).
+  - Deprecated by [Nic Munroe][contrib_nicmunroe] in pull request [#65](https://github.com/Nike-Inc/backstopper/pull/65).
+
+### Migration notes
+
+Migration from the JUnit-4-based [backstopper-reusable-tests](backstopper-reusable-tests) to the new JUnit-5-based 
+[backstopper-reusable-tests-junit5](backstopper-reusable-tests-junit5) is pretty straightforward:
+
+1. Make sure your project supports running JUnit 5 tests.
+2. Replace your `backstopper-reusable-tests` dependency with the new `backstopper-reusable-tests-junit5` library.
+3. In your application's extension of `ReflectionBasedJsr303AnnotationTrollerBase`, you'll need to replace the 
+   import of `com.google.common.base.Predicate` with `java.util.function.Predicate` instead.
+4. Verify that the reusable tests are being run.
 
 ## [0.14.1](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.14.1)
 
