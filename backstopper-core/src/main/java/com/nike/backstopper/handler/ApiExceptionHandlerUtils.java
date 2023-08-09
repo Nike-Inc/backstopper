@@ -264,7 +264,7 @@ public class ApiExceptionHandlerUtils {
      */
     public String parseSpecificHeaderToString(RequestInfoForLogging request, String headerName) {
         try {
-            if (maskSensitiveHeaders && sensitiveHeaderKeysForMasking.contains(headerName)) {
+            if (maskSensitiveHeaders && containsCaseInSensitive(sensitiveHeaderKeysForMasking, headerName)) {
                 return headerName + "=[MASKED]";
             } else {
                 List<String> headerValues = request.getHeaders(headerName);
@@ -296,6 +296,23 @@ public class ApiExceptionHandlerUtils {
             return "";
         }
     }
+
+
+    /**
+     * @param sensitiveHeaders
+     * @param headerName
+     * @return Returns true if the header name is one of the sensitive headers in lower, upper or camel case.
+     */
+    private static boolean containsCaseInSensitive(Set<String> sensitiveHeaders, String headerName) {
+
+        for (String header : sensitiveHeaders) {
+            if (header.equalsIgnoreCase(headerName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     /**
      * @return Helper method for turning the given collection into a comma-delimited string of
