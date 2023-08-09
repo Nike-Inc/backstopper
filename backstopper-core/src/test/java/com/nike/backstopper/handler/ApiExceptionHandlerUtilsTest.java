@@ -385,6 +385,14 @@ public class ApiExceptionHandlerUtilsTest {
     }
 
     @Test
+    public void parseSpecificHeaderToStringShouldWorkForHeaderValInLowerCase() {
+        when(reqMock.getHeaders("authorization")).thenReturn(Arrays.asList("fooval"));
+
+        String result = impl.parseSpecificHeaderToString(reqMock, "authorization");
+        assertThat(result, is("authorization=[MASKED]"));
+    }
+
+    @Test
     public void parseRequestHeadersToStringShouldReturnBlankStringIfHeadersMapIsNull() {
         when(reqMock.getHeadersMap()).thenReturn(null);
 
