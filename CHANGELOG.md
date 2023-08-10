@@ -10,13 +10,26 @@ Backstopper is used heavily and is stable internally at Nike, however the wider 
 
 #### 0.x Releases
 
-- `0.15.x` Releases - [0.15.0](#0150)
+- `0.15.x` Releases - [0.15.1](#0151), [0.15.0](#0150)
 - `0.14.x` Releases - [0.14.1](#0141), [0.14.0](#0140)
 - `0.13.x` Releases - [0.13.0](#0130) 
 - `0.12.x` Releases - [0.12.0](#0120)    
 - `0.11.x` Releases - [0.11.5](#0115), [0.11.4](#0114), [0.11.3](#0113), [0.11.2](#0112), [0.11.1](#0111), [0.11.0](#0110)
 - `0.10.x` Releases - [0.10.0](#0100)                     
 - `0.9.x` Releases - [0.9.2](#092), [0.9.1.1](#0911), [0.9.1](#091), [0.9.0.1](#0901), [0.9.0](#090)
+
+## [0.15.1](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.15.1)
+
+Released on 2023-08-09.
+
+### Fixed
+
+* Fixed header-masking comparisons for the backstopper log. Previously it was doing exact string equals to determine 
+  if a header name should be masked in the logs or not, but headers are inherently case-insensitive which could lead 
+  to header values ending up in the logs due to case sensitivity issues (e.g. an incoming `authorization` header not 
+  being masked because it's not an exact string equals for captial-A `Authorization`). After this fix, any header 
+  with a matching name will be masked regardless of case sensitivity. 
+  - Fixed by [dearcherian]][[contrib_dearcherian]] in pull request [#67](https://github.com/Nike-Inc/backstopper/pull/67).
 
 ## [0.15.0](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.15.0)
 
@@ -343,3 +356,4 @@ Released on 2016-09-20.
 [contrib_mikesir87]: https://github.com/mikesir87 
 [contrib_rabeyta]: https://github.com/rabeyta
 [contrib_apjo]: https://github.com/apjo
+[contrib_dearcherian]: https://github.com/dearcherian
