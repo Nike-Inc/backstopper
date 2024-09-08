@@ -303,8 +303,8 @@ style=flat
 [gh_action_build]:https://github.com/Nike-Inc/backstopper/actions/workflows/build.yml
 [gh_action_build_img]:https://github.com/Nike-Inc/backstopper/actions/workflows/build.yml/badge.svg
 
-[codecov]:https://codecov.io/github/Nike-Inc/backstopper?branch=main
-[codecov_img]:https://img.shields.io/codecov/c/github/Nike-Inc/backstopper/main.svg
+[codecov]:https://codecov.io/github/Nike-Inc/backstopper
+[codecov_img]:https://codecov.io/github/Nike-Inc/backstopper/branch/main/graph/badge.svg?token=zLHgFMsJpj
 
 [license]:LICENSE.txt
 [license img]:https://img.shields.io/badge/License-Apache%202-blue.svg
