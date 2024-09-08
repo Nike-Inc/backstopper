@@ -297,8 +297,7 @@ For further details please consult the [User Guide](USER_GUIDE.md).
 Backstopper is released under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
 
 [maven_central]:https://search.maven.org/search?q=g:com.nike.backstopper
-[maven_central_img]:https://maven-badges.herokuapp.com/maven-central/com.nike.backstopper/backstopper-core/badge.svg?
-style=flat
+[maven_central_img]:https://maven-badges.herokuapp.com/maven-central/com.nike.backstopper/backstopper-core/badge.svg?style=flat
 
 [gh_action_build]:https://github.com/Nike-Inc/backstopper/actions/workflows/build.yml
 [gh_action_build_img]:https://github.com/Nike-Inc/backstopper/actions/workflows/build.yml/badge.svg
