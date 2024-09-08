@@ -1,12 +1,15 @@
 # Backstopper Changelog / Release Notes
 
-All notable changes to `Backstopper` will be documented in this file. `Backstopper` adheres to [Semantic Versioning](http://semver.org/).
+All notable changes to `Backstopper` will be documented in this file. `Backstopper` adheres to 
+[Semantic Versioning](http://semver.org/).
 
-Note that the `nike-internal-util` library is technically version-independent even though it is currently living in this repository. Check out that library's [CHANGELOG.md](./nike-internal-util/CHANGELOG.md) for details on its changes. This changelog file is specifically for the `backstopper-*` libraries. 
+Note that the `nike-internal-util` library is technically version-independent even though it is currently living in 
+this repository. Check out that library's [CHANGELOG.md](./nike-internal-util/CHANGELOG.md) for details on its changes. This changelog file is 
+specifically for the `backstopper-*` libraries. 
 
-## Why pre-1.0 releases?
+#### 1.x Releases
 
-Backstopper is used heavily and is stable internally at Nike, however the wider community may have needs or use cases that we haven't considered. Therefore Backstopper will live at a sub-1.0 version for a short time after its initial open source release to give it time to respond quickly to the open source community without ballooning the version numbers. Once its public APIs have stabilized again as an open source project it will be switched to the normal post-1.0 semantic versioning system.
+- `1.15.x` Releases - [1.15.2](#1152)
 
 #### 0.x Releases
 
@@ -17,6 +20,15 @@ Backstopper is used heavily and is stable internally at Nike, however the wider 
 - `0.11.x` Releases - [0.11.5](#0115), [0.11.4](#0114), [0.11.3](#0113), [0.11.2](#0112), [0.11.1](#0111), [0.11.0](#0110)
 - `0.10.x` Releases - [0.10.0](#0100)                     
 - `0.9.x` Releases - [0.9.2](#092), [0.9.1.1](#0911), [0.9.1](#091), [0.9.0.1](#0901), [0.9.0](#090)
+
+## [1.15.2](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v1.15.2)
+
+Released on 2024-09-08.
+
+### Graduated to 1.x
+
+- Graduated the version of `backstopper` to `1.15.2` (from `0.15.1`) to reflect the stability and previous work
+  done on the libraries. No functional changes.
 
 ## [0.15.1](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v0.15.1)
 

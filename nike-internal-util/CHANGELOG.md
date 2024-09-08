@@ -4,9 +4,12 @@ All notable changes to the `nike-internal-util` library will be documented in th
 
 Note that the `backstopper-*` libraries are version-independent even though they are currently living in the same repository as `nike-internal-util`. Check out the root [CHANGELOG.md](../CHANGELOG.md) for details on `backstopper-*` library changes. This changelog file is specifically for the `nike-internal-util` library. 
 
-#### 0.x Releases
+#### 1.x Releases
 
 - `1.10.x` Releases - [1.10.1](#1101)
+
+#### 0.x Releases
+
 - `0.10.x` Releases - [0.10.0](#0100)
 - `0.9.x` Releases - [0.9.0.1](#0901), [0.9.0](#090)
 
