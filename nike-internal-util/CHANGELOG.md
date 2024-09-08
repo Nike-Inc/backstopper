@@ -14,9 +14,9 @@ Note that the `backstopper-*` libraries are version-independent even though they
 
 Released on 2024-09-07.
 
-### Promoted to 1.x
+### Graduated to 1.x
 
-- Promoted the version of `nike-internal-util` to `1.10.1` (from `0.10.0`) to reflect the stability and previous work 
+- Graduated the version of `nike-internal-util` to `1.10.1` (from `0.10.0`) to reflect the stability and previous work 
   done on the library.
 
 ## [0.10.0](https://github.com/Nike-Inc/backstopper/releases/tag/nike-internal-util-v0.10.0)
