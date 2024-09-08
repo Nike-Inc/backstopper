@@ -6,8 +6,18 @@ Note that the `backstopper-*` libraries are version-independent even though they
 
 #### 0.x Releases
 
+- `1.10.x` Releases - [1.10.1](#1101)
 - `0.10.x` Releases - [0.10.0](#0100)
 - `0.9.x` Releases - [0.9.0.1](#0901), [0.9.0](#090)
+
+## [1.10.1](https://github.com/Nike-Inc/backstopper/releases/tag/nike-internal-util-v1.10.1)
+
+Released on 2024-09-07.
+
+### Promoted to 1.x
+
+- Promoted the version of `nike-internal-util` to `1.10.1` (from `0.10.0`) to reflect the stability and previous work 
+  done on the library.
 
 ## [0.10.0](https://github.com/Nike-Inc/backstopper/releases/tag/nike-internal-util-v0.10.0)
 
