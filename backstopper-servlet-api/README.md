@@ -1,9 +1,9 @@
 # Backstopper - servlet-api
 
-Backstopper is a framework-agnostic API error handling and (optional) model validation solution for Java 11 and greater.
+Backstopper is a framework-agnostic API error handling and (optional) model validation solution for Java 17 and greater.
 
 (NOTE: The [Backstopper 1.x branch](https://github.com/Nike-Inc/backstopper/tree/v1.x) contains a version of 
-Backstopper for Java 7+, and for the `javax` ecosystem. The current Backstopper supports Java 11+ and the `jakarta` 
+Backstopper for Java 7+, and for the `javax` ecosystem. The current Backstopper supports Java 17+ and the `jakarta` 
 ecosystem.)
 
 This library is intended to be used as a base for creating framework-specific integrations with other Servlet-based
