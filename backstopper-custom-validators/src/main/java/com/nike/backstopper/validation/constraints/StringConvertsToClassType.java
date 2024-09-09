@@ -6,8 +6,8 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import javax.validation.Constraint;
-import javax.validation.Payload;
+import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
@@ -63,7 +63,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * </ul>
  *
  * <p>{@code null} is always considered valid - if you need to enforce non-null then you should place an additional
- * {@link javax.validation.constraints.NotNull} constraint on the field as well.
+ * {@link jakarta.validation.constraints.NotNull} constraint on the field as well.
  *
  * <p>Note that Floats and Doubles will fail validation if the number parses to {@link Float#isInfinite()},
  * {@link Float#isNaN()}, {@link Double#isInfinite()}, or {@link Double#isNaN()}.

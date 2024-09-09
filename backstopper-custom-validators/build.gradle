@@ -1,14 +1,9 @@
 evaluationDependsOn(':')
 
-compileTestJava {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
-
 dependencies {
     api(
             "org.slf4j:slf4j-api:$slf4jVersion",
-            "javax.validation:validation-api:$javaxValidationVersion"
+            "jakarta.validation:jakarta.validation-api:$jakartaValidationVersion"
     )
     testImplementation(
             project(":nike-internal-util"),
@@ -17,8 +12,7 @@ dependencies {
             "ch.qos.logback:logback-classic:$logbackVersion",
             "org.assertj:assertj-core:$assertJVersion",
             "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
-            "org.hibernate:hibernate-validator:$hibernateValidatorVersion",
-            // The jaxb-api is needed for building on the java 11 JDK as these classes were moved out of the Java SE libs.
-            "javax.xml.bind:jaxb-api:$jaxbApiVersion",
+            "org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion",
+            "org.glassfish.expressly:expressly:$glassfishExpresslyVersion",
     )
 }
