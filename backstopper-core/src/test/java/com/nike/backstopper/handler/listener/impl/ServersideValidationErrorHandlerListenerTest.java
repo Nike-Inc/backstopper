@@ -21,10 +21,10 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Path;
-import javax.validation.constraints.NotNull;
-import javax.validation.metadata.ConstraintDescriptor;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Path;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.metadata.ConstraintDescriptor;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -142,7 +142,7 @@ public class ServersideValidationErrorHandlerListenerTest extends ListenerTestBa
         extraLoggingDetails.toString();
         assertThat(extraLoggingDetails, containsInAnyOrder(Pair.of("serverside_validation_object", SomeValidatableObject.class.getName()),
                 Pair.of("serverside_validation_errors",
-                        "path.to.violation1|javax.validation.constraints.NotNull|Violation_1_Message, path.to.violation2|org.hibernate.validator.constraints" +
+                        "path.to.violation1|jakarta.validation.constraints.NotNull|Violation_1_Message, path.to.violation2|org.hibernate.validator.constraints" +
                                 ".NotEmpty|Violation_2_Message")));
     }
 

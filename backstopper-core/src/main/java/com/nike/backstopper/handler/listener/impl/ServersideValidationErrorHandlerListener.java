@@ -13,10 +13,10 @@ import com.nike.internal.util.Pair;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.validation.ConstraintViolation;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
+import jakarta.validation.ConstraintViolation;
 
 import static com.nike.backstopper.apierror.SortedApiErrorSet.singletonSortedSetOf;
 

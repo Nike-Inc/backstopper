@@ -3,9 +3,9 @@ package com.nike.backstopper.service;
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.Test;
 
-import javax.validation.ValidationException;
-import javax.validation.Validator;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.ValidationException;
+import jakarta.validation.Validator;
+import jakarta.validation.constraints.NotNull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;

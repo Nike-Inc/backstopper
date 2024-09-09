@@ -10,8 +10,8 @@ import com.nike.internal.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 
 /**
  * Handles generic {@link ApiException} errors by simply setting {@link ApiExceptionHandlerListenerResult#errors} to

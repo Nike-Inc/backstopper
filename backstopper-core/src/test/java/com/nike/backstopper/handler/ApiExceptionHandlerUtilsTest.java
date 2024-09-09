@@ -252,7 +252,7 @@ public class ApiExceptionHandlerUtilsTest {
 
         String origErrorRequestUriValue = UUID.randomUUID().toString();
         if (isErrorRequestUriValueInAttrs) {
-            doReturn(origErrorRequestUriValue).when(request).getAttribute("javax.servlet.error.request_uri");
+            doReturn(origErrorRequestUriValue).when(request).getAttribute("jakarta.servlet.error.request_uri");
         }
 
         // when
@@ -291,8 +291,8 @@ public class ApiExceptionHandlerUtilsTest {
         StringBuilder sb = new StringBuilder();
         RequestInfoForLogging request = mock(RequestInfoForLogging.class);
 
-        doReturn(forwardedRequestUriAttrValue).when(request).getAttribute("javax.servlet.forward.request_uri");
-        doReturn(forwardedPathInfoAttrValue).when(request).getAttribute("javax.servlet.forward.path_info");
+        doReturn(forwardedRequestUriAttrValue).when(request).getAttribute("jakarta.servlet.forward.request_uri");
+        doReturn(forwardedPathInfoAttrValue).when(request).getAttribute("jakarta.servlet.forward.path_info");
 
         // when
         impl.buildErrorMessageForLogs(

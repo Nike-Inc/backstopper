@@ -22,11 +22,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Path;
-import javax.validation.constraints.NotNull;
-import javax.validation.groups.Default;
-import javax.validation.metadata.ConstraintDescriptor;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Path;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.groups.Default;
+import jakarta.validation.metadata.ConstraintDescriptor;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -206,7 +206,7 @@ public class ClientDataValidationErrorHandlerListenerTest extends ListenerTestBa
                 Pair.of("client_data_validation_failed_objects", SomeValidatableObject.class.getName() + "," + Object.class.getName()),
                 Pair.of("validation_groups_considered", Default.class.getName() + "," + SomeValidationGroup.class.getName()),
                 Pair.of("constraint_violation_details",
-                        "SomeValidatableObject.path.to.violation1|javax.validation.constraints.NotNull|MISSING_EXPECTED_CONTENT,Object.path.to.violation2|org.hibernate.validator.constraints" +
+                        "SomeValidatableObject.path.to.violation1|jakarta.validation.constraints.NotNull|MISSING_EXPECTED_CONTENT,Object.path.to.violation2|org.hibernate.validator.constraints" +
                                 ".NotEmpty|TYPE_CONVERSION_ERROR"))
         );
     }

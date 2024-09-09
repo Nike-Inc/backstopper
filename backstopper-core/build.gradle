@@ -1,16 +1,11 @@
 evaluationDependsOn(':')
 
-compileTestJava {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
-
 dependencies {
     api(
             project(":nike-internal-util"),
             "org.slf4j:slf4j-api:$slf4jVersion",
-            "javax.inject:javax.inject:$javaxInjectVersion",
-            "javax.validation:validation-api:$javaxValidationVersion"
+            "jakarta.inject:jakarta.inject-api:$jakartaInjectVersion",
+            "jakarta.validation:jakarta.validation-api:$jakartaValidationVersion"
     )
     compileOnly(
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
@@ -24,6 +19,6 @@ dependencies {
             "org.assertj:assertj-core:$assertJVersion",
             "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
             "org.hamcrest:hamcrest-all:$hamcrestVersion",
-            "org.hibernate:hibernate-validator:$hibernateValidatorVersion"
+            "org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion"
     )
 }

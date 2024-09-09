@@ -12,9 +12,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
-import javax.validation.groups.Default;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
+import jakarta.validation.groups.Default;
 
 import static junit.framework.TestCase.fail;
 import static org.hamcrest.CoreMatchers.is;

@@ -11,8 +11,8 @@ import org.mockito.MockitoAnnotations;
 import java.util.Collections;
 import java.util.HashSet;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
