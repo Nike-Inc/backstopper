@@ -92,7 +92,7 @@ ext {
 
     junitVersion = '4.13.2'
     junit5Version = '5.8.2'
-    mockitoVersion = '1.9.5'
+    mockitoVersion = '5.13.0'
     logbackVersion = '1.5.8'
     jacksonVersion = '2.17.2'
     assertJVersion = '3.23.1'
@@ -110,7 +110,7 @@ ext {
     restAssuredVersion = '3.0.1'
 
     // JACOCO PROPERTIES
-    jacocoToolVersion = '0.8.4'
+    jacocoToolVersion = '0.8.12'
     // Anything in this jacocoExclusions list will be excluded from coverage reports. The format is paths to class
     //      files, with wildcards allowed. e.g.: jacocoExclusions = [ "com/nike/Foo.class", "**/Bar*.*" ]
     jacocoExclusions = []

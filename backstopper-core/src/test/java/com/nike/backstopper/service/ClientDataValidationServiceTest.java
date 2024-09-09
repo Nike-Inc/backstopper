@@ -21,12 +21,12 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Verifies the functionality of {@link com.nike.backstopper.service.ClientDataValidationService}
@@ -90,13 +90,13 @@ public class ClientDataValidationServiceTest {
     @Test
     public void validateObjectsWithGroupsFailFastShouldDoNothingIfObjectsArrayIsNull() {
         validationServiceSpy.validateObjectsWithGroupsFailFast((Class<?>[])null, (Object[])null);
-        verifyZeroInteractions(validatorMock);
+        verifyNoMoreInteractions(validatorMock);
     }
 
     @Test
     public void validateObjectsWithGroupsFailFastShouldDoNothingIfObjectsArrayIsEmpty() {
         validationServiceSpy.validateObjectsWithGroupsFailFast((Class<?>[])null, new Object[0]);
-        verifyZeroInteractions(validatorMock);
+        verifyNoMoreInteractions(validatorMock);
     }
 
     @Test

@@ -50,14 +50,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyCollection;
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -497,7 +497,7 @@ public class ApiExceptionHandlerBaseTest {
 
         // then
         Assertions.assertThat(result).isEqualTo(expectedResult);
-        verifyZeroInteractions(errorsCollectionMock, originalExceptionMock, coreExceptionMock, reqMock);
+        verifyNoMoreInteractions(errorsCollectionMock, originalExceptionMock, coreExceptionMock, reqMock);
     }
 
     @DataProvider(value = {
@@ -542,7 +542,7 @@ public class ApiExceptionHandlerBaseTest {
 
         // then
         Assertions.assertThat(result).isEqualTo(expectedResult);
-        verifyZeroInteractions(errorsCollectionMock, originalExceptionMock, reqMock);
+        verifyNoMoreInteractions(errorsCollectionMock, originalExceptionMock, reqMock);
     }
 
     // DEFAULT_WRAPPER_EXCEPTION_CLASS_NAMES should contain at least WrapperException, ExecutionException, CompletionException
