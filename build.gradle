@@ -80,7 +80,7 @@ ext {
     slf4jVersion = '1.7.36'
     jakartaInjectVersion = '2.0.1'
     jakartaValidationVersion = '3.0.2'
-    servletApiVersion = '3.0.1'
+    servletApiVersion = '6.0.0' // Compatible with Jakarta EE 10
     spring4Version = '4.3.2.RELEASE'
     spring5Version = '5.1.8.RELEASE'
     springboot1Version = '1.5.2.RELEASE'

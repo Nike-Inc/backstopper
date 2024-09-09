@@ -1,17 +1,12 @@
 evaluationDependsOn(':')
 
-compileTestJava {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
-
 dependencies {
     api(
             project(":backstopper-core"),
     )
     compileOnly(
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
-            "javax.servlet:javax.servlet-api:$servletApiVersion",
+            "jakarta.servlet:jakarta.servlet-api:$servletApiVersion",
     )
     testImplementation(
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
@@ -21,6 +16,6 @@ dependencies {
             "org.assertj:assertj-core:$assertJVersion",
             "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
             "org.hamcrest:hamcrest-all:$hamcrestVersion",
-            "javax.servlet:javax.servlet-api:$servletApiVersion",
+            "jakarta.servlet:jakarta.servlet-api:$servletApiVersion",
     )
 }

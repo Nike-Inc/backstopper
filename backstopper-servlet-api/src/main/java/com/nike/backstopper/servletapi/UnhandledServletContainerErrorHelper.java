@@ -12,9 +12,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.servlet.ServletRequest;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
+import jakarta.servlet.ServletRequest;
 
 /**
  * This class is intended to help with integrating Backstopper with Servlet containers for handling otherwise-unhandled
@@ -45,6 +45,7 @@ import javax.servlet.ServletRequest;
 @SuppressWarnings("WeakerAccess")
 public class UnhandledServletContainerErrorHelper {
 
+    // TODO javax-to-jakarta: Test these things in with the new spring/springboot libs/frameworks.
     protected static final List<String> DEFAULT_THROWABLE_REQUEST_ATTR_NAMES = Arrays.asList(
         // Try the Springboot 2 attrs first.
         //      Corresponds to org.springframework.boot.web.reactive.error.DefaultErrorAttributes.ERROR_ATTRIBUTE.
@@ -57,14 +58,14 @@ public class UnhandledServletContainerErrorHelper {
         "org.springframework.boot.autoconfigure.web.DefaultErrorAttributes.ERROR",
         
         // Fall back to the Servlet API value last.
-        //      Corresponds to javax.servlet.RequestDispatcher.ERROR_EXCEPTION.
-        "javax.servlet.error.exception"
+        //      Corresponds to jakarta.servlet.RequestDispatcher.ERROR_EXCEPTION.
+        "jakarta.servlet.error.exception"
     );
 
     protected static final List<String> DEFAULT_ERROR_STATUS_CODE_REQUEST_ATTR_NAMES = Collections.singletonList(
         // Servlet API value.
-        //      Corresponds to javax.servlet.RequestDispatcher.ERROR_STATUS_CODE.
-        "javax.servlet.error.status_code"
+        //      Corresponds to jakarta.servlet.RequestDispatcher.ERROR_STATUS_CODE.
+        "jakarta.servlet.error.status_code"
     );
 
     public @NotNull Throwable extractOrGenerateErrorForRequest(

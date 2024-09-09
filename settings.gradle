@@ -5,8 +5,8 @@ include "nike-internal-util",
         "backstopper-core",
         "backstopper-custom-validators",
         "backstopper-reusable-tests-junit5",
-        "backstopper-jackson"
-//        "backstopper-servlet-api",
+        "backstopper-jackson",
+        "backstopper-servlet-api"
 //        "backstopper-spring-web",
 //        "backstopper-spring-web-mvc",
 //        "backstopper-spring-web-flux",

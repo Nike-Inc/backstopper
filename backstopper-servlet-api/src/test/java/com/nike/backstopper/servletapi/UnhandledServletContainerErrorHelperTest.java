@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletRequest;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletRequest;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -160,7 +160,7 @@ public class UnhandledServletContainerErrorHelperTest {
         Synthetic404Scenario scenario
     ) {
         // given
-        doReturn(scenario.statusCodeAttr).when(requestMock).getAttribute("javax.servlet.error.status_code");
+        doReturn(scenario.statusCodeAttr).when(requestMock).getAttribute("jakarta.servlet.error.status_code");
 
         // when
         Throwable result = helper.extractOrGenerateErrorForRequest(requestMock, projectApiErrors);
@@ -208,7 +208,7 @@ public class UnhandledServletContainerErrorHelperTest {
         Synthetic500Scenario scenario
     ) {
         // given
-        doReturn(scenario.statusCodeAttr).when(requestMock).getAttribute("javax.servlet.error.status_code");
+        doReturn(scenario.statusCodeAttr).when(requestMock).getAttribute("jakarta.servlet.error.status_code");
 
         // when
         Throwable result = helper.extractOrGenerateErrorForRequest(requestMock, projectApiErrors);

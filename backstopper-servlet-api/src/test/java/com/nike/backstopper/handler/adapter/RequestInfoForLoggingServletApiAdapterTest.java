@@ -7,6 +7,7 @@ import com.nike.internal.util.Pair;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -19,8 +20,9 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
 
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ReadListener;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.HttpServletRequest;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
@@ -219,5 +221,31 @@ public class RequestInfoForLoggingServletApiAdapterTest {
             this.sourceStream.close();
         }
 
+        @Override
+        public boolean isFinished() {
+            try {
+                return this.sourceStream.available() <= 0;
+            }
+            catch (IOException e) {
+                LoggerFactory.getLogger(this.getClass()).error("An error occurred asking for available bytes from the underlying stream.", e);
+                return true;
+            }
+        }
+
+        @Override
+        public boolean isReady() {
+            try {
+                return this.sourceStream.available() > 0;
+            }
+            catch (IOException e) {
+                LoggerFactory.getLogger(this.getClass()).error("An error occurred asking for available bytes from the underlying stream.", e);
+                return false;
+            }
+        }
+
+        @Override
+        public void setReadListener(ReadListener readListener) {
+            // Do nothing.
+        }
     }
 }
