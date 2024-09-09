@@ -3,9 +3,8 @@ rootProject.name = 'backstopper'
         // Published-artifact modules
 include "nike-internal-util",
         "backstopper-core",
-        "backstopper-custom-validators"
-//        "backstopper-reusable-tests",
-//        "backstopper-reusable-tests-junit5",
+        "backstopper-custom-validators",
+        "backstopper-reusable-tests-junit5"
 //        "backstopper-jackson",
 //        "backstopper-servlet-api",
 //        "backstopper-spring-web",

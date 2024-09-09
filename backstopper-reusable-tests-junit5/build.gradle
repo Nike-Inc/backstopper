@@ -1,8 +1,5 @@
 evaluationDependsOn(':')
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
-
 ext {
     mockito3Version = '3.12.4'
     javassistJava8Version = '3.29.0-GA'

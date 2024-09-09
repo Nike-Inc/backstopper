@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import javax.validation.Constraint;
+import jakarta.validation.Constraint;
 
 /**
  * Base class for tests that need to troll through the JSR 303 annotations in the project in order to do some checking
@@ -167,7 +167,7 @@ public abstract class ReflectionBasedJsr303AnnotationTrollerBase {
     private final Set<String> DEFAULT_CONSTRAINT_SEARCH_PACKAGES = new LinkedHashSet<>(Arrays.asList(
         "com.nike",
         "org.hibernate.validator.constraints",
-        "javax.validation.constraints"
+        "jakarta.validation.constraints"
     ));
 
     /**
