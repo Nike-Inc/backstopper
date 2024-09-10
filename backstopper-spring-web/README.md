@@ -1,6 +1,10 @@
 # Backstopper - spring-web
 
-Backstopper is a framework-agnostic API error handling and (optional) model validation solution for Java 7 and greater.
+Backstopper is a framework-agnostic API error handling and (optional) model validation solution for Java 17 and greater.
+
+(NOTE: The [Backstopper 1.x branch](https://github.com/Nike-Inc/backstopper/tree/v1.x) contains a version of
+Backstopper for Java 7+, and for the `javax` ecosystem. The current Backstopper supports Java 17+ and the `jakarta`
+ecosystem. It also contains support for Spring 4 and 5, and Springboot 1 and 2.)
 
 This `backstopper-spring-web` module is not meant to be used standalone. It is here to provide common code for any
 `spring-web*` based application, including both Spring Web MVC and Spring WebFlux applications. But this module
@@ -8,6 +12,8 @@ does not provide Spring+Backstopper integration by itself.
 
 To integrate Backstopper with your Spring application, please choose the correct concrete integration library,
 depending on which Spring environment your application is running in:
+
+// TODO javax-to-jakarta: Fix these links to other libraries after the refactor is complete. 
 
 ### Spring WebFlux based applications
 

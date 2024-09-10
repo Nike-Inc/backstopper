@@ -55,10 +55,7 @@ public abstract class OneOffSpringCommonFrameworkExceptionHandlerListener implem
     // Support all the various 404 cases from competing dependencies using classname matching.
     protected final Set<String> DEFAULT_TO_404_CLASSNAMES = new LinkedHashSet<>(Arrays.asList(
         // NoHandlerFoundException is found in the spring-webmvc dependency, not spring-web.
-        "org.springframework.web.servlet.NoHandlerFoundException",
-        // NoSuchRequestHandlingMethodException is a deprecated Spring 4.x exception that doesn't appear in
-        //      Spring 5 but should be translated to a 404.
-        "org.springframework.web.servlet.mvc.multiaction.NoSuchRequestHandlingMethodException"
+        "org.springframework.web.servlet.NoHandlerFoundException"
     ));
 
     // Support Spring Security exceptions that should map to a 403.
@@ -75,8 +72,7 @@ public abstract class OneOffSpringCommonFrameworkExceptionHandlerListener implem
         "org.springframework.security.authentication.DisabledException",
         "org.springframework.security.authentication.CredentialsExpiredException",
         "org.springframework.security.authentication.AccountExpiredException",
-        "org.springframework.security.core.userdetails.UsernameNotFoundException",
-        "org.springframework.security.authentication.rcp.RemoteAuthenticationException"
+        "org.springframework.security.core.userdetails.UsernameNotFoundException"
     ));
 
     // Support 503 cases from competing dependencies using classname matching.

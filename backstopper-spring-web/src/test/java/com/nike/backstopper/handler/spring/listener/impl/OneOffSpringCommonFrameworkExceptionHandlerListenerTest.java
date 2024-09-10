@@ -24,6 +24,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.core.MethodParameter;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
@@ -35,13 +36,11 @@ import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.LockedException;
-import org.springframework.security.authentication.rcp.RemoteAuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.method.annotation.MethodArgumentConversionNotSupportedException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
-import org.springframework.web.servlet.mvc.multiaction.NoSuchRequestHandlingMethodException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -435,19 +434,7 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
     @Test
     public void shouldHandleException_should_return_not_found_error_when_passed_NoHandlerFoundException() {
         // given
-        NoHandlerFoundException ex = new NoHandlerFoundException();
-
-        // when
-        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
-
-        // then
-        validateResponse(result, true, singletonList(testProjectApiErrors.getNotFoundApiError()));
-    }
-
-    @Test
-    public void shouldHandleException_should_return_not_found_error_when_passed_NoSuchRequestHandlingMethodException() {
-        // given
-        NoSuchRequestHandlingMethodException ex = new NoSuchRequestHandlingMethodException();
+        NoHandlerFoundException ex = new NoHandlerFoundException("GET", "/foo", new HttpHeaders());
 
         // when
         ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
@@ -466,8 +453,7 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
             new DisabledException("foo"),
             new CredentialsExpiredException("foo"),
             new AccountExpiredException("foo"),
-            new UsernameNotFoundException("foo"),
-            new RemoteAuthenticationException("foo")
+            new UsernameNotFoundException("foo")
         ).map(Collections::singletonList)
          .collect(Collectors.toList());
     }
