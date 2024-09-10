@@ -198,22 +198,30 @@ public abstract class OneOffSpringCommonFrameworkExceptionHandlerListener implem
 
     protected boolean isMissingExpectedContentCase(HttpMessageConversionException ex) {
         if (ex instanceof HttpMessageNotReadableException) {
-            // Different versions of Spring Web MVC can have different ways of expressing missing content.
+            // Different versions of Spring Web MVC and underlying deserializers (e.g. Jackson) can have different ways of expressing missing content.
 
-            // More common case
+            // A common case.
             if (ex.getMessage().startsWith("Required request body is missing")) {
                 return true;
             }
 
-            // An older/more unusual case. Unfortunately there's a lot of manual digging that we have to do to determine
-            //      that we've reached this case.
+            // Underlying Jackson cases. Unfortunately there's a lot of manual digging that we have to do to determine
+            //      that we've reached these cases.
             Throwable cause = ex.getCause();
             //noinspection RedundantIfStatement
-            if (cause != null
-                && "com.fasterxml.jackson.databind.JsonMappingException".equals(cause.getClass().getName())
-                && nullSafeStringContains(cause.getMessage(), "No content to map due to end-of-input")
-            ) {
-                return true;
+            if (cause != null) {
+                String causeClassName = cause.getClass().getName();
+                if ("com.fasterxml.jackson.databind.exc.InvalidFormatException".equals(causeClassName)
+                    && nullSafeStringContains(cause.getMessage(), "Cannot coerce empty String")
+                ) {
+                    return true;
+                }
+
+                if ("com.fasterxml.jackson.databind.JsonMappingException".equals(causeClassName)
+                    && nullSafeStringContains(cause.getMessage(), "No content to map due to end-of-input")
+                ) {
+                    return true;
+                }
             }
         }
 
