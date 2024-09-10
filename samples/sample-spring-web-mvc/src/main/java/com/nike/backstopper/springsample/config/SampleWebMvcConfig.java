@@ -9,10 +9,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import javax.validation.Validation;
-import javax.validation.Validator;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 
 /**
  * Simple Spring Web MVC config for the sample app. The {@link ProjectApiErrors} and {@link Validator} beans defined
@@ -34,7 +34,8 @@ import javax.validation.Validator;
     SampleController.class
 })
 @EnableWebMvc
-public class SampleWebMvcConfig extends WebMvcConfigurerAdapter {
+@SuppressWarnings("unused")
+public class SampleWebMvcConfig implements WebMvcConfigurer {
 
     /**
      * @return The {@link ProjectApiErrors} to use for this sample app.
@@ -54,6 +55,7 @@ public class SampleWebMvcConfig extends WebMvcConfigurerAdapter {
      * implementation dependency into your project.
      */
     @Bean
+    @SuppressWarnings("resource")
     public Validator getJsr303Validator() {
         return Validation.buildDefaultValidatorFactory().getValidator();
     }

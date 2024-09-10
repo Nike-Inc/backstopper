@@ -18,7 +18,7 @@ import java.util.UUID;
  * conform to the range specified in {@link SampleProjectApiErrorsImpl#getProjectSpecificErrorCodeRange()} or an
  * exception will be thrown on app startup, and unit tests should fail. The one exception to this rule is a "core
  * error wrapper" - an instance that shares the same error code, message, and HTTP status code as a
- * {@link SampleProjectApiErrorsImpl#getCoreApiErrors()} instance (in this case that means a wrapper around
+ * {@code SampleProjectApiErrorsImpl.getCoreApiErrors()} instance (in this case that means a wrapper around
  * {@link com.nike.backstopper.apierror.sample.SampleCoreApiError}).
  *
  * @author Nic Munroe
@@ -55,14 +55,14 @@ public enum SampleProjectApiError implements ApiError {
 
     SampleProjectApiError(int errorCode, String message, int httpStatusCode) {
         this(new ApiErrorBase(
-            "delegated-to-enum-wrapper-" + UUID.randomUUID().toString(), errorCode, message, httpStatusCode
+            "delegated-to-enum-wrapper-" + UUID.randomUUID(), errorCode, message, httpStatusCode
         ));
     }
 
     @SuppressWarnings("unused")
     SampleProjectApiError(int errorCode, String message, int httpStatusCode, Map<String, Object> metadata) {
         this(new ApiErrorBase(
-            "delegated-to-enum-wrapper-" + UUID.randomUUID().toString(), errorCode, message, httpStatusCode, metadata
+            "delegated-to-enum-wrapper-" + UUID.randomUUID(), errorCode, message, httpStatusCode, metadata
         ));
     }
 

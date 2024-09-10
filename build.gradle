@@ -111,8 +111,8 @@ ext {
     orgReflectionsVersion = '0.9.11'
     javassistVersion = '3.23.2-GA'
 
-    jettyVersion = '9.2.19.v20160908'
-    restAssuredVersion = '3.0.1'
+    jettyVersion = '11.0.24'
+    restAssuredVersion = '5.5.0'
 
     // JACOCO PROPERTIES
     jacocoToolVersion = '0.8.12'

@@ -1,8 +1,5 @@
 evaluationDependsOn(':')
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
-
 test {
     useJUnitPlatform()
 }
@@ -11,9 +8,10 @@ dependencies {
     implementation(
             project(":backstopper-spring-web-mvc"),
             project(":backstopper-custom-validators"),
-            "org.springframework:spring-webmvc:$spring4Version",
+            "org.springframework:spring-webmvc:$spring6Version",
             "ch.qos.logback:logback-classic:$logbackVersion",
-            "org.hibernate:hibernate-validator:$hibernateValidatorVersion",
+            "org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion",
+            "org.glassfish.expressly:expressly:$glassfishExpresslyVersion",
             "org.eclipse.jetty:jetty-webapp:$jettyVersion"
     )
     compileOnly(
@@ -30,8 +28,6 @@ dependencies {
             "ch.qos.logback:logback-classic:$logbackVersion",
             "org.assertj:assertj-core:$assertJVersion",
             "io.rest-assured:rest-assured:$restAssuredVersion",
-            // The jaxb-api is needed for building on the java 11 JDK as these classes were moved out of the Java SE libs.
-            "javax.xml.bind:jaxb-api:$jaxbApiVersion",
     )
 }
 

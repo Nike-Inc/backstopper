@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 /**
  * Returns the project specific errors for this sample application. {@link #getProjectApiErrors()} will return a

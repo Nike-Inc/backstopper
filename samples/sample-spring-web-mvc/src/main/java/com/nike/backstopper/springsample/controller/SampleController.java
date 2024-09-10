@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import java.util.Arrays;
 import java.util.UUID;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import static com.nike.backstopper.springsample.controller.SampleController.SAMPLE_PATH;
 import static java.util.Collections.singletonList;
