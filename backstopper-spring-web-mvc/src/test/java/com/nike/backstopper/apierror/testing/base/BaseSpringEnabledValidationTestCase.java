@@ -18,6 +18,7 @@ import org.springframework.test.context.TestContext;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import org.springframework.test.context.support.AbstractTestExecutionListener;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -30,7 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -44,8 +45,11 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
  *
  * @author Nic Munroe
  */
-@TestExecutionListeners({BaseSpringEnabledValidationTestCase.LogBeforeClass.class,
-                         BaseSpringEnabledValidationTestCase.LogAfterClass.class})
+@TestExecutionListeners({
+    DependencyInjectionTestExecutionListener.class, // Needed for dependency injection of the test classes to happen.
+    BaseSpringEnabledValidationTestCase.LogBeforeClass.class,
+    BaseSpringEnabledValidationTestCase.LogAfterClass.class
+})
 @ContextConfiguration(
     classes = {TestCaseValidationSpringConfig.class}
 )

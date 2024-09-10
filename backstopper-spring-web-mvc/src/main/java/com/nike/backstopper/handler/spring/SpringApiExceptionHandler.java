@@ -18,11 +18,11 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Collection;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * An {@link ApiExceptionHandlerServletApiBase} extension that hooks into Spring Web MVC via its

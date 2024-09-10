@@ -12,8 +12,8 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import java.util.Collection;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 
 /**
  * Similar to {@link com.nike.backstopper.handler.ApiExceptionHandlerUtils}, but provides helpers specific to this

@@ -6,7 +6,7 @@ import com.nike.backstopper.servletapi.UnhandledServletContainerErrorHelper;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;

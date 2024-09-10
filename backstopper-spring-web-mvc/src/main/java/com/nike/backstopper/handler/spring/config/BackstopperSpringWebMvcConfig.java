@@ -18,7 +18,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 
 /**
  * This Spring Web MVC configuration is an alternative to simply scanning all of {@code com.nike.backstopper}. You can

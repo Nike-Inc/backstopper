@@ -154,7 +154,7 @@ public class OneOffSpringWebMvcFrameworkExceptionHandlerListenerTest {
 
         String expectedExceptionMessage =
             (isMissingRequestParamEx)
-            ? String.format("Required %s parameter '%s' is not present", missingParamType, missingParamName)
+            ? String.format("Required request parameter '%s' for method parameter type %s is not present", missingParamName, missingParamType)
             : "foo";
 
         // when

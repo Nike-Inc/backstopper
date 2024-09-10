@@ -1,14 +1,5 @@
 evaluationDependsOn(':')
 
-compileTestJava {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
-
-ext {
-    springSecurityVersion = '4.2.13.RELEASE'
-}
-
 dependencies {
     api(
             project(":backstopper-servlet-api"),
@@ -17,8 +8,8 @@ dependencies {
     )
     compileOnly(
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
-            "org.springframework:spring-webmvc:$spring4Version",
-            "javax.servlet:javax.servlet-api:$servletApiVersion",
+            "org.springframework:spring-webmvc:$spring6Version",
+            "jakarta.servlet:jakarta.servlet-api:$servletApiVersion",
     )
     testImplementation(
             project(":backstopper-core").sourceSets.test.output,
@@ -29,12 +20,11 @@ dependencies {
             "org.assertj:assertj-core:$assertJVersion",
             "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
             "org.hamcrest:hamcrest-all:$hamcrestVersion",
-            "org.springframework:spring-test:$spring4Version",
-            "org.hibernate:hibernate-validator:$hibernateValidatorVersion",
-            "javax.servlet:javax.servlet-api:$servletApiVersion",
-            "org.springframework:spring-webmvc:$spring4Version",
+            "org.springframework:spring-test:$spring6Version",
+            "org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion",
+            "org.glassfish.expressly:expressly:$glassfishExpresslyVersion",
+            "jakarta.servlet:jakarta.servlet-api:$servletApiVersion",
+            "org.springframework:spring-webmvc:$spring6Version",
             "org.springframework.security:spring-security-core:$springSecurityVersion",
-            // The jaxb-api is needed for building on the java 11 JDK as these classes were moved out of the Java SE libs.
-            "javax.xml.bind:jaxb-api:$jaxbApiVersion",
     )
 }

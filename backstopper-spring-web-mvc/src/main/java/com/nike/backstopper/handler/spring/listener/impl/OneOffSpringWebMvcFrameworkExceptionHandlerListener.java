@@ -18,9 +18,9 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 
 /**
  * An extension and concrete implementation of {@link OneOffSpringCommonFrameworkExceptionHandlerListener} that

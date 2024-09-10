@@ -11,7 +11,7 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 import static com.nike.backstopper.handler.spring.SpringContainerErrorController.SpringbootErrorControllerIsNotOnClasspath;
 

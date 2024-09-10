@@ -15,7 +15,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Arrays;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;

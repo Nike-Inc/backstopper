@@ -22,9 +22,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import javax.inject.Inject;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import jakarta.inject.Inject;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;

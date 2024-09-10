@@ -42,10 +42,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Pattern;
+import jakarta.inject.Inject;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
 
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
@@ -349,7 +349,7 @@ public class ClientfacingErrorITest extends BaseSpringEnabledValidationTestCase 
 
         @RequestMapping("/throwServerUnknownHttpStatusCodeException")
         public void throwServerUnknownHttpStatusCodeException() {
-            UnknownHttpStatusCodeException serverResponseEx = new UnknownHttpStatusCodeException(42, null, null, null, null);
+            UnknownHttpStatusCodeException serverResponseEx = new UnknownHttpStatusCodeException(142, null, null, null, null);
             throw new ServerUnknownHttpStatusCodeException(new Exception("Intentional test exception"), "FOO", serverResponseEx, serverResponseEx.getRawStatusCode(), serverResponseEx.getResponseHeaders(), serverResponseEx.getResponseBodyAsString());
         }
 
