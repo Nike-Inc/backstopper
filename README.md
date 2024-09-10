@@ -117,7 +117,9 @@ throw ApiException.newBuilder()
 
 <a name="framework_modules"></a>
 ### Framework-Specific Modules 
-  
+
+// TODO javax-to-jakarta: Explain why jaxrs and jersey3 are not currently supported, but could be if there's interest.
+
 * [backstopper-jaxrs](backstopper-jaxrs) - Integration library for JAX-RS. If you want to integrate Backstopper into a JAX-RS project other than Jersey then start here (see below for the Jersey-specific modules).
 * [backstopper-jersey1](backstopper-jersey1/) - Integration library for the Jersey 1 framework. If you want to integrate Backstopper into a project running in Jersey 1 then start here. There is a [Jersey 1 sample project](samples/sample-jersey1/) complete with integration tests you can use as an example.
 * [backstopper-jersey2](backstopper-jersey2/) - Integration library for the Jersey 2 framework. If you want to integrate Backstopper into a project running in Jersey 2 then start here. There is a [Jersey 2 sample project](samples/sample-jersey2/) complete with integration tests you can use as an example.
