@@ -10,7 +10,6 @@ include "nike-internal-util",
         "backstopper-spring-web",
         "backstopper-spring-web-mvc",
         "backstopper-spring-web-flux",
-//        "backstopper-spring-boot1",
 //        "backstopper-spring-boot2-webmvc",
 //        // Test-only modules (not published)
 //        "testonly:testonly-spring-reusable-test-support",
@@ -20,7 +19,6 @@ include "nike-internal-util",
 //        "testonly:testonly-springboot2-webmvc",
 //        "testonly:testonly-springboot2-webflux",
 //        // Sample modules (not published)
-        "samples:sample-spring-web-mvc"
-//        "samples:sample-spring-boot1",
+        "samples:sample-spring-web-mvc",
 //        "samples:sample-spring-boot2-webmvc",
-//        "samples:sample-spring-boot2-webflux",
+        "samples:sample-spring-boot3-webflux"
