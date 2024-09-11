@@ -32,19 +32,18 @@ import static com.nike.backstopper.handler.spring.SpringContainerErrorController
  * this controller listens on the same path as Springboot's default {@code BasicErrorController} and we'd get a
  * conflict otherwise.
  *
- * <p>If you're in a Springboot environment, you should pull in the {@code backstopper-spring-boot1} or
- * {@code backstopper-spring-boot2-webmvc} library (whichever is appropriate for your app) and register
- * {@code BackstopperSpringboot[1/2]ContainerErrorController} to take the place of this class (and override the default
- * {@code BasicErrorController}).
+ * <p>If you're in a Springboot environment, you should pull in the {@code backstopper-spring-boot3-webmvc} library
+ * and register {@code BackstopperSpringboot3ContainerErrorController} to take the place of this class (and override
+ * the default {@code BasicErrorController}).
  */
 @Controller
 @RequestMapping("${server.error.path:${error.path:/error}}")
-// Use a @Conditional to prevent this class from being registered if we're running in a Springboot 1 or Springboot 2
+// Use a @Conditional to prevent this class from being registered if we're running in a Springboot 3
 //      application. This is necessary because this class would conflict with the auto-registered BasicErrorController
 //      since they both listen to the same path.
 // As mentioned in the class javadocs, if you're in a Springboot environment then you should pull in the
-//      backstopper-spring-boot1 or backstopper-spring-boot2-webmvc library and
-//      register BackstopperSpringboot[1/2]ContainerErrorController to take the place of this class.
+//      backstopper-spring-boot3-webmvc library and register BackstopperSpringboot3ContainerErrorController to take the
+//      place of this class.
 @Conditional(SpringbootErrorControllerIsNotOnClasspath.class)
 public class SpringContainerErrorController {
 
@@ -76,7 +75,7 @@ public class SpringContainerErrorController {
     /**
      * A {@link ConfigurationCondition} for use with the {@link Conditional} annotation that can be used to prevent
      * the inclusion of a bean during classpath scanning / importing. This particular class will prevent bean registration
-     * if Springboot 1 or Springboot 2's {@code ErrorController} is on the classpath.
+     * if Springboot's {@code ErrorController} is on the classpath.
      *
      * <p>This is used to prevent {@link SpringContainerErrorController} from being registered if you're running in
      * a Springboot environment, because that controller would conflict with the auto-registered
@@ -95,18 +94,8 @@ public class SpringContainerErrorController {
         public boolean matches(
             ConditionContext context, AnnotatedTypeMetadata metadata
         ) {
-            if (
-                // Springboot 1
-                isClassAvailableOnClasspath("org.springframework.boot.autoconfigure.web.ErrorController")
-                // Springboot 2
-                || isClassAvailableOnClasspath("org.springframework.boot.web.servlet.error.ErrorController")
-            ) {
-                // We're in a Springboot 1 or Springboot 2 application. Return false to prevent registration.
-                return false;
-            }
-
-            // Didn't detect ErrorController on the classpath, so return true.
-            return true;
+            // If we're in a Springboot application we want to return false to prevent registration.
+            return !isClassAvailableOnClasspath("org.springframework.boot.web.servlet.error.ErrorController");
         }
 
         protected boolean isClassAvailableOnClasspath(String classname) {

@@ -51,23 +51,17 @@ public class SpringbootErrorControllerIsNotOnClasspathTest {
     }
 
     @DataProvider(value = {
-        "true   |   true    |   false",
-        "false  |   true    |   false",
-        "true   |   false   |   false",
-        "false  |   false   |   true",
+        "true    |   false",
+        "false   |   true",
     }, splitBy = "\\|")
     @Test
     public void matches_method_works_as_expected(
-        boolean sb1IsOnClasspath, boolean sb2IsOnClasspath, boolean expectedResult
+        boolean sb2IsOnClasspath, boolean expectedResult
     ) {
         // given
         SpringbootErrorControllerIsNotOnClasspath implSpy = spy(impl);
         ConditionContext contextMock = mock(ConditionContext.class);
         AnnotatedTypeMetadata metadataMock = mock(AnnotatedTypeMetadata.class);
-
-        doReturn(sb1IsOnClasspath)
-            .when(implSpy)
-            .isClassAvailableOnClasspath("org.springframework.boot.autoconfigure.web.ErrorController");
 
         doReturn(sb2IsOnClasspath)
             .when(implSpy)
