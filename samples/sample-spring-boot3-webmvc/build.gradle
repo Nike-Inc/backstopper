@@ -1,0 +1,49 @@
+evaluationDependsOn(':')
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springboot3Version}")
+    }
+}
+
+apply plugin: 'org.springframework.boot'
+apply plugin: "io.spring.dependency-management"
+
+test {
+    useJUnitPlatform()
+}
+
+dependencies {
+    implementation(
+            project(":backstopper-spring-boot3-webmvc"),
+            project(":backstopper-custom-validators"),
+            "ch.qos.logback:logback-classic",
+            "org.springframework.boot:spring-boot-dependencies:$springboot3Version",
+            "org.springframework.boot:spring-boot-starter-web",
+            "org.hibernate.validator:hibernate-validator",
+            "org.glassfish.expressly:expressly:$glassfishExpresslyVersion",
+    )
+    compileOnly(
+            "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
+    )
+    testImplementation(
+            project(":backstopper-reusable-tests-junit5"),
+            "org.junit.jupiter:junit-jupiter-api:$junit5Version",
+            "org.junit.jupiter:junit-jupiter-engine:$junit5Version",
+            "org.junit.jupiter:junit-jupiter-params:$junit5Version",
+            "org.mockito:mockito-core:$mockitoVersion",
+            "ch.qos.logback:logback-classic",
+            "org.assertj:assertj-core:$assertJVersion",
+            "io.rest-assured:rest-assured",
+    )
+}
+
+apply plugin: "application"
+mainClassName = "com.nike.backstopper.springboot3webmvcsample.Main"
+
+run {
+    systemProperties = System.getProperties()
+}

@@ -56,7 +56,7 @@ logs for each error represented in a returned error contract (there can be more 
   framework when it cannot coerce the query param value to the required type (an integer), which results in a
   Backstopper `"Type conversion error"`.
 * `GET /sample/withRequiredHeader` with a `requiredHeaderValue: not-an-int` header - Similar to the query param
-  example, this triggers an error in the Spring Boot framework when it cannot coerce the header value to the required
+  example, this triggers an error in the Spring Web MVC framework when it cannot coerce the header value to the required
   type (an integer), which results in a Backstopper `"Type conversion error"`.
 * `GET /does-not-exist` - Triggers a framework 404 which Backstopper handles.
 * `DELETE /sample` - Triggers a framework 405 which Backstopper handles.

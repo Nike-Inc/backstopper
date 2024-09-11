@@ -20,5 +20,5 @@ include "nike-internal-util",
 //        "testonly:testonly-springboot2-webflux",
 //        // Sample modules (not published)
         "samples:sample-spring-web-mvc",
-//        "samples:sample-spring-boot2-webmvc",
+        "samples:sample-spring-boot3-webmvc",
         "samples:sample-spring-boot3-webflux"
