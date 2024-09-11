@@ -72,6 +72,7 @@ public abstract class OneOffSpringCommonFrameworkExceptionHandlerListener implem
     // Support all the various 404 cases from competing dependencies using classname matching.
     protected final Set<String> DEFAULT_TO_404_CLASSNAMES = new LinkedHashSet<>(Arrays.asList(
         // NoHandlerFoundException is found in the spring-webmvc dependency, not spring-web.
+        "org.springframework.web.servlet.resource.NoResourceFoundException",
         "org.springframework.web.servlet.NoHandlerFoundException"
     ));
 
