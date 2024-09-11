@@ -7,7 +7,7 @@ import com.nike.backstopper.handler.spring.SpringApiExceptionHandlerUtils;
 import com.nike.backstopper.handler.spring.SpringUnhandledExceptionHandler;
 import com.nike.backstopper.handler.spring.config.BackstopperSpringWebMvcConfig;
 import com.nike.backstopper.handler.spring.listener.ApiExceptionHandlerListenerList;
-import com.nike.backstopper.handler.springboot.controller.BackstopperSpringboot2ContainerErrorController;
+import com.nike.backstopper.handler.springboot.controller.BackstopperSpringboot3ContainerErrorController;
 import com.nike.backstopper.service.ClientDataValidationService;
 import com.nike.backstopper.service.FailFastServersideValidationService;
 import com.nike.backstopper.service.NoOpJsr303Validator;
@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 
 /**
  * This Spring Boot configuration is an alternative to simply scanning all of {@code com.nike.backstopper}. You can
@@ -25,10 +25,10 @@ import javax.validation.Validator;
  * handlers will supersede the built-in spring exception handler chain and will translate <b>ALL</b> errors heading to
  * the caller so that they conform to the API error contract.
  *
- * This also pulls in {@link BackstopperSpringboot2ContainerErrorController} to handle exceptions that originate in the
+ * This also pulls in {@link BackstopperSpringboot3ContainerErrorController} to handle exceptions that originate in the
  * Servlet container outside Spring proper so they can also be handled by Backstopper. See the
  * {@link SpringApiExceptionHandler}, {@link SpringUnhandledExceptionHandler}, and
- * {@link BackstopperSpringboot2ContainerErrorController} classes themselves for more info.
+ * {@link BackstopperSpringboot3ContainerErrorController} classes themselves for more info.
  *
  * <p>Most of the necessary dependencies are setup for autowiring so this configuration class should be sufficient
  * to enable Backstopper error handling in your Spring Boot application, except for two things:
@@ -63,8 +63,8 @@ import javax.validation.Validator;
 @Configuration
 @Import({
     BackstopperSpringWebMvcConfig.class,
-    BackstopperSpringboot2ContainerErrorController.class
+    BackstopperSpringboot3ContainerErrorController.class
 })
-public class BackstopperSpringboot2WebMvcConfig {
+public class BackstopperSpringboot3WebMvcConfig {
 
 }

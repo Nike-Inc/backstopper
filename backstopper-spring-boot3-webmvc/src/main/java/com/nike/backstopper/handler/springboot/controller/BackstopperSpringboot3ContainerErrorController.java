@@ -9,7 +9,7 @@ import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 /**
  * The purpose of this controller is to give a place for the Servlet container to route errors to that would otherwise
@@ -25,14 +25,14 @@ import javax.servlet.ServletRequest;
 @Controller
 @RequestMapping("${server.error.path:${error.path:/error}}")
 @SuppressWarnings("WeakerAccess")
-public class BackstopperSpringboot2ContainerErrorController implements ErrorController {
+public class BackstopperSpringboot3ContainerErrorController implements ErrorController {
 
     protected final @NotNull ProjectApiErrors projectApiErrors;
     protected final @NotNull UnhandledServletContainerErrorHelper unhandledServletContainerErrorHelper;
     protected final String errorPath;
 
     @SuppressWarnings("ConstantConditions")
-    public BackstopperSpringboot2ContainerErrorController(
+    public BackstopperSpringboot3ContainerErrorController(
         @NotNull ProjectApiErrors projectApiErrors,
         @NotNull UnhandledServletContainerErrorHelper unhandledServletContainerErrorHelper,
         @NotNull ServerProperties serverProperties
@@ -59,8 +59,6 @@ public class BackstopperSpringboot2ContainerErrorController implements ErrorCont
         throw unhandledServletContainerErrorHelper.extractOrGenerateErrorForRequest(request, projectApiErrors);
     }
 
-    // This used to be part of the ErrorController interface in earlier versions of Springboot 2, but now it's not
-    //      in more recent versions. So we can't use the @Override annotation.
     public String getErrorPath() {
         return errorPath;
     }

@@ -10,7 +10,7 @@ include "nike-internal-util",
         "backstopper-spring-web",
         "backstopper-spring-web-mvc",
         "backstopper-spring-web-flux",
-//        "backstopper-spring-boot2-webmvc",
+        "backstopper-spring-boot3-webmvc",
 //        // Test-only modules (not published)
 //        "testonly:testonly-spring-reusable-test-support",
 //        "testonly:testonly-spring4-webmvc",

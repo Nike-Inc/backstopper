@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.web.ServerProperties;
 
 import java.util.UUID;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -19,11 +19,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 /**
- * Tests the functionality of {@link BackstopperSpringboot2ContainerErrorController}.
+ * Tests the functionality of {@link BackstopperSpringboot3ContainerErrorController}.
  *
  * @author Nic Munroe
  */
-public class BackstopperSpringboot2ContainerErrorControllerTest {
+public class BackstopperSpringboot3ContainerErrorControllerTest {
 
     private ProjectApiErrors projectApiErrorsMock;
     private UnhandledServletContainerErrorHelper unhandledContainerErrorHelperMock;
@@ -48,7 +48,7 @@ public class BackstopperSpringboot2ContainerErrorControllerTest {
     @Test
     public void constructor_sets_fields_as_expected() {
         // when
-        BackstopperSpringboot2ContainerErrorController impl = new BackstopperSpringboot2ContainerErrorController(
+        BackstopperSpringboot3ContainerErrorController impl = new BackstopperSpringboot3ContainerErrorController(
             projectApiErrorsMock, unhandledContainerErrorHelperMock, serverPropertiesMock
         );
 
@@ -63,7 +63,7 @@ public class BackstopperSpringboot2ContainerErrorControllerTest {
     public void constructor_throws_NPE_if_passed_null_ProjectApiErrors() {
         // when
         Throwable ex = catchThrowable(
-            () -> new BackstopperSpringboot2ContainerErrorController(
+            () -> new BackstopperSpringboot3ContainerErrorController(
                 null, unhandledContainerErrorHelperMock, serverPropertiesMock
             )
         );
@@ -78,7 +78,7 @@ public class BackstopperSpringboot2ContainerErrorControllerTest {
     public void constructor_throws_NPE_if_passed_null_UnhandledServletContainerErrorHelper() {
         // when
         Throwable ex = catchThrowable(
-            () -> new BackstopperSpringboot2ContainerErrorController(
+            () -> new BackstopperSpringboot3ContainerErrorController(
                 projectApiErrorsMock, null, serverPropertiesMock
             )
         );
@@ -93,7 +93,7 @@ public class BackstopperSpringboot2ContainerErrorControllerTest {
     public void constructor_throws_NPE_if_passed_null_ServerProperties() {
         // when
         Throwable ex = catchThrowable(
-            () -> new BackstopperSpringboot2ContainerErrorController(
+            () -> new BackstopperSpringboot3ContainerErrorController(
                 projectApiErrorsMock, unhandledContainerErrorHelperMock, null
             )
         );
@@ -107,7 +107,7 @@ public class BackstopperSpringboot2ContainerErrorControllerTest {
     @Test
     public void error_method_throws_result_of_calling_UnhandledServletContainerErrorHelper() {
         // given
-        BackstopperSpringboot2ContainerErrorController impl = new BackstopperSpringboot2ContainerErrorController(
+        BackstopperSpringboot3ContainerErrorController impl = new BackstopperSpringboot3ContainerErrorController(
             projectApiErrorsMock, unhandledContainerErrorHelperMock, serverPropertiesMock
         );
         Throwable expectedEx = new RuntimeException("intentional test exception");

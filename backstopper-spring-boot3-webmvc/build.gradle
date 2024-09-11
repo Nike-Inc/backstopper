@@ -1,0 +1,26 @@
+evaluationDependsOn(':')
+
+dependencies {
+    api(
+            project(":backstopper-spring-web-mvc"),
+    )
+    compileOnly(
+            "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
+            "org.springframework.boot:spring-boot-autoconfigure:$springboot3Version",
+            "org.springframework:spring-webmvc:$spring6Version",
+            "jakarta.servlet:jakarta.servlet-api:$servletApiVersion",
+    )
+    testImplementation(
+            "junit:junit:$junitVersion",
+            "org.mockito:mockito-core:$mockitoVersion",
+            "ch.qos.logback:logback-classic:$logbackVersion",
+            "org.assertj:assertj-core:$assertJVersion",
+            "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
+            "jakarta.servlet:jakarta.servlet-api:$servletApiVersion",
+            "io.rest-assured:rest-assured:$restAssuredVersion",
+            "jakarta.servlet:jakarta.servlet-api:$servletApiVersion",
+            "org.springframework.boot:spring-boot-starter-web:$springboot3Version",
+            "org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion",
+            "org.glassfish.expressly:expressly:$glassfishExpresslyVersion",
+    )
+}

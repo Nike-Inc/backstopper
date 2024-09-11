@@ -7,7 +7,7 @@ import com.nike.backstopper.apierror.projectspecificinfo.ProjectSpecificErrorCod
 import com.nike.backstopper.apierror.sample.SampleCoreApiError;
 import com.nike.backstopper.apierror.sample.SampleProjectApiErrorsBase;
 import com.nike.backstopper.exception.ApiException;
-import com.nike.backstopper.handler.springboot.config.BackstopperSpringboot2WebMvcConfig;
+import com.nike.backstopper.handler.springboot.config.BackstopperSpringboot3WebMvcConfig;
 import com.nike.backstopper.model.DefaultErrorContractDTO;
 import com.nike.backstopper.model.DefaultErrorDTO;
 
@@ -41,13 +41,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.inject.Singleton;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Validation;
-import javax.validation.Validator;
+import jakarta.inject.Singleton;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 
 import io.restassured.response.ExtractableResponse;
 
@@ -195,7 +195,7 @@ public class SanityCheckComponentTest {
 
     @SpringBootApplication
     @Configuration
-    @Import({BackstopperSpringboot2WebMvcConfig.class, SanityCheckController.class })
+    @Import({BackstopperSpringboot3WebMvcConfig.class, SanityCheckController.class })
     static class SanitcyCheckComponentTestApp {
         @Bean
         public ProjectApiErrors getProjectApiErrors() {
