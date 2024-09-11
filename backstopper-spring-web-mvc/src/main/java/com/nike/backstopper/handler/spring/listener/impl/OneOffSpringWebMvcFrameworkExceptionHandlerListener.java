@@ -8,9 +8,11 @@ import com.nike.backstopper.handler.listener.ApiExceptionHandlerListenerResult;
 import com.nike.internal.util.Pair;
 
 import org.jetbrains.annotations.NotNull;
+import org.springframework.core.MethodParameter;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
@@ -99,7 +101,21 @@ public class OneOffSpringWebMvcFrameworkExceptionHandlerListener
             errorToUse = new ApiErrorWithMetadata(
                 errorToUse,
                 Pair.of("missing_param_name", (Object)detailsEx.getParameterName()),
-                Pair.of("missing_param_type", (Object)detailsEx.getParameterType())
+                Pair.of("missing_param_type", (Object)detailsEx.getParameterType()),
+                Pair.of("required_location", "query_param")
+            );
+        }
+        else if (ex instanceof MissingRequestHeaderException mrhEx) {
+            MethodParameter methodParam = mrhEx.getParameter();
+            String requiredTypeNoInfoLeak = extractRequiredTypeNoInfoLeak(methodParam.getParameterType());
+            if (requiredTypeNoInfoLeak == null) {
+                requiredTypeNoInfoLeak = "unknown";
+            }
+            errorToUse = new ApiErrorWithMetadata(
+                errorToUse,
+                Pair.of("missing_param_name", mrhEx.getHeaderName()),
+                Pair.of("missing_param_type", requiredTypeNoInfoLeak),
+                Pair.of("required_location", "header")
             );
         }
 

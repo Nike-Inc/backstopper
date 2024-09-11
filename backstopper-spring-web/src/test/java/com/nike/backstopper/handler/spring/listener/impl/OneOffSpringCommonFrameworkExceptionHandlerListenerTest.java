@@ -1187,7 +1187,7 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
         @RequestHeader @RequestParam int bothParam,
         int unknownParam
     ) {
-        // This method is used as part of shouldHandleException_handles_MissingRequestValueException_as_expected().
+        // This method is used as part of some other tests, for generating the necessary MethodParameter objects.
     }
 
     @DataProvider(value = {
@@ -1202,7 +1202,7 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
     ) throws NoSuchMethodException {
         // given
         Method method = this.getClass()
-            .getDeclaredMethod("methodWithAnnotatedParams", int.class, int.class, int.class, int.class);
+                            .getDeclaredMethod("methodWithAnnotatedParams", int.class, int.class, int.class, int.class);
         MethodParameter details = new MethodParameter(
             method,
             paramIndex
@@ -1241,6 +1241,70 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
             true,
             singleton(new ApiErrorWithMetadata(
                 testProjectApiErrors.getMalformedRequestApiError(),
+                expectedMetadata
+            )),
+            expectedExtraDetailsForLogging
+        );
+    }
+
+    @DataProvider(value = {
+        "header                 |   0",
+        "query_param            |   1",
+        "header,query_param     |   2",
+        "unknown                |   3"
+    }, splitBy = "\\|")
+    @Test
+    public void shouldHandleException_handles_MethodArgumentTypeMismatchException_as_expected_for_annotated_params(
+        String badValueSource, int paramIndex
+    ) throws NoSuchMethodException {
+        // given
+        Method method = this.getClass()
+                            .getDeclaredMethod("methodWithAnnotatedParams", int.class, int.class, int.class, int.class);
+        MethodParameter details = new MethodParameter(
+            method,
+            paramIndex
+        );
+
+        String badParamName = "some-param-" + UUID.randomUUID();
+        String badParamValue = "some-bad-value-" + UUID.randomUUID();
+        MethodArgumentTypeMismatchException ex = new MethodArgumentTypeMismatchException(
+            badParamValue,
+            int.class,
+            badParamName,
+            details,
+            new RuntimeException("some cause")
+        );
+
+        List<Pair<String, String>> expectedExtraDetailsForLogging = new ArrayList<>();
+        ApiExceptionHandlerUtils.DEFAULT_IMPL.addBaseExceptionMessageToExtraDetailsForLogging(
+            ex, expectedExtraDetailsForLogging
+        );
+
+        expectedExtraDetailsForLogging.addAll(Arrays.asList(
+            Pair.of("bad_property_name", badParamName),
+            Pair.of("bad_property_value", badParamValue),
+            Pair.of("required_type", "int"),
+            Pair.of("method_arg_name", badParamName),
+            Pair.of("method_arg_target_param", String.valueOf(ex.getParameter()))
+        ));
+
+        Map<String, Object> expectedMetadata = new LinkedHashMap<>();
+        expectedMetadata.put("bad_property_name", badParamName);
+        expectedMetadata.put("bad_property_value", badParamValue);
+        expectedMetadata.put("required_type", "int");
+        if (!"unknown".equals(badValueSource)) {
+            expectedMetadata.put("required_location", badValueSource);
+        }
+
+        // when
+        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
+
+        // then
+        validateResponse(
+            result,
+            true,
+            singleton(new ApiErrorWithMetadata(
+                testProjectApiErrors.getTypeConversionApiError(),
                 expectedMetadata
             )),
             expectedExtraDetailsForLogging

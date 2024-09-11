@@ -36,6 +36,7 @@ import io.restassured.response.ExtractableResponse;
 import static com.nike.backstopper.springsample.controller.SampleController.CORE_ERROR_WRAPPER_ENDPOINT_SUBPATH;
 import static com.nike.backstopper.springsample.controller.SampleController.SAMPLE_PATH;
 import static com.nike.backstopper.springsample.controller.SampleController.TRIGGER_UNHANDLED_ERROR_SUBPATH;
+import static com.nike.backstopper.springsample.controller.SampleController.WITH_REQUIRED_HEADER_SUBPATH;
 import static com.nike.backstopper.springsample.controller.SampleController.WITH_REQUIRED_QUERY_PARAM_SUBPATH;
 import static com.nike.backstopper.springsample.controller.SampleController.nextRandomColor;
 import static com.nike.backstopper.springsample.controller.SampleController.nextRangeInt;
@@ -378,7 +379,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
     }
 
     @Test
-    public void verify_MALFORMED_REQUEST_is_thrown_when_required_data_is_missing() {
+    public void verify_MALFORMED_REQUEST_is_thrown_when_required_query_param_is_missing() {
         ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
@@ -395,14 +396,15 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
             response,
             new ApiErrorWithMetadata(
                 SampleCoreApiError.MALFORMED_REQUEST,
+                Pair.of("missing_param_name", "requiredQueryParamValue"),
                 Pair.of("missing_param_type", "int"),
-                Pair.of("missing_param_name", "requiredQueryParamValue")
+                Pair.of("required_location", "query_param")
             )
         );
     }
 
     @Test
-    public void verify_TYPE_CONVERSION_ERROR_is_thrown_when_framework_cannot_convert_type() {
+    public void verify_TYPE_CONVERSION_ERROR_is_thrown_when_framework_cannot_convert_type_for_query_param() {
         ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
@@ -418,8 +420,59 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
 
         verifyErrorReceived(response, new ApiErrorWithMetadata(
             SampleCoreApiError.TYPE_CONVERSION_ERROR,
-            MapBuilder.builder("bad_property_name", (Object)"requiredQueryParamValue")
-                      .put("bad_property_value", "not-an-integer")
+            MapBuilder.builder("bad_property_name", (Object) "requiredQueryParamValue")
+                      .put("bad_property_value","not-an-integer")
+                      .put("required_location","query_param")
+                      .put("required_type", "int")
+                      .build()
+        ));
+    }
+
+    @Test
+    public void verify_MALFORMED_REQUEST_is_thrown_when_required_header_is_missing() {
+        ExtractableResponse<?> response =
+            given()
+                .baseUri("http://localhost")
+                .port(SERVER_PORT)
+                .basePath(SAMPLE_PATH + WITH_REQUIRED_HEADER_SUBPATH)
+                .log().all()
+                .when()
+                .get()
+                .then()
+                .log().all()
+                .extract();
+
+        verifyErrorReceived(
+            response,
+            new ApiErrorWithMetadata(
+                SampleCoreApiError.MALFORMED_REQUEST,
+                Pair.of("missing_param_name", "requiredHeaderValue"),
+                Pair.of("missing_param_type", "int"),
+                Pair.of("required_location", "header")
+            )
+        );
+    }
+
+    @Test
+    public void verify_TYPE_CONVERSION_ERROR_is_thrown_when_framework_cannot_convert_type_for_header() {
+        ExtractableResponse<?> response =
+            given()
+                .baseUri("http://localhost")
+                .port(SERVER_PORT)
+                .basePath(SAMPLE_PATH + WITH_REQUIRED_HEADER_SUBPATH)
+                .header("requiredHeaderValue", "not-an-integer")
+                .log().all()
+                .when()
+                .get()
+                .then()
+                .log().all()
+                .extract();
+
+        verifyErrorReceived(response, new ApiErrorWithMetadata(
+            SampleCoreApiError.TYPE_CONVERSION_ERROR,
+            MapBuilder.builder("bad_property_name", (Object) "requiredHeaderValue")
+                      .put("bad_property_value","not-an-integer")
+                      .put("required_location","header")
                       .put("required_type", "int")
                       .build()
         ));

@@ -1,6 +1,10 @@
 # Backstopper Sample Application - spring-web-mvc
 
-Backstopper is a framework-agnostic API error handling and (optional) model validation solution for Java 7 and greater.
+Backstopper is a framework-agnostic API error handling and (optional) model validation solution for Java 17 and greater.
+
+(NOTE: The [Backstopper 1.x branch](https://github.com/Nike-Inc/backstopper/tree/v1.x) contains a version of
+Backstopper for Java 7+, and for the `javax` ecosystem. The current Backstopper supports Java 17+ and the `jakarta`
+ecosystem. The Backstopper 1.x releases also contain support for Spring 4 and 5, and Springboot 1 and 2.)
 
 This submodule contains a sample application based on Spring Web MVC that fully integrates Backstopper.
 
@@ -51,6 +55,9 @@ logs for each error represented in a returned error contract (there can be more 
 * `GET /sample/withRequiredQueryParam?requiredQueryParamValue=not-an-int` - Triggers an error in the Spring Web MVC
   framework when it cannot coerce the query param value to the required type (an integer), which results in a
   Backstopper `"Type conversion error"`.
+* `GET /sample/withRequiredHeader` with a `requiredHeaderValue: not-an-int` header - Similar to the query param
+  example, this triggers an error in the Spring Boot framework when it cannot coerce the header value to the required
+  type (an integer), which results in a Backstopper `"Type conversion error"`.
 * `GET /does-not-exist` - Triggers a framework 404 which Backstopper handles.
 * `DELETE /sample` - Triggers a framework 405 which Backstopper handles.
 * `GET /sample` with `Accept: application/octet-stream` header - Triggers a framework 406 which Backstopper handles.

@@ -15,16 +15,27 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.core.MethodParameter;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.ServletRequestBindingException;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -104,6 +115,16 @@ public class OneOffSpringWebMvcFrameworkExceptionHandlerListenerTest {
         assertThat(result.errors).containsExactlyInAnyOrderElementsOf(expectedErrors);
     }
 
+    private void validateResponse(
+        ApiExceptionHandlerListenerResult result,
+        boolean expectedShouldHandle,
+        Collection<? extends ApiError> expectedErrors,
+        List<Pair<String, String>> expectedExtraDetailsForLogging
+    ) {
+        validateResponse(result, expectedShouldHandle, expectedErrors);
+        assertThat(result.extraDetailsForLogging).containsExactlyInAnyOrderElementsOf(expectedExtraDetailsForLogging);
+    }
+
     @Test
     public void shouldHandleException_returns_ignoreResponse_if_passed_exception_it_does_not_want_to_handle() {
         // when
@@ -148,7 +169,8 @@ public class OneOffSpringWebMvcFrameworkExceptionHandlerListenerTest {
             expectedResult = new ApiErrorWithMetadata(
                 expectedResult,
                 Pair.of("missing_param_name", missingParamName),
-                Pair.of("missing_param_type", missingParamType)
+                Pair.of("missing_param_type", missingParamType),
+                Pair.of("required_location", "query_param")
             );
         }
 
@@ -206,5 +228,49 @@ public class OneOffSpringWebMvcFrameworkExceptionHandlerListenerTest {
 
         // then
         validateResponse(result, true, singletonList(testProjectApiErrors.getUnsupportedMediaTypeApiError()));
+    }
+
+    public void methodWithAnnotatedParams(
+        @RequestHeader int headerParam,
+        @RequestParam int queryParam,
+        @RequestHeader @RequestParam int bothParam,
+        int unknownParam
+    ) {
+        // This method is used as part of shouldHandleException_handles_MissingRequestHeaderException_as_expected().
+    }
+
+    @Test
+    public void shouldHandleException_handles_MissingRequestHeaderException_as_expected() throws NoSuchMethodException {
+        // given
+        Method method = this.getClass()
+                            .getDeclaredMethod("methodWithAnnotatedParams", int.class, int.class, int.class, int.class);
+        MethodParameter headerParamDetails = new MethodParameter(method, 0);
+
+        String missingHeaderName = "some-header-" + UUID.randomUUID();
+        MissingRequestHeaderException ex = new MissingRequestHeaderException(missingHeaderName, headerParamDetails);
+
+        List<Pair<String, String>> expectedExtraDetailsForLogging = new ArrayList<>();
+        ApiExceptionHandlerUtils.DEFAULT_IMPL.addBaseExceptionMessageToExtraDetailsForLogging(
+            ex, expectedExtraDetailsForLogging
+        );
+
+        Map<String, Object> expectedMetadata = new LinkedHashMap<>();
+        expectedMetadata.put("missing_param_name", missingHeaderName);
+        expectedMetadata.put("missing_param_type", "int");
+        expectedMetadata.put("required_location", "header");
+
+        // when
+        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
+
+        // then
+        validateResponse(
+            result,
+            true,
+            singleton(new ApiErrorWithMetadata(
+                testProjectApiErrors.getMalformedRequestApiError(),
+                expectedMetadata
+            )),
+            expectedExtraDetailsForLogging
+        );
     }
 }

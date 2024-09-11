@@ -316,6 +316,14 @@ public abstract class OneOffSpringCommonFrameworkExceptionHandlerListener implem
             // We can add even more context log details if it's a MethodArgumentTypeMismatchException.
             if (ex instanceof MethodArgumentTypeMismatchException) {
                 MethodArgumentTypeMismatchException matmEx = (MethodArgumentTypeMismatchException)ex;
+                List<Pair<String, String>> hOrQMetadata = extractExtraMetadataForHeaderOrQueryParamException(matmEx);
+                if (hOrQMetadata != null) {
+                    for (Pair<String, String> pair : hOrQMetadata) {
+                        if (pair != null) {
+                            metadata.put(pair.getKey(), pair.getValue());
+                        }
+                    }
+                }
                 extraDetailsForLogging.add(Pair.of("method_arg_name", matmEx.getName()));
                 extraDetailsForLogging.add(Pair.of("method_arg_target_param", matmEx.getParameter().toString()));
             }
@@ -436,7 +444,7 @@ public abstract class OneOffSpringCommonFrameworkExceptionHandlerListener implem
                     tmeCause,
                     extraDetailsForLogging,
                     false,
-                    extractExtraMetadataForServerWebInputException(ex)
+                    extractExtraMetadataForHeaderOrQueryParamException(ex)
                 );
             }
         }
@@ -473,12 +481,16 @@ public abstract class OneOffSpringCommonFrameworkExceptionHandlerListener implem
         );
     }
 
-    protected @Nullable List<Pair<String, String>> extractExtraMetadataForServerWebInputException(Exception maybeSWIEx) {
-        if (!(maybeSWIEx instanceof ServerWebInputException swiEx)) {
-            return null;
+    protected @Nullable List<Pair<String, String>> extractExtraMetadataForHeaderOrQueryParamException(
+        Exception maybeMethodParamEx
+    ) {
+        MethodParameter methodParam = null;
+        if (maybeMethodParamEx instanceof ServerWebInputException swiEx) {
+            methodParam = swiEx.getMethodParameter();
+        } else if (maybeMethodParamEx instanceof MethodArgumentTypeMismatchException matmEx) {
+            methodParam = matmEx.getParameter();
         }
 
-        MethodParameter methodParam = swiEx.getMethodParameter();
         if (methodParam == null) {
             return null;
         }
@@ -594,7 +606,7 @@ public abstract class OneOffSpringCommonFrameworkExceptionHandlerListener implem
             return new RequiredParamData(
                 detailsEx.getName(),
                 extractRequiredTypeNoInfoLeak(detailsEx.getType()),
-                extractExtraMetadataForServerWebInputException(ex)
+                extractExtraMetadataForHeaderOrQueryParamException(ex)
             );
         }
 
