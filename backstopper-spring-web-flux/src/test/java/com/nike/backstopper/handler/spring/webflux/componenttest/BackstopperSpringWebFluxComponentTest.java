@@ -55,6 +55,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -82,10 +83,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.inject.Singleton;
-import javax.validation.Valid;
-import javax.validation.Validation;
-import javax.validation.Validator;
+import jakarta.inject.Singleton;
+import jakarta.validation.Valid;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
@@ -97,6 +98,7 @@ import static com.nike.backstopper.handler.spring.webflux.componenttest.Backstop
 import static com.nike.backstopper.handler.spring.webflux.componenttest.BackstopperSpringWebFluxComponentTest.ComponentTestController.FLUX_ENDPOINT_PATH;
 import static com.nike.backstopper.handler.spring.webflux.componenttest.BackstopperSpringWebFluxComponentTest.ComponentTestController.FLUX_RESPONSE_PAYLOAD;
 import static com.nike.backstopper.handler.spring.webflux.componenttest.BackstopperSpringWebFluxComponentTest.ComponentTestController.GET_SAMPLE_MODEL_ENDPOINT;
+import static com.nike.backstopper.handler.spring.webflux.componenttest.BackstopperSpringWebFluxComponentTest.ComponentTestController.INT_HEADER_REQUIRED_ENDPOINT;
 import static com.nike.backstopper.handler.spring.webflux.componenttest.BackstopperSpringWebFluxComponentTest.ComponentTestController.INT_QUERY_PARAM_REQUIRED_ENDPOINT;
 import static com.nike.backstopper.handler.spring.webflux.componenttest.BackstopperSpringWebFluxComponentTest.ComponentTestController.MONO_ENDPOINT_PATH;
 import static com.nike.backstopper.handler.spring.webflux.componenttest.BackstopperSpringWebFluxComponentTest.ComponentTestController.MONO_RESPONSE_PAYLOAD;
@@ -398,7 +400,7 @@ public class BackstopperSpringWebFluxComponentTest {
     }
     
     @Test
-    public void verify_TYPE_CONVERSION_ERROR_is_thrown_when_framework_cannot_convert_type() {
+    public void verify_TYPE_CONVERSION_ERROR_is_thrown_when_framework_cannot_convert_type_for_query_param() {
         ExtractableResponse response =
             given()
                 .baseUri("http://localhost")
@@ -415,7 +417,49 @@ public class BackstopperSpringWebFluxComponentTest {
             SampleCoreApiError.TYPE_CONVERSION_ERROR,
             // We can't expect the bad_property_name=requiredQueryParamValue metadata like we do in Spring Web MVC,
             //      because Spring WebFlux doesn't add it to the TypeMismatchException cause.
-            MapBuilder.builder("bad_property_value", (Object) "not-an-integer")
+            MapBuilder.builder("bad_property_name", (Object) "requiredQueryParamValue")
+                      .put("bad_property_value", "not-an-integer")
+                      .put("required_location", "query_param")
+                      .put("required_type", "int")
+                      .build()
+        );
+
+        verifyErrorReceived(response, expectedApiError);
+        ServerWebInputException ex = verifyResponseStatusExceptionSeenByBackstopper(
+            ServerWebInputException.class, 400
+        );
+        TypeMismatchException tme = verifyExceptionHasCauseOfType(ex, TypeMismatchException.class);
+        verifyHandlingResult(
+            expectedApiError,
+            Pair.of("exception_message", quotesToApostrophes(ex.getMessage())),
+            Pair.of("method_parameter", ex.getMethodParameter().toString()),
+            Pair.of("bad_property_name", tme.getPropertyName()),
+            Pair.of("bad_property_value", tme.getValue().toString()),
+            Pair.of("required_type", tme.getRequiredType().toString())
+        );
+    }
+
+    @Test
+    public void verify_TYPE_CONVERSION_ERROR_is_thrown_when_framework_cannot_convert_type_for_header() {
+        ExtractableResponse response =
+            given()
+                .baseUri("http://localhost")
+                .port(SERVER_PORT)
+                .log().all()
+                .when()
+                .header("requiredHeaderValue", "not-an-integer")
+                .get(INT_HEADER_REQUIRED_ENDPOINT)
+                .then()
+                .log().all()
+                .extract();
+
+        ApiError expectedApiError = new ApiErrorWithMetadata(
+            SampleCoreApiError.TYPE_CONVERSION_ERROR,
+            // We can't expect the bad_property_name=requiredQueryParamValue metadata like we do in Spring Web MVC,
+            //      because Spring WebFlux doesn't add it to the TypeMismatchException cause.
+            MapBuilder.builder("bad_property_name", (Object) "requiredHeaderValue")
+                      .put("bad_property_value", "not-an-integer")
+                      .put("required_location", "header")
                       .put("required_type", "int")
                       .build()
         );
@@ -463,7 +507,7 @@ public class BackstopperSpringWebFluxComponentTest {
     }
 
     @Test
-    public void verify_MALFORMED_REQUEST_is_thrown_when_required_data_is_missing_and_error_metadata_must_be_extracted_from_ex_reason() {
+    public void verify_MALFORMED_REQUEST_is_thrown_when_required_query_param_is_missing_and_error_metadata_must_be_extracted_from_ex_reason() {
         ExtractableResponse response =
             given()
                 .baseUri("http://localhost")
@@ -478,7 +522,8 @@ public class BackstopperSpringWebFluxComponentTest {
         ApiError expectedApiError = new ApiErrorWithMetadata(
             SampleCoreApiError.MALFORMED_REQUEST,
             Pair.of("missing_param_type", "int"),
-            Pair.of("missing_param_name", "requiredQueryParamValue")
+            Pair.of("missing_param_name", "requiredQueryParamValue"),
+            Pair.of("required_location", "query_param")
         );
 
         verifyErrorReceived(response, expectedApiError);
@@ -492,7 +537,41 @@ public class BackstopperSpringWebFluxComponentTest {
         );
         // Verify no cause, leaving the exception `reason` as the only way we could have gotten the metadata.
         assertThat(ex).hasNoCause();
-        assertThat(ex.getReason()).isEqualTo("Required int parameter 'requiredQueryParamValue' is not present");
+        assertThat(ex.getReason()).isEqualTo("Required query parameter 'requiredQueryParamValue' is not present.");
+    }
+
+    @Test
+    public void verify_MALFORMED_REQUEST_is_thrown_when_required_header_is_missing_and_error_metadata_must_be_extracted_from_ex_reason() {
+        ExtractableResponse response =
+            given()
+                .baseUri("http://localhost")
+                .port(SERVER_PORT)
+                .log().all()
+                .when()
+                .get(INT_HEADER_REQUIRED_ENDPOINT)
+                .then()
+                .log().all()
+                .extract();
+
+        ApiError expectedApiError = new ApiErrorWithMetadata(
+            SampleCoreApiError.MALFORMED_REQUEST,
+            Pair.of("missing_param_type", "int"),
+            Pair.of("missing_param_name", "requiredHeaderValue"),
+            Pair.of("required_location", "header")
+        );
+
+        verifyErrorReceived(response, expectedApiError);
+        ServerWebInputException ex = verifyResponseStatusExceptionSeenByBackstopper(
+            ServerWebInputException.class, 400
+        );
+        verifyHandlingResult(
+            expectedApiError,
+            Pair.of("exception_message", quotesToApostrophes(ex.getMessage())),
+            Pair.of("method_parameter", ex.getMethodParameter().toString())
+        );
+        // Verify no cause, leaving the exception `reason` as the only way we could have gotten the metadata.
+        assertThat(ex).hasNoCause();
+        assertThat(ex.getReason()).isEqualTo("Required header 'requiredHeaderValue' is not present.");
     }
 
     @Test
@@ -567,9 +646,9 @@ public class BackstopperSpringWebFluxComponentTest {
             Pair.of("exception_message", quotesToApostrophes(ex.getMessage())),
             Pair.of("method_parameter", ex.getMethodParameter().toString())
         );
-        // Verify no cause, leaving the exception `reason` as the only way we could have determined this case.
-        assertThat(ex).hasNoCause();
-        assertThat(ex.getReason()).startsWith("Request body is missing");
+        // Verify DecodingException as the cause, leaving the exception `reason` as the only way we could have determined this case.
+        assertThat(ex).hasCauseInstanceOf(DecodingException.class);
+        assertThat(ex.getReason()).isEqualTo("No request body");
     }
 
     @Test
@@ -824,7 +903,7 @@ public class BackstopperSpringWebFluxComponentTest {
     ) {
         T ex = verifyExceptionSeenByBackstopper(expectedClassType);
 
-        int actualStatusCode = ex.getStatus().value();
+        int actualStatusCode = ex.getStatusCode().value();
         assertThat(actualStatusCode).isEqualTo(expectedStatusCode);
 
         return ex;
@@ -934,6 +1013,7 @@ public class BackstopperSpringWebFluxComponentTest {
         static final String CONVERSION_NOT_SUPPORTED_EXCEPTION_ENDPOINT_PATH =
             "/triggerConversionNotSupportedException";
         static final String INT_QUERY_PARAM_REQUIRED_ENDPOINT = "/intQueryParamRequiredEndpoint";
+        static final String INT_HEADER_REQUIRED_ENDPOINT = "/intHeaderRequiredEndpoint";
         static final String TYPE_MISMATCH_WITH_UNEXPECTED_STATUS_ENDPOINT = "/typeMismatchWithUnexpectedStatusEndpoint";
         static final String GET_SAMPLE_MODEL_ENDPOINT = "/getSampleModel";
         static final String POST_SAMPLE_MODEL_ENDPOINT_WITH_JSR_303_VALIDATION =
@@ -1044,6 +1124,14 @@ public class BackstopperSpringWebFluxComponentTest {
             @RequestParam(name = "requiredQueryParamValue") int someRequiredQueryParam
         ) {
             return "You passed in " + someRequiredQueryParam + " for the required query param value";
+        }
+
+        @GetMapping(path = INT_HEADER_REQUIRED_ENDPOINT)
+        @ResponseBody
+        public String intHeaderRequiredEndpoint(
+            @RequestHeader(name = "requiredHeaderValue") int someRequiredHeader
+        ) {
+            return "You passed in " + someRequiredHeader + " for the required header value";
         }
 
         // Mismatch between the path param {foo} and the name we gave the @PathVariable triggers a ServerErrorException.

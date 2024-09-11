@@ -1,14 +1,17 @@
 # Backstopper - spring-web-flux
 
-Backstopper is a framework-agnostic API error handling and (optional) model validation solution for Java 7 and greater
-(although for this Backstopper+Spring WebFlux module, Java 8 is required since Spring WebFlux requires Java 8).
+Backstopper is a framework-agnostic API error handling and (optional) model validation solution for Java 17 and greater.
+
+(NOTE: The [Backstopper 1.x branch](https://github.com/Nike-Inc/backstopper/tree/v1.x) contains a version of
+Backstopper for Java 7+, and for the `javax` ecosystem. The current Backstopper supports Java 17+ and the `jakarta`
+ecosystem. The Backstopper 1.x releases also contain support for Spring 4 and 5, and Springboot 1 and 2.)
 
 This readme focuses specifically on the Backstopper Spring WebFlux integration. If you are looking for a different 
 framework integration check out the [relevant section](../README.md#framework_modules) of the base readme to see if 
 one already exists. The [base project README.md](../README.md) and [User Guide](../USER_GUIDE.md) contain the main 
 bulk of information regarding Backstopper. 
 
-**NOTE: There is a [Spring Boot 2 WebFlux sample application](../samples/sample-spring-boot2-webflux/) that provides 
+**NOTE: There is a [Spring Boot 3 WebFlux sample application](../samples/sample-spring-boot3-webflux/) that provides 
 a simple concrete example of the information covered in this readme.**
 
 _ALSO NOTE: **This library does not cover Spring Web MVC (Servlet) applications.** Spring Web MVC and Spring WebFlux 
@@ -16,8 +19,7 @@ _ALSO NOTE: **This library does not cover Spring Web MVC (Servlet) applications.
 If you're looking for a Spring Web MVC based integration, then you should see the following Backstopper libraries
 depending on your application:_
 
-* [backstopper-spring-boot1](../backstopper-spring-boot1) - For Spring Boot 1 + Spring MVC applications.
-* [backstopper-spring-boot2-webmvc](../backstopper-spring-boot2-webmvc) - For Spring Boot 2 + Spring MVC applications. 
+* [backstopper-spring-boot3-webmvc](../backstopper-spring-boot3-webmvc) - For Spring Boot 3 + Spring MVC applications. 
 * [backstopper-spring-web-mvc](../backstopper-spring-web-mvc) - For Spring Web MVC applications that are not
 Spring Boot.
 
@@ -35,7 +37,7 @@ related details.
     default list of `ApiExceptionHandlerListener` listeners that should be sufficient for most projects. You can 
     override that list of listeners (and/or many other Backstopper components) if needed in your project's Spring 
     config.
-* Expose your project's `ProjectApiErrors` and a JSR 303 `javax.validation.Validator` implementation in your Spring 
+* Expose your project's `ProjectApiErrors` and a JSR 303 `jakarta.validation.Validator` implementation in your Spring 
 dependency injection config.
     * `ProjectApiErrors` creation is discussed in the base Backstopper readme 
     [here](../README.md#quickstart_usage_project_api_errors).

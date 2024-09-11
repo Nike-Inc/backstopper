@@ -10,8 +10,8 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 
 import java.util.Collection;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 
 import reactor.core.publisher.Mono;
 

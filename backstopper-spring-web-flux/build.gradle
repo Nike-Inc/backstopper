@@ -1,8 +1,5 @@
 evaluationDependsOn(':')
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
-
 dependencies {
     api(
             project(":backstopper-jackson"),
@@ -10,8 +7,8 @@ dependencies {
     )
     compileOnly(
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
-            "org.springframework:spring-webflux:$spring5Version",
-            "org.springframework:spring-context:$spring5Version",
+            "org.springframework:spring-webflux:$spring6Version",
+            "org.springframework:spring-context:$spring6Version",
     )
     testImplementation(
             project(":backstopper-core").sourceSets.test.output,
@@ -23,12 +20,9 @@ dependencies {
             "org.assertj:assertj-core:$assertJVersion",
             "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
             "io.rest-assured:rest-assured:$restAssuredVersion",
-            "org.springframework.boot:spring-boot-starter-webflux:$springboot2Version",
-            "javax.validation:validation-api:$javaxValidationVersionForNewerSpring",
-            "org.hibernate:hibernate-validator:$hibernateValidatorVersionForNewerSpring",
-            "javax.el:javax.el-api:$elApiVersion", // The el-api and el-impl are needed for the JSR 303 validation
-            "org.glassfish:javax.el:$elImplVersion",
-            // The jaxb-api is needed for building on the java 11 JDK as these classes were moved out of the Java SE libs.
-            "javax.xml.bind:jaxb-api:$jaxbApiVersion",
+            "org.springframework.boot:spring-boot-starter-webflux:$springboot3Version",
+            "jakarta.validation:jakarta.validation-api:$jakartaValidationVersion",
+            "org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion",
+            "org.glassfish.expressly:expressly:$glassfishExpresslyVersion",
     )
 }

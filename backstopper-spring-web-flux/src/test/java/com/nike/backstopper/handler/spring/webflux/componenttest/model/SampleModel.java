@@ -4,8 +4,8 @@ import com.nike.backstopper.validation.constraints.StringConvertsToClassType;
 
 import org.hibernate.validator.constraints.Range;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public class SampleModel {
     @NotBlank(message = "FOO_STRING_CANNOT_BE_BLANK")

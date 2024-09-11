@@ -4,7 +4,7 @@ Backstopper is a framework-agnostic API error handling and (optional) model vali
 
 (NOTE: The [Backstopper 1.x branch](https://github.com/Nike-Inc/backstopper/tree/v1.x) contains a version of
 Backstopper for Java 7+, and for the `javax` ecosystem. The current Backstopper supports Java 17+ and the `jakarta`
-ecosystem. It also contains support for Spring 4 and 5, and Springboot 1 and 2.)
+ecosystem. The Backstopper 1.x releases also contain support for Spring 4 and 5, and Springboot 1 and 2.)
 
 This readme focuses specifically on the Backstopper Spring Web MVC integration. If you are looking for a different
 framework integration check out the [relevant section](../README.md#framework_modules) of the base readme to see if one

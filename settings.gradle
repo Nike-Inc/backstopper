@@ -9,7 +9,7 @@ include "nike-internal-util",
         "backstopper-servlet-api",
         "backstopper-spring-web",
         "backstopper-spring-web-mvc",
-//        "backstopper-spring-web-flux",
+        "backstopper-spring-web-flux",
 //        "backstopper-spring-boot1",
 //        "backstopper-spring-boot2-webmvc",
 //        // Test-only modules (not published)

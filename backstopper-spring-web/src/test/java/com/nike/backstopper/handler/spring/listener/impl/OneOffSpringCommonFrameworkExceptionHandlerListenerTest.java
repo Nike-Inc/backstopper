@@ -1,9 +1,11 @@
 package com.nike.backstopper.handler.spring.listener.impl;
 
 import com.nike.backstopper.apierror.ApiError;
+import com.nike.backstopper.apierror.ApiErrorBase;
 import com.nike.backstopper.apierror.ApiErrorWithMetadata;
 import com.nike.backstopper.apierror.SortedApiErrorSet;
 import com.nike.backstopper.apierror.projectspecificinfo.ProjectApiErrors;
+import com.nike.backstopper.apierror.testutil.BarebonesCoreApiErrorForTesting;
 import com.nike.backstopper.apierror.testutil.ProjectApiErrorsForTesting;
 import com.nike.backstopper.exception.ApiException;
 import com.nike.backstopper.handler.ApiExceptionHandlerUtils;
@@ -24,7 +26,12 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.core.MethodParameter;
+import org.springframework.core.ResolvableType;
+import org.springframework.core.codec.DecodingException;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
@@ -37,14 +44,28 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.method.annotation.MethodArgumentConversionNotSupportedException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.server.MethodNotAllowedException;
+import org.springframework.web.server.MissingRequestValueException;
+import org.springframework.web.server.NotAcceptableStatusException;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.server.ServerErrorException;
+import org.springframework.web.server.ServerWebInputException;
+import org.springframework.web.server.UnsupportedMediaTypeStatusException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import java.beans.PropertyChangeEvent;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -53,6 +74,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
@@ -233,7 +255,7 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
 
         // when
         ApiExceptionHandlerListenerResult result = listener.handleTypeMismatchException(
-            new TypeMismatchException("doesNotMatter", Integer.class), extraDetailsForLogging, shouldAddExceptionMsg
+            new TypeMismatchException("doesNotMatter", Integer.class), extraDetailsForLogging, shouldAddExceptionMsg, null
         );
 
         // then
@@ -275,7 +297,7 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
 
         // when
         ApiExceptionHandlerListenerResult result = listener.handleTypeMismatchException(
-            exMock, new ArrayList<>(), true
+            exMock, new ArrayList<>(), true, null
         );
 
         // then
@@ -287,6 +309,44 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
         assertThat(propNameMetadata).isEqualTo(propName);
         assertThat(propValueMetadata).isEqualTo(propValue);
         assertThat(requiredTypeMetadata).isEqualTo(expectedRequiredType);
+    }
+
+    @Test
+    public void handleTypeMismatchException_adds_extra_metadata_to_resulting_ApiError_if_specified() {
+        // given
+        TypeMismatchException exMock = mock(TypeMismatchException.class);
+        String propName = UUID.randomUUID().toString();
+        String propValue = UUID.randomUUID().toString();
+        Class<?> requiredType = Integer.class;
+        String expectedRequiredType = "int";
+
+        doReturn(propName).when(exMock).getPropertyName();
+        doReturn(propValue).when(exMock).getValue();
+        doReturn(requiredType).when(exMock).getRequiredType();
+
+        List<Pair<String, String>> extraMetadata = Arrays.asList(
+            Pair.of("foo_extra_metadata", UUID.randomUUID().toString()),
+            Pair.of("bar_extra_metadata", UUID.randomUUID().toString())
+        );
+
+        // when
+        ApiExceptionHandlerListenerResult result = listener.handleTypeMismatchException(
+            exMock, new ArrayList<>(), true, extraMetadata
+        );
+
+        // then
+        assertThat(result.errors).hasSize(1);
+        ApiError apiError = result.errors.iterator().next();
+        Object propNameMetadata = apiError.getMetadata().get("bad_property_name");
+        Object propValueMetadata = apiError.getMetadata().get("bad_property_value");
+        Object requiredTypeMetadata = apiError.getMetadata().get("required_type");
+        Object fooExtraMetadata = apiError.getMetadata().get("foo_extra_metadata");
+        Object barExtraMetadata = apiError.getMetadata().get("bar_extra_metadata");
+        assertThat(propNameMetadata).isEqualTo(propName);
+        assertThat(propValueMetadata).isEqualTo(propValue);
+        assertThat(requiredTypeMetadata).isEqualTo(expectedRequiredType);
+        assertThat(fooExtraMetadata).isEqualTo(extraMetadata.get(0).getRight());
+        assertThat(barExtraMetadata).isEqualTo(extraMetadata.get(1).getRight());
     }
 
     @DataProvider(value = {
@@ -517,12 +577,8 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
     @UseDataProvider("dataProviderForExtractRequiredTypeNoInfoLeak")
     @Test
     public void extractRequiredTypeNoInfoLeak_works_as_expected(Class<?> requiredType, String expectedResult) {
-        // given
-        TypeMismatchException typeMismatchExceptionMock = mock(TypeMismatchException.class);
-        doReturn(requiredType).when(typeMismatchExceptionMock).getRequiredType();
-
         // when
-        String result = listener.extractRequiredTypeNoInfoLeak(typeMismatchExceptionMock);
+        String result = listener.extractRequiredTypeNoInfoLeak(requiredType);
 
         // then
         assertThat(result).isEqualTo(expectedResult);
@@ -584,5 +640,691 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
 
         // then
         assertThat(result).isEqualTo(expectedResult);
+    }
+
+    private void validateResponse(
+        ApiExceptionHandlerListenerResult result,
+        boolean expectedShouldHandle,
+        Collection<? extends ApiError> expectedErrors,
+        Pair<String, String> ... expectedExtraDetailsForLogging
+    ) {
+        List<Pair<String, String>> loggingDetailsList = (expectedExtraDetailsForLogging == null)
+                                                        ? Collections.emptyList()
+                                                        : Arrays.asList(expectedExtraDetailsForLogging);
+        validateResponse(
+            result, expectedShouldHandle, expectedErrors, loggingDetailsList
+        );
+    }
+
+    private void validateResponse(
+        ApiExceptionHandlerListenerResult result,
+        boolean expectedShouldHandle,
+        Collection<? extends ApiError> expectedErrors,
+        List<Pair<String, String>> expectedExtraDetailsForLogging
+    ) {
+        if (!expectedShouldHandle) {
+            assertThat(result.shouldHandleResponse).isFalse();
+            return;
+        }
+
+        assertThat(result.errors).containsExactlyInAnyOrderElementsOf(expectedErrors);
+        assertThat(result.extraDetailsForLogging).containsExactlyInAnyOrderElementsOf(expectedExtraDetailsForLogging);
+    }
+
+    private enum TypeMismatchExceptionScenario {
+        CONVERSION_NOT_SUPPORTED_500(
+            HttpStatus.resolve(500),
+            new ConversionNotSupportedException(
+                new PropertyChangeEvent("doesNotMatter", "somePropertyName", "oldValue", "newValue"),
+                Integer.class,
+                null
+            ),
+            testProjectApiErrors.getGenericServiceError(),
+            Arrays.asList(
+                Pair.of("bad_property_name", "somePropertyName"),
+                Pair.of("bad_property_value", "newValue"),
+                Pair.of("required_type", Integer.class.toString())
+            )
+        ),
+        GENERIC_TYPE_MISMATCH_EXCEPTION_400(
+            HttpStatus.resolve(400),
+            new TypeMismatchException(
+                new PropertyChangeEvent("doesNotMatter", "somePropertyName", "oldValue", "newValue"),
+                Integer.class
+            ),
+            new ApiErrorWithMetadata(
+                testProjectApiErrors.getTypeConversionApiError(),
+                Pair.of("bad_property_name", "somePropertyName"),
+                Pair.of("bad_property_value", "newValue"),
+                Pair.of("required_type", "int")
+            ),
+            Arrays.asList(
+                Pair.of("bad_property_name", "somePropertyName"),
+                Pair.of("bad_property_value", "newValue"),
+                Pair.of("required_type", Integer.class.toString())
+            )
+        ),
+        UNEXPECTED_4XX_STATUS_CODE(
+            HttpStatus.resolve(403),
+            new TypeMismatchException("doesNotMatter", Integer.class),
+            testProjectApiErrors.getForbiddenApiError(),
+            Collections.emptyList()
+        ),
+        UNEXPECTED_5XX_STATUS_CODE(
+            HttpStatus.resolve(503),
+            new TypeMismatchException("doesNotMatter", Integer.class),
+            testProjectApiErrors.getTemporaryServiceProblemApiError(),
+            Collections.emptyList()
+        ),
+        UNKNOWN_4XX_STATUS_CODE(
+            HttpStatus.resolve(418),
+            new TypeMismatchException("doesNotMatter", Integer.class),
+            new ApiErrorBase(
+                "GENERIC_API_ERROR_FOR_RESPONSE_STATUS_CODE_418",
+                testProjectApiErrors.getGenericBadRequestApiError().getErrorCode(),
+                "An error occurred that resulted in response status code 418",
+                418
+            ),
+            Collections.emptyList()
+        ),
+        UNKNOWN_5XX_STATUS_CODE(
+            HttpStatus.resolve(509),
+            new TypeMismatchException("doesNotMatter", Integer.class),
+            new ApiErrorBase(
+                "GENERIC_API_ERROR_FOR_RESPONSE_STATUS_CODE_509",
+                testProjectApiErrors.getGenericServiceError().getErrorCode(),
+                "An error occurred that resulted in response status code 509",
+                509
+            ),
+            Collections.emptyList()
+        );
+
+        public final HttpStatus status;
+        public final TypeMismatchException tmeCause;
+        public final ApiError expectedApiError;
+        public final List<Pair<String, String>> expectedExtraDetailsForLogging;
+
+        TypeMismatchExceptionScenario(
+            HttpStatus status, TypeMismatchException tmeCause, ApiError expectedApiError,
+            List<Pair<String, String>> expectedExtraDetailsForLogging
+        ) {
+            this.status = status;
+            this.tmeCause = tmeCause;
+            this.expectedApiError = expectedApiError;
+            this.expectedExtraDetailsForLogging = expectedExtraDetailsForLogging;
+        }
+    }
+
+    @DataProvider
+    public static List<List<TypeMismatchExceptionScenario>> typeMismatchExceptionScenarioDataProvider() {
+        return Stream.of(TypeMismatchExceptionScenario.values())
+                     .map(Collections::singletonList)
+                     .collect(Collectors.toList());
+    }
+
+    @UseDataProvider("typeMismatchExceptionScenarioDataProvider")
+    @Test
+    public void shouldHandleException_handles_ResponseStatusException_with_TypeMismatchException_cause_as_expected(
+        TypeMismatchExceptionScenario scenario
+    ) {
+        // given
+        ResponseStatusException ex = new ResponseStatusException(
+            scenario.status, "Some ResponseStatusException reason", scenario.tmeCause
+        );
+        List<Pair<String, String>> expectedExtraDetailsForLogging = new ArrayList<>();
+        ApiExceptionHandlerUtils.DEFAULT_IMPL.addBaseExceptionMessageToExtraDetailsForLogging(
+            ex, expectedExtraDetailsForLogging
+        );
+        expectedExtraDetailsForLogging.addAll(scenario.expectedExtraDetailsForLogging);
+
+        // when
+        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
+
+        // then
+        validateResponse(
+            result,
+            true,
+            singleton(scenario.expectedApiError),
+            expectedExtraDetailsForLogging
+        );
+    }
+
+    @DataProvider(value = {
+        "400    |   MALFORMED_REQUEST",
+        "401    |   UNAUTHORIZED"
+    }, splitBy = "\\|")
+    @Test
+    public void shouldHandleException_returns_MALFORMED_REQUEST_for_ResponseStatusException_with_DecodingException_cause_only_if_status_is_400(
+        int statusCode, BarebonesCoreApiErrorForTesting expectedError
+    ) {
+        // given
+        ResponseStatusException ex = new ResponseStatusException(
+            HttpStatus.resolve(statusCode),
+            "Some ResponseStatusException reason",
+            new DecodingException("Some decoding ex")
+        );
+        List<Pair<String, String>> expectedExtraDetailsForLogging = new ArrayList<>();
+        ApiExceptionHandlerUtils.DEFAULT_IMPL.addBaseExceptionMessageToExtraDetailsForLogging(
+            ex, expectedExtraDetailsForLogging
+        );
+
+        // when
+        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
+
+        // then
+        validateResponse(
+            result,
+            true,
+            singleton(expectedError),
+            expectedExtraDetailsForLogging
+        );
+    }
+
+    @DataProvider(value = {
+        "No request body    |   ",
+        "                   |   No request body for: blah"
+    }, splitBy = "\\|")
+    @Test
+    public void shouldHandleException_returns_MISSING_EXPECTED_CONTENT_for_ResponseStatusException_with_DecodingException_cause_with_magic_messages(
+        String exReason, String decodingExMessage
+    ) {
+        // given
+        ResponseStatusException ex = new ResponseStatusException(
+            HttpStatus.valueOf(400),
+            exReason,
+            new DecodingException(decodingExMessage)
+        );
+        List<Pair<String, String>> expectedExtraDetailsForLogging = new ArrayList<>();
+        ApiExceptionHandlerUtils.DEFAULT_IMPL.addBaseExceptionMessageToExtraDetailsForLogging(
+            ex, expectedExtraDetailsForLogging
+        );
+
+        // when
+        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
+
+        // then
+        validateResponse(
+            result,
+            true,
+            singleton(BarebonesCoreApiErrorForTesting.MISSING_EXPECTED_CONTENT),
+            expectedExtraDetailsForLogging
+        );
+    }
+
+    @DataProvider(value = {
+        "400    |   Required foo parameter 'bar' is not present |   foo     |   bar     |   MALFORMED_REQUEST",
+        "401    |   Required foo parameter 'bar' is not present |   null    |   null    |   UNAUTHORIZED",
+        "400    |   Required parameter 'bar' is not present     |   null    |   null    |   GENERIC_BAD_REQUEST",
+        "400    |   Required foo parameter is not present       |   null    |   null    |   GENERIC_BAD_REQUEST",
+        "400    |   Blah foo parameter 'bar' is not present     |   null    |   null    |   GENERIC_BAD_REQUEST",
+        "400    |   Required foo blah 'bar' is not present      |   null    |   null    |   GENERIC_BAD_REQUEST",
+        "400    |   Required foo parameter 'bar' is not blah    |   null    |   null    |   GENERIC_BAD_REQUEST",
+        "400    |   Some random reason                          |   null    |   null    |   GENERIC_BAD_REQUEST",
+    }, splitBy = "\\|")
+    @Test
+    public void shouldHandleException_returns_MALFORMED_REQUEST_for_ResponseStatusException_with_special_required_param_reason_string(
+        int statusCode,
+        String exReasonString,
+        String expectedMissingParamType,
+        String expectedMissingParamName,
+        BarebonesCoreApiErrorForTesting expectedBaseError
+    ) {
+        // given
+        ResponseStatusException ex = new ResponseStatusException(HttpStatus.resolve(statusCode), exReasonString);
+        List<Pair<String, String>> expectedExtraDetailsForLogging = new ArrayList<>();
+        ApiExceptionHandlerUtils.DEFAULT_IMPL.addBaseExceptionMessageToExtraDetailsForLogging(
+            ex, expectedExtraDetailsForLogging
+        );
+
+        ApiError expectedError = expectedBaseError;
+        if (expectedMissingParamName != null && expectedMissingParamType != null) {
+            expectedError = new ApiErrorWithMetadata(
+                expectedBaseError,
+                Pair.of("missing_param_name", expectedMissingParamName),
+                Pair.of("missing_param_type", expectedMissingParamType)
+            );
+        }
+
+        // when
+        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
+
+        // then
+        validateResponse(
+            result,
+            true,
+            singleton(expectedError),
+            expectedExtraDetailsForLogging
+        );
+    }
+
+    @DataProvider(value = {
+        "400    |   Request body is missing             |   MISSING_EXPECTED_CONTENT",
+        "400    |   Request body is missing blahblah    |   MISSING_EXPECTED_CONTENT",
+        "401    |   Request body is missing             |   UNAUTHORIZED",
+        "400    |   Request body is                     |   GENERIC_BAD_REQUEST",
+        "400    |   Some random reason                  |   GENERIC_BAD_REQUEST",
+    }, splitBy = "\\|")
+    @Test
+    public void shouldHandleException_returns_MISSING_EXPECTED_CONTENT_for_ResponseStatusException_with_special_reason_string_beginning(
+        int statusCode, String exReasonString, BarebonesCoreApiErrorForTesting expectedError
+    ) {
+        // given
+        ResponseStatusException ex = new ResponseStatusException(HttpStatus.resolve(statusCode), exReasonString);
+        List<Pair<String, String>> expectedExtraDetailsForLogging = new ArrayList<>();
+        ApiExceptionHandlerUtils.DEFAULT_IMPL.addBaseExceptionMessageToExtraDetailsForLogging(
+            ex, expectedExtraDetailsForLogging
+        );
+
+        // when
+        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
+
+        // then
+        validateResponse(
+            result,
+            true,
+            singleton(expectedError),
+            expectedExtraDetailsForLogging
+        );
+    }
+
+    @DataProvider(value = {
+        "400    |   GENERIC_BAD_REQUEST",
+        "401    |   UNAUTHORIZED",
+        "403    |   FORBIDDEN",
+        "404    |   NOT_FOUND",
+        "405    |   METHOD_NOT_ALLOWED",
+        "406    |   NO_ACCEPTABLE_REPRESENTATION",
+        "415    |   UNSUPPORTED_MEDIA_TYPE",
+        "429    |   TOO_MANY_REQUESTS",
+        "500    |   GENERIC_SERVICE_ERROR",
+        "503    |   TEMPORARY_SERVICE_PROBLEM",
+    }, splitBy = "\\|")
+    @Test
+    public void shouldHandleException_handles_generic_ResponseStatusException_by_returning_ApiError_from_project_if_status_code_is_known(
+        int desiredStatusCode, BarebonesCoreApiErrorForTesting expectedError
+    ) {
+        // given
+        ResponseStatusException ex = new ResponseStatusException(
+            HttpStatus.resolve(desiredStatusCode), "Some ResponseStatusException reason"
+        );
+        List<Pair<String, String>> expectedExtraDetailsForLogging = new ArrayList<>();
+        ApiExceptionHandlerUtils.DEFAULT_IMPL.addBaseExceptionMessageToExtraDetailsForLogging(
+            ex, expectedExtraDetailsForLogging
+        );
+
+        // when
+        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
+
+        // then
+        validateResponse(
+            result,
+            true,
+            singleton(expectedError),
+            expectedExtraDetailsForLogging
+        );
+    }
+
+    @DataProvider(value = {
+        "418",
+        "509"
+    })
+    @Test
+    public void shouldHandleException_handles_generic_ResponseStatusException_by_returning_synthetic_ApiError_if_status_code_is_unknown(
+        int desiredStatusCode
+    ) {
+        // given
+        ResponseStatusException ex = new ResponseStatusException(
+            HttpStatus.resolve(desiredStatusCode), "Some ResponseStatusException reason"
+        );
+        List<Pair<String, String>> expectedExtraDetailsForLogging = new ArrayList<>();
+        ApiExceptionHandlerUtils.DEFAULT_IMPL.addBaseExceptionMessageToExtraDetailsForLogging(
+            ex, expectedExtraDetailsForLogging
+        );
+
+        String expectedErrorCode = (desiredStatusCode >= 500)
+                                   ? testProjectApiErrors.getGenericServiceError().getErrorCode()
+                                   : testProjectApiErrors.getGenericBadRequestApiError().getErrorCode();
+
+        ApiError expectedError = new ApiErrorBase(
+            "GENERIC_API_ERROR_FOR_RESPONSE_STATUS_CODE_" + desiredStatusCode,
+            expectedErrorCode,
+            "An error occurred that resulted in response status code " + desiredStatusCode,
+            desiredStatusCode
+        );
+
+        // when
+        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
+
+        // then
+        validateResponse(
+            result,
+            true,
+            singleton(expectedError),
+            expectedExtraDetailsForLogging
+        );
+    }
+
+    @DataProvider(value = {
+        "true",
+        "false"
+    })
+    @Test
+    public void shouldHandleException_handles_MethodNotAllowedException_as_expected(
+        boolean supportedMethodsIsEmpty
+    ) {
+        // given
+        String actualMethod = UUID.randomUUID().toString();
+        List<HttpMethod> supportedMethods =
+            (supportedMethodsIsEmpty)
+            ? Collections.emptyList()
+            : Arrays.asList(
+                HttpMethod.GET,
+                HttpMethod.POST
+            );
+
+        MethodNotAllowedException ex = new MethodNotAllowedException(actualMethod, supportedMethods);
+
+        List<Pair<String, String>> expectedExtraDetailsForLogging = new ArrayList<>();
+        ApiExceptionHandlerUtils.DEFAULT_IMPL.addBaseExceptionMessageToExtraDetailsForLogging(
+            ex, expectedExtraDetailsForLogging
+        );
+
+        // when
+        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
+
+        // then
+        // They throw the supported methods into a plain HashSet so we can't rely on the ordering.
+        //      Verify it another way.
+        Optional<String> supportedMethodsLoggingDetailsValue = result.extraDetailsForLogging
+            .stream()
+            .filter(p -> p.getKey().equals("supported_methods"))
+            .map(Pair::getValue)
+            .findAny();
+        assertThat(supportedMethodsLoggingDetailsValue).isPresent();
+        List<HttpMethod> actualLoggingDetailsMethods = supportedMethodsLoggingDetailsValue
+            .map(s -> {
+                if (s.equals("")) {
+                    return Collections.<HttpMethod>emptyList();
+                }
+                return Arrays.stream(s.split(",")).map(HttpMethod::valueOf).collect(Collectors.toList());
+            })
+            .orElse(Collections.emptyList());
+
+        assertThat(actualLoggingDetailsMethods).containsExactlyInAnyOrderElementsOf(supportedMethods);
+
+        expectedExtraDetailsForLogging.add(Pair.of("supported_methods", supportedMethodsLoggingDetailsValue.get()));
+
+        validateResponse(
+            result,
+            true,
+            singleton(testProjectApiErrors.getMethodNotAllowedApiError()),
+            expectedExtraDetailsForLogging
+        );
+    }
+
+    @DataProvider(value = {
+        "true",
+        "false"
+    })
+    @Test
+    public void shouldHandleException_handles_NotAcceptableStatusException_as_expected(
+        boolean includesSupportedMediaTypes
+    ) {
+        // given
+        List<MediaType> supportedMediaTypes = Arrays.asList(
+            MediaType.APPLICATION_JSON,
+            MediaType.IMAGE_JPEG
+        );
+        NotAcceptableStatusException ex =
+            (includesSupportedMediaTypes)
+            ? new NotAcceptableStatusException(supportedMediaTypes)
+            : new NotAcceptableStatusException("Some reason");
+
+        List<Pair<String, String>> expectedExtraDetailsForLogging = new ArrayList<>();
+        ApiExceptionHandlerUtils.DEFAULT_IMPL.addBaseExceptionMessageToExtraDetailsForLogging(
+            ex, expectedExtraDetailsForLogging
+        );
+
+        String expectedSupportedMediaTypesValueStr =
+            (includesSupportedMediaTypes)
+            ? supportedMediaTypes.stream().map(Object::toString).collect(Collectors.joining(","))
+            : "";
+
+        expectedExtraDetailsForLogging.add(Pair.of("supported_media_types", expectedSupportedMediaTypesValueStr));
+
+        // when
+        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
+
+        // then
+        validateResponse(
+            result,
+            true,
+            singleton(testProjectApiErrors.getNoAcceptableRepresentationApiError()),
+            expectedExtraDetailsForLogging
+        );
+    }
+
+    @DataProvider(value = {
+        "true",
+        "false"
+    })
+    @Test
+    public void shouldHandleException_handles_ServerErrorException_as_expected(
+        boolean nullDetails
+    ) throws NoSuchMethodException {
+        // given
+        MethodParameter details = new MethodParameter(String.class.getDeclaredMethod("length"), -1);
+
+        ServerErrorException ex =
+            (nullDetails)
+            ? new ServerErrorException("Some reason", (Throwable) null)
+            : new ServerErrorException("Some reason", details, null);
+
+        List<Pair<String, String>> expectedExtraDetailsForLogging = new ArrayList<>();
+        ApiExceptionHandlerUtils.DEFAULT_IMPL.addBaseExceptionMessageToExtraDetailsForLogging(
+            ex, expectedExtraDetailsForLogging
+        );
+
+        expectedExtraDetailsForLogging.add(
+            Pair.of("method_parameter", String.valueOf(ex.getMethodParameter()))
+        );
+        expectedExtraDetailsForLogging.add(
+            Pair.of("handler_method", String.valueOf(ex.getHandlerMethod()))
+        );
+
+        // when
+        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
+
+        // then
+        validateResponse(
+            result,
+            true,
+            singleton(testProjectApiErrors.getGenericServiceError()),
+            expectedExtraDetailsForLogging
+        );
+    }
+
+    @DataProvider(value = {
+        "true",
+        "false"
+    })
+    @Test
+    public void shouldHandleException_handles_ServerWebInputException_as_expected(
+        boolean nullDetails
+    ) throws NoSuchMethodException {
+        // given
+        MethodParameter details = new MethodParameter(String.class.getDeclaredMethod("length"), -1);
+
+        ServerWebInputException ex =
+            (nullDetails)
+            ? new ServerWebInputException("Some reason")
+            : new ServerWebInputException("Some reason", details);
+
+        List<Pair<String, String>> expectedExtraDetailsForLogging = new ArrayList<>();
+        ApiExceptionHandlerUtils.DEFAULT_IMPL.addBaseExceptionMessageToExtraDetailsForLogging(
+            ex, expectedExtraDetailsForLogging
+        );
+
+        expectedExtraDetailsForLogging.add(
+            Pair.of("method_parameter", String.valueOf(ex.getMethodParameter()))
+        );
+
+        // when
+        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
+
+        // then
+        validateResponse(
+            result,
+            true,
+            singleton(testProjectApiErrors.getGenericBadRequestApiError()),
+            expectedExtraDetailsForLogging
+        );
+    }
+
+    public void methodWithAnnotatedParams(
+        @RequestHeader int headerParam,
+        @RequestParam int queryParam,
+        @RequestHeader @RequestParam int bothParam,
+        int unknownParam
+    ) {
+        // This method is used as part of shouldHandleException_handles_MissingRequestValueException_as_expected().
+    }
+
+    @DataProvider(value = {
+        "header                 |   0",
+        "query_param            |   1",
+        "header,query_param     |   2",
+        "unknown                |   3"
+    }, splitBy = "\\|")
+    @Test
+    public void shouldHandleException_handles_MissingRequestValueException_as_expected(
+        String missingValueType, int paramIndex
+    ) throws NoSuchMethodException {
+        // given
+        Method method = this.getClass()
+            .getDeclaredMethod("methodWithAnnotatedParams", int.class, int.class, int.class, int.class);
+        MethodParameter details = new MethodParameter(
+            method,
+            paramIndex
+        );
+
+        String missingParamName = "some-param-" + UUID.randomUUID().toString();
+        MissingRequestValueException ex = new MissingRequestValueException(
+            missingParamName,
+            int.class,
+            "blah not used",
+            details
+        );
+
+        List<Pair<String, String>> expectedExtraDetailsForLogging = new ArrayList<>();
+        ApiExceptionHandlerUtils.DEFAULT_IMPL.addBaseExceptionMessageToExtraDetailsForLogging(
+            ex, expectedExtraDetailsForLogging
+        );
+
+        expectedExtraDetailsForLogging.add(
+            Pair.of("method_parameter", String.valueOf(ex.getMethodParameter()))
+        );
+
+        Map<String, Object> expectedMetadata = new LinkedHashMap<>();
+        expectedMetadata.put("missing_param_name", missingParamName);
+        expectedMetadata.put("missing_param_type", "int");
+        if (!"unknown".equals(missingValueType)) {
+            expectedMetadata.put("required_location", missingValueType);
+        }
+
+        // when
+        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
+
+        // then
+        validateResponse(
+            result,
+            true,
+            singleton(new ApiErrorWithMetadata(
+                testProjectApiErrors.getMalformedRequestApiError(),
+                expectedMetadata
+            )),
+            expectedExtraDetailsForLogging
+        );
+    }
+
+    @DataProvider(value = {
+        "true",
+        "false"
+    })
+    @Test
+    public void shouldHandleException_handles_UnsupportedMediaTypeStatusException_as_expected(
+        boolean includeDetails
+    ) {
+        // given
+        MediaType actualMediaType = MediaType.TEXT_PLAIN;
+        List<MediaType> supportedMediaTypes = Arrays.asList(
+            MediaType.APPLICATION_JSON,
+            MediaType.IMAGE_JPEG
+        );
+        ResolvableType javaBodyType = ResolvableType.forClass(Integer.class);
+        UnsupportedMediaTypeStatusException ex =
+            (includeDetails)
+            ? new UnsupportedMediaTypeStatusException(actualMediaType, supportedMediaTypes, javaBodyType)
+            : new UnsupportedMediaTypeStatusException("Some reason");
+
+        List<Pair<String, String>> expectedExtraDetailsForLogging = new ArrayList<>();
+        ApiExceptionHandlerUtils.DEFAULT_IMPL.addBaseExceptionMessageToExtraDetailsForLogging(
+            ex, expectedExtraDetailsForLogging
+        );
+
+        String expectedSupportedMediaTypesValueStr =
+            (includeDetails)
+            ? supportedMediaTypes.stream().map(Object::toString).collect(Collectors.joining(","))
+            : "";
+        String expectedJavaBodyTypeValueStr =
+            (includeDetails)
+            ? javaBodyType.toString()
+            : "null";
+
+        expectedExtraDetailsForLogging.add(Pair.of("supported_media_types", expectedSupportedMediaTypesValueStr));
+        expectedExtraDetailsForLogging.add(Pair.of("java_body_type", expectedJavaBodyTypeValueStr));
+
+        // when
+        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
+
+        // then
+        validateResponse(
+            result,
+            true,
+            singleton(testProjectApiErrors.getUnsupportedMediaTypeApiError()),
+            expectedExtraDetailsForLogging
+        );
+    }
+
+    private enum ConcatenateCollectionToStringScenario {
+        NULL_COLLECTION(null, ""),
+        EMPTY_COLLECTION(Collections.emptyList(), ""),
+        SINGLE_ITEM(Collections.singleton("foo"), "foo"),
+        MULTIPLE_ITEMS(Arrays.asList("foo", "bar"), "foo,bar");
+
+        public final Collection<String> collection;
+        public final String expectedResult;
+
+        ConcatenateCollectionToStringScenario(Collection<String> collection, String expectedResult) {
+            this.collection = collection;
+            this.expectedResult = expectedResult;
+        }
+    }
+
+    @DataProvider
+    public static List<List<ConcatenateCollectionToStringScenario>> concatenateCollectionToStringScenarioDataProvider() {
+        return Stream.of(ConcatenateCollectionToStringScenario.values())
+                     .map(Collections::singletonList)
+                     .collect(Collectors.toList());
+    }
+
+    @UseDataProvider("concatenateCollectionToStringScenarioDataProvider")
+    @Test
+    public void concatenateCollectionToString_works_as_expected(ConcatenateCollectionToStringScenario scenario) {
+        // when
+        String result = listener.concatenateCollectionToString(scenario.collection);
+
+        // then
+        assertThat(result).isEqualTo(scenario.expectedResult);
     }
 }
