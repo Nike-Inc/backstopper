@@ -24,8 +24,8 @@ import java.util.UUID;
 
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
-import serverconfig.classpathscan.Spring5WebMvcClasspathScanConfig;
-import serverconfig.directimport.Spring5WebMvcDirectImportConfig;
+import serverconfig.classpathscan.Spring_6_0_WebMvcClasspathScanConfig;
+import serverconfig.directimport.Spring_6_0_WebMvcDirectImportConfig;
 import testonly.componenttest.spring.reusable.error.SampleProjectApiError;
 import testonly.componenttest.spring.reusable.jettyserver.SpringMvcJettyComponentTestServer;
 import testonly.componenttest.spring.reusable.model.RgbColor;
@@ -38,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static testonly.componenttest.spring.reusable.controller.SampleController.CORE_ERROR_WRAPPER_ENDPOINT_SUBPATH;
 import static testonly.componenttest.spring.reusable.controller.SampleController.SAMPLE_PATH;
 import static testonly.componenttest.spring.reusable.controller.SampleController.TRIGGER_UNHANDLED_ERROR_SUBPATH;
+import static testonly.componenttest.spring.reusable.controller.SampleController.WITH_REQUIRED_HEADER_SUBPATH;
 import static testonly.componenttest.spring.reusable.controller.SampleController.WITH_REQUIRED_QUERY_PARAM_SUBPATH;
 import static testonly.componenttest.spring.reusable.error.SampleProjectApiError.FOO_STRING_CANNOT_BE_BLANK;
 import static testonly.componenttest.spring.reusable.error.SampleProjectApiError.INVALID_RANGE_VALUE;
@@ -48,22 +49,23 @@ import static testonly.componenttest.spring.reusable.testutil.TestUtils.verifyEr
 
 /**
  * Component test to verify that the functionality of {@code backstopper-spring-web-mvc} works as expected in a
- * Spring 5 environment, for both classpath-scanning and direct-import Backstopper configuration use cases.
+ * Spring 6.0.x environment, for both classpath-scanning and direct-import Backstopper configuration use cases.
  *
  * @author Nic Munroe
  */
-public class BackstopperSpring5WebMvcComponentTest {
+@SuppressWarnings({"NewClassNamingConvention", "ClassEscapesDefinedScope"})
+public class BackstopperSpring_6_0_WebMvcComponentTest {
 
     private static final int CLASSPATH_SCAN_SERVER_PORT = findFreePort();
     private static final int DIRECT_IMPORT_SERVER_PORT = findFreePort();
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final SpringMvcJettyComponentTestServer classpathScanServer = new SpringMvcJettyComponentTestServer(
-        CLASSPATH_SCAN_SERVER_PORT, Spring5WebMvcClasspathScanConfig.class
+        CLASSPATH_SCAN_SERVER_PORT, Spring_6_0_WebMvcClasspathScanConfig.class
     );
 
     private static final SpringMvcJettyComponentTestServer directImportServer = new SpringMvcJettyComponentTestServer(
-        DIRECT_IMPORT_SERVER_PORT, Spring5WebMvcDirectImportConfig.class
+        DIRECT_IMPORT_SERVER_PORT, Spring_6_0_WebMvcDirectImportConfig.class
     );
 
     @BeforeAll
@@ -79,7 +81,6 @@ public class BackstopperSpring5WebMvcComponentTest {
         directImportServer.shutdownServer();
     }
 
-    @SuppressWarnings("unused")
     private enum ServerScenario {
         CLASSPATH_SCAN_SERVER(CLASSPATH_SCAN_SERVER_PORT),
         DIRECT_IMPORT_SERVER(DIRECT_IMPORT_SERVER_PORT);
@@ -408,7 +409,7 @@ public class BackstopperSpring5WebMvcComponentTest {
 
     @EnumSource(ServerScenario.class)
     @ParameterizedTest
-    public void verify_MALFORMED_REQUEST_is_thrown_when_required_data_is_missing(
+    public void verify_MALFORMED_REQUEST_is_thrown_when_required_query_param_is_missing(
         ServerScenario scenario
     ) {
         ExtractableResponse<?> response =
@@ -427,15 +428,16 @@ public class BackstopperSpring5WebMvcComponentTest {
             response,
             new ApiErrorWithMetadata(
                 SampleCoreApiError.MALFORMED_REQUEST,
+                Pair.of("missing_param_name", "requiredQueryParamValue"),
                 Pair.of("missing_param_type", "int"),
-                Pair.of("missing_param_name", "requiredQueryParamValue")
+                Pair.of("required_location", "query_param")
             )
         );
     }
 
     @EnumSource(ServerScenario.class)
     @ParameterizedTest
-    public void verify_TYPE_CONVERSION_ERROR_is_thrown_when_framework_cannot_convert_type(
+    public void verify_TYPE_CONVERSION_ERROR_is_thrown_when_framework_cannot_convert_type_for_query_param(
         ServerScenario scenario
     ) {
         ExtractableResponse<?> response =
@@ -453,8 +455,65 @@ public class BackstopperSpring5WebMvcComponentTest {
 
         verifyErrorReceived(response, new ApiErrorWithMetadata(
             SampleCoreApiError.TYPE_CONVERSION_ERROR,
-            MapBuilder.builder("bad_property_name", (Object)"requiredQueryParamValue")
-                      .put("bad_property_value", "not-an-integer")
+            MapBuilder.builder("bad_property_name", (Object) "requiredQueryParamValue")
+                      .put("bad_property_value","not-an-integer")
+                      .put("required_location","query_param")
+                      .put("required_type", "int")
+                      .build()
+        ));
+    }
+
+    @EnumSource(ServerScenario.class)
+    @ParameterizedTest
+    public void verify_MALFORMED_REQUEST_is_thrown_when_required_header_is_missing(
+        ServerScenario scenario
+    ) {
+        ExtractableResponse<?> response =
+            given()
+                .baseUri("http://localhost")
+                .port(scenario.serverPort)
+                .basePath(SAMPLE_PATH + WITH_REQUIRED_HEADER_SUBPATH)
+                .log().all()
+                .when()
+                .get()
+                .then()
+                .log().all()
+                .extract();
+
+        verifyErrorReceived(
+            response,
+            new ApiErrorWithMetadata(
+                SampleCoreApiError.MALFORMED_REQUEST,
+                Pair.of("missing_param_name", "requiredHeaderValue"),
+                Pair.of("missing_param_type", "int"),
+                Pair.of("required_location", "header")
+            )
+        );
+    }
+
+    @EnumSource(ServerScenario.class)
+    @ParameterizedTest
+    public void verify_TYPE_CONVERSION_ERROR_is_thrown_when_framework_cannot_convert_type_for_header(
+        ServerScenario scenario
+    ) {
+        ExtractableResponse<?> response =
+            given()
+                .baseUri("http://localhost")
+                .port(scenario.serverPort)
+                .basePath(SAMPLE_PATH + WITH_REQUIRED_HEADER_SUBPATH)
+                .header("requiredHeaderValue", "not-an-integer")
+                .log().all()
+                .when()
+                .get()
+                .then()
+                .log().all()
+                .extract();
+
+        verifyErrorReceived(response, new ApiErrorWithMetadata(
+            SampleCoreApiError.TYPE_CONVERSION_ERROR,
+            MapBuilder.builder("bad_property_name", (Object) "requiredHeaderValue")
+                      .put("bad_property_value","not-an-integer")
+                      .put("required_location","header")
                       .put("required_type", "int")
                       .build()
         ));

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -16,8 +17,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import java.util.Arrays;
 import java.util.UUID;
 
-import javax.validation.Valid;
-
+import jakarta.validation.Valid;
 import testonly.componenttest.spring.reusable.error.SampleProjectApiError;
 import testonly.componenttest.spring.reusable.model.RgbColor;
 import testonly.componenttest.spring.reusable.model.SampleModel;
@@ -39,6 +39,7 @@ public class SampleController {
     public static final String SAMPLE_PATH = "/sample";
     public static final String CORE_ERROR_WRAPPER_ENDPOINT_SUBPATH = "/coreErrorWrapper";
     public static final String WITH_REQUIRED_QUERY_PARAM_SUBPATH = "/withRequiredQueryParam";
+    public static final String WITH_REQUIRED_HEADER_SUBPATH = "/withRequiredHeader";
     public static final String TRIGGER_UNHANDLED_ERROR_SUBPATH = "/triggerUnhandledError";
 
     public static int nextRangeInt(int lowerBound, int upperBound) {
@@ -94,6 +95,12 @@ public class SampleController {
     @ResponseBody
     public String withRequiredQueryParam(@RequestParam(name = "requiredQueryParamValue") int someRequiredQueryParam) {
         return "You passed in " + someRequiredQueryParam + " for the required query param value";
+    }
+
+    @GetMapping(path = WITH_REQUIRED_HEADER_SUBPATH, produces = "text/plain")
+    @ResponseBody
+    public String withRequiredHeader(@RequestHeader(name = "requiredHeaderValue") int someRequiredHeader) {
+        return "You passed in " + someRequiredHeader + " for the required header value";
     }
 
     @GetMapping(path = TRIGGER_UNHANDLED_ERROR_SUBPATH)

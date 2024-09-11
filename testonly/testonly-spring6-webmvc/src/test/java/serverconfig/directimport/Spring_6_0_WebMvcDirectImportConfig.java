@@ -8,9 +8,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import javax.validation.Validation;
-import javax.validation.Validator;
-
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import testonly.componenttest.spring.reusable.controller.SampleController;
 import testonly.componenttest.spring.reusable.error.SampleProjectApiErrorsImpl;
 
@@ -28,7 +27,8 @@ import testonly.componenttest.spring.reusable.error.SampleProjectApiErrorsImpl;
     SampleController.class
 })
 @EnableWebMvc
-public class Spring5WebMvcDirectImportConfig {
+@SuppressWarnings("unused")
+public class Spring_6_0_WebMvcDirectImportConfig {
 
     @Bean
     public ProjectApiErrors getProjectApiErrors() {
@@ -37,6 +37,7 @@ public class Spring5WebMvcDirectImportConfig {
 
     @Bean
     public Validator getJsr303Validator() {
+        //noinspection resource
         return Validation.buildDefaultValidatorFactory().getValidator();
     }
 }

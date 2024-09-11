@@ -1,8 +1,5 @@
 evaluationDependsOn(':')
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
-
 test {
     useJUnitPlatform()
 }
@@ -11,11 +8,11 @@ dependencies {
     compileOnly(
             project(":backstopper-spring-web-mvc"),
             project(":backstopper-custom-validators"),
-            "org.springframework:spring-webmvc:$spring4Version",
+            "org.springframework:spring-webmvc:$spring6Version",
             "org.eclipse.jetty:jetty-webapp:$jettyVersion",
-            "org.hibernate:hibernate-validator:$hibernateValidatorVersion",
+            "org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion",
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
-            "javax.servlet:javax.servlet-api:$servletApiVersion",
+            "jakarta.servlet:jakarta.servlet-api:$servletApiVersion",
             "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
             "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
             "io.rest-assured:rest-assured:$restAssuredVersion",
@@ -23,6 +20,6 @@ dependencies {
     )
     testImplementation(
             project(":backstopper-reusable-tests-junit5"),
-            "org.springframework:spring-webmvc:$spring4Version",
+            "org.springframework:spring-webmvc:$spring6Version",
     )
 }
