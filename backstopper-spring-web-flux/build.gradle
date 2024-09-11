@@ -7,8 +7,8 @@ dependencies {
     )
     compileOnly(
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
-            "org.springframework:spring-webflux:$spring6Version",
-            "org.springframework:spring-context:$spring6Version",
+            "org.springframework:spring-webflux:$spring6_0Version",
+            "org.springframework:spring-context:$spring6_0Version",
     )
     testImplementation(
             project(":backstopper-core").sourceSets.test.output,
@@ -20,7 +20,7 @@ dependencies {
             "org.assertj:assertj-core:$assertJVersion",
             "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
             "io.rest-assured:rest-assured:$restAssuredVersion",
-            "org.springframework.boot:spring-boot-starter-webflux:$springboot3Version",
+            "org.springframework.boot:spring-boot-starter-webflux:$springboot3_3Version",
             "jakarta.validation:jakarta.validation-api:$jakartaValidationVersion",
             "org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion",
             "org.glassfish.expressly:expressly:$glassfishExpresslyVersion",

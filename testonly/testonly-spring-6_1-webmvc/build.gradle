@@ -8,7 +8,7 @@ dependencies {
     implementation(
             project(":backstopper-spring-web-mvc"),
             project(":backstopper-custom-validators"),
-            "org.springframework:spring-webmvc:$spring6Version",
+            "org.springframework:spring-webmvc:$spring6_1Version",
             "ch.qos.logback:logback-classic:$logbackVersion",
             "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
             "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",

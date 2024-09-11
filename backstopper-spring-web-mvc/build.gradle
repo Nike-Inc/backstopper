@@ -8,7 +8,7 @@ dependencies {
     )
     compileOnly(
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
-            "org.springframework:spring-webmvc:$spring6Version",
+            "org.springframework:spring-webmvc:$spring6_0Version",
             "jakarta.servlet:jakarta.servlet-api:$servletApiVersion",
     )
     testImplementation(
@@ -20,11 +20,11 @@ dependencies {
             "org.assertj:assertj-core:$assertJVersion",
             "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
             "org.hamcrest:hamcrest-all:$hamcrestVersion",
-            "org.springframework:spring-test:$spring6Version",
+            "org.springframework:spring-test:$spring6_0Version",
             "org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion",
             "org.glassfish.expressly:expressly:$glassfishExpresslyVersion",
             "jakarta.servlet:jakarta.servlet-api:$servletApiVersion",
-            "org.springframework:spring-webmvc:$spring6Version",
+            "org.springframework:spring-webmvc:$spring6_0Version",
             "org.springframework.security:spring-security-core:$springSecurityVersion",
     )
 }

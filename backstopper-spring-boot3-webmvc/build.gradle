@@ -6,8 +6,8 @@ dependencies {
     )
     compileOnly(
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
-            "org.springframework.boot:spring-boot-autoconfigure:$springboot3Version",
-            "org.springframework:spring-webmvc:$spring6Version",
+            "org.springframework.boot:spring-boot-autoconfigure:$springboot3_3Version",
+            "org.springframework:spring-webmvc:$spring6_0Version",
             "jakarta.servlet:jakarta.servlet-api:$servletApiVersion",
     )
     testImplementation(
@@ -19,7 +19,7 @@ dependencies {
             "jakarta.servlet:jakarta.servlet-api:$servletApiVersion",
             "io.rest-assured:rest-assured:$restAssuredVersion",
             "jakarta.servlet:jakarta.servlet-api:$servletApiVersion",
-            "org.springframework.boot:spring-boot-starter-web:$springboot3Version",
+            "org.springframework.boot:spring-boot-starter-web:$springboot3_3Version",
             "org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion",
             "org.glassfish.expressly:expressly:$glassfishExpresslyVersion",
     )

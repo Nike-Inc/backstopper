@@ -10,30 +10,20 @@ dependencies {
             project(":backstopper-custom-validators"),
             "org.springframework:spring-webmvc:$spring6_0Version",
             "ch.qos.logback:logback-classic:$logbackVersion",
+            "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
+            "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
             "org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion",
             "org.glassfish.expressly:expressly:$glassfishExpresslyVersion",
-            "org.eclipse.jetty:jetty-webapp:$jettyVersion"
-    )
-    compileOnly(
-            "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
+            "org.eclipse.jetty:jetty-webapp:$jettyVersion",
     )
     testImplementation(
             project(":backstopper-reusable-tests-junit5"),
+            project(":testonly:testonly-spring-reusable-test-support"),
             "org.junit.jupiter:junit-jupiter-api:$junit5Version",
             "org.junit.jupiter:junit-jupiter-engine:$junit5Version",
             "org.junit.jupiter:junit-jupiter-params:$junit5Version",
             "org.mockito:mockito-core:$mockitoVersion",
-            "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
-            "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
-            "ch.qos.logback:logback-classic:$logbackVersion",
             "org.assertj:assertj-core:$assertJVersion",
             "io.rest-assured:rest-assured:$restAssuredVersion",
     )
-}
-
-apply plugin: "application"
-mainClassName = "com.nike.backstopper.springsample.Main"
-
-run {
-    systemProperties = System.getProperties()
 }

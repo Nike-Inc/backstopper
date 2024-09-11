@@ -5,7 +5,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springboot3Version}")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springboot3_3Version}")
     }
 }
 
@@ -21,7 +21,7 @@ dependencies {
             project(":backstopper-spring-boot3-webmvc"),
             project(":backstopper-custom-validators"),
             "ch.qos.logback:logback-classic",
-            "org.springframework.boot:spring-boot-dependencies:$springboot3Version",
+            "org.springframework.boot:spring-boot-dependencies:$springboot3_3Version",
             "org.springframework.boot:spring-boot-starter-web",
             "org.hibernate.validator:hibernate-validator",
             "org.glassfish.expressly:expressly:$glassfishExpresslyVersion",

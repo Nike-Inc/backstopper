@@ -86,9 +86,10 @@ ext {
     jakartaInjectVersion = '2.0.1'
     jakartaValidationVersion = '3.0.2'
     servletApiVersion = '6.0.0' // Compatible with Jakarta EE 10
-    spring6Version = '6.0.23' // Compatible with Jakarta EE 9/10
-    springSecurityVersion = '6.1.9' // Closest spring secrity version to our pinned spring6Version, but without going over to avoid versions being transitively bumped above what we want for testing.
-    springboot3Version = '3.3.3'
+    spring6_0Version = '6.0.23' // Compatible with Jakarta EE 9/10
+    spring6_1Version = '6.1.12' // Compatible with Jakarta EE 9/10
+    springSecurityVersion = '6.1.9' // Closest spring security version to our pinned spring6_0Version, but without going over to avoid versions being transitively bumped above what we want for testing.
+    springboot3_3Version = '3.3.3'
     jersey1Version = '1.19.2'
     jersey2Version = '2.23.2'
     jaxRsVersion = '2.0.1'
