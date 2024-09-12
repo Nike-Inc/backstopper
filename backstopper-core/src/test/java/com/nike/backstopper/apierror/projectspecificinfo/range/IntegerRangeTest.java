@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 @RunWith(DataProviderRunner.class)
 public class IntegerRangeTest {
 
-    private IntegerRange rangeOfOneToFour = IntegerRange.of(1, 4);
+    private final IntegerRange rangeOfOneToFour = IntegerRange.of(1, 4);
 
     @Test
     public void constructor_throws_exception_if_upper_range_less_than_lower_range() {

@@ -171,11 +171,7 @@ public class StringConvertsToClassTypeValidator implements ConstraintValidator<S
     protected boolean validateAsFloat(String value) {
         try {
             Float floatValue = Float.parseFloat(value);
-            if (floatValue.isInfinite() || floatValue.isNaN())
-                return false;
-
-            // No error, so it can be successfully parsed to this primitive type.
-            return true;
+            return !floatValue.isInfinite() && !floatValue.isNaN();
         }
         catch (Exception ex) {
             // Couldn't parse the given string into this primitive type, so it's not valid.
@@ -186,11 +182,7 @@ public class StringConvertsToClassTypeValidator implements ConstraintValidator<S
     protected boolean validateAsDouble(String value) {
         try {
             Double doubleValue = Double.parseDouble(value);
-            if (doubleValue.isInfinite() || doubleValue.isNaN())
-                return false;
-
-            // No error, so it can be successfully parsed to this primitive type.
-            return true;
+            return !doubleValue.isInfinite() && !doubleValue.isNaN();
         }
         catch (Exception ex) {
             // Couldn't parse the given string into this primitive type, so it's not valid.

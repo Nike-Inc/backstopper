@@ -70,12 +70,11 @@ public class OneOffSpringWebMvcFrameworkExceptionHandlerListener
             return handleError(projectApiErrors.getMethodNotAllowedApiError(), extraDetailsForLogging);
         }
 
-        if (ex instanceof MissingServletRequestPartException) {
-            MissingServletRequestPartException detailsEx = (MissingServletRequestPartException)ex;
+        if (ex instanceof MissingServletRequestPartException detailsEx) {
             return handleError(
                 new ApiErrorWithMetadata(
                     projectApiErrors.getMalformedRequestApiError(),
-                    Pair.of("missing_required_part", (Object)detailsEx.getRequestPartName())
+                    Pair.of("missing_required_part", detailsEx.getRequestPartName())
                 ),
                 extraDetailsForLogging
             );
@@ -95,13 +94,12 @@ public class OneOffSpringWebMvcFrameworkExceptionHandlerListener
         ApiError errorToUse = projectApiErrors.getMalformedRequestApiError();
 
         // Add some extra context metadata if it's a MissingServletRequestParameterException.
-        if (ex instanceof MissingServletRequestParameterException) {
-            MissingServletRequestParameterException detailsEx = (MissingServletRequestParameterException)ex;
-            
+        if (ex instanceof MissingServletRequestParameterException detailsEx) {
+
             errorToUse = new ApiErrorWithMetadata(
                 errorToUse,
-                Pair.of("missing_param_name", (Object)detailsEx.getParameterName()),
-                Pair.of("missing_param_type", (Object)detailsEx.getParameterType()),
+                Pair.of("missing_param_name", detailsEx.getParameterName()),
+                Pair.of("missing_param_type", detailsEx.getParameterType()),
                 Pair.of("required_location", "query_param")
             );
         }

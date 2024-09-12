@@ -24,10 +24,8 @@ public class GenericApiExceptionHandlerListener implements ApiExceptionHandlerLi
     @Override
     public ApiExceptionHandlerListenerResult shouldHandleException(Throwable ex) {
         // We only care about ApiExceptions.
-        if (!(ex instanceof ApiException))
+        if (!(ex instanceof ApiException apiException))
             return ApiExceptionHandlerListenerResult.ignoreResponse();
-
-        ApiException apiException = ((ApiException)ex);
 
         // Add all the ApiErrors from the exception.
         SortedApiErrorSet errors = new SortedApiErrorSet();

@@ -280,8 +280,7 @@ public abstract class ApiExceptionHandlerBase<T> {
         // Add connection type to our extra logging data if appropriate. This particular log message is here so it can
         //      be done in one spot rather than trying to track down all the different places we're handling
         //      NetworkExceptionBase subclasses (and possibly missing some by accident).
-        if (coreException instanceof NetworkExceptionBase) {
-            NetworkExceptionBase neb = ((NetworkExceptionBase)coreException);
+        if (coreException instanceof NetworkExceptionBase neb) {
             extraDetailsForLogging.add(Pair.of("connection_type", neb.getConnectionType()));
         }
 
@@ -306,7 +305,7 @@ public abstract class ApiExceptionHandlerBase<T> {
                 + "investigated and fixed. Search for %s=%s in the logs to find the log message that contains the "
                 + "details of the request along with the full stack trace of the original exception. "
                 + "unfiltered_api_errors=%s",
-                trackingLogKey, trackingUuid.toString(), utils.concatenateErrorCollection(clientErrors)
+                trackingLogKey, trackingUuid, utils.concatenateErrorCollection(clientErrors)
             ));
             filteredClientErrors = Collections.singletonList(genericServiceError);
             highestPriorityStatusCode = genericServiceError.getHttpStatusCode();

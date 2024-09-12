@@ -65,7 +65,14 @@ public class UnhandledExceptionHandlerServletApiBaseTest {
 
     @Test
     public void handleExceptionSetsHeadersAndStatusCodeOnServletResponse() throws UnexpectedMajorExceptionHandlingError {
-        ErrorResponseInfo<?> expectedResponseInfo = new ErrorResponseInfo(42, null, MapBuilder.<String, List<String>>builder().put("header1", Arrays.asList("h1val1")).put("header2", Arrays.asList("h2val1", "h2val2")).build());
+        ErrorResponseInfo<?> expectedResponseInfo = new ErrorResponseInfo(
+            42,
+            null,
+            MapBuilder.<String, List<String>>builder()
+                      .put("header1", List.of("h1val1"))
+                      .put("header2", Arrays.asList("h2val1", "h2val2"))
+                      .build()
+        );
         doReturn(expectedResponseInfo).when(instanceSpy).handleException(any(Throwable.class), any(RequestInfoForLogging.class));
         instanceSpy.handleException(new Exception(), servletRequestMock, servletResponseMock);
 

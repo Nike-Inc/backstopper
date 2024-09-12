@@ -26,7 +26,7 @@ import java.util.List;
 public abstract class SampleProjectApiErrorsBase extends ProjectApiErrors {
 
     private static final List<ApiError> SAMPLE_CORE_API_ERRORS_AS_LIST =
-        Arrays.<ApiError>asList(SampleCoreApiError.values());
+        Arrays.asList(SampleCoreApiError.values());
 
     @Override
     protected List<ApiError> getCoreApiErrors() {

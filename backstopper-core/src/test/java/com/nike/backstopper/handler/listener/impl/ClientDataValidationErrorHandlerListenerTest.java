@@ -44,8 +44,8 @@ public class ClientDataValidationErrorHandlerListenerTest extends ListenerTestBa
 
     private static final ProjectApiErrors testProjectApiErrors = ProjectApiErrorsForTesting.withProjectSpecificData(null, null);
 
-    private ClientDataValidationErrorHandlerListener listener = new ClientDataValidationErrorHandlerListener(testProjectApiErrors,
-                                                                                                             ApiExceptionHandlerUtils.DEFAULT_IMPL);
+    private final ClientDataValidationErrorHandlerListener listener = new ClientDataValidationErrorHandlerListener(testProjectApiErrors,
+                                                                                                                   ApiExceptionHandlerUtils.DEFAULT_IMPL);
 
     @Test
     public void constructor_sets_projectApiErrors_and_utils_to_passed_in_args() {
@@ -98,14 +98,14 @@ public class ClientDataValidationErrorHandlerListenerTest extends ListenerTestBa
     public void shouldReturnGENERIC_SERVICE_ERRORForClientDataValidationErrorThatHasNullViolations() {
         ClientDataValidationError ex = new ClientDataValidationError(null, null, null);
         ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
-        validateResponse(result, true, Collections.<ApiError>singletonList(testProjectApiErrors.getGenericServiceError()));
+        validateResponse(result, true, Collections.singletonList(testProjectApiErrors.getGenericServiceError()));
     }
 
     @Test
     public void shouldReturnGENERIC_SERVICE_ERRORForClientDataValidationErrorThatHasEmptyViolations() {
-        ClientDataValidationError ex = new ClientDataValidationError(null, Collections.<ConstraintViolation<Object>>emptyList(), null);
+        ClientDataValidationError ex = new ClientDataValidationError(null, Collections.emptyList(), null);
         ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
-        validateResponse(result, true, Collections.<ApiError>singletonList(testProjectApiErrors.getGenericServiceError()));
+        validateResponse(result, true, Collections.singletonList(testProjectApiErrors.getGenericServiceError()));
     }
 
     @Test
@@ -168,11 +168,15 @@ public class ClientDataValidationErrorHandlerListenerTest extends ListenerTestBa
     @Test
     public void shouldReturnGENERIC_SERVICE_ERRORForViolationThatDoesNotMapToApiError() {
         ConstraintViolation<Object> violation = setupConstraintViolation(SomeValidatableObject.class, "path.to.violation", NotNull.class, "I_Am_Invalid");
-        ClientDataValidationError ex = new ClientDataValidationError(Arrays.<Object>asList(new SomeValidatableObject("someArg1", "someArg2")), Collections.singletonList(violation), null);
+        ClientDataValidationError ex = new ClientDataValidationError(
+            List.of(new SomeValidatableObject("someArg1", "someArg2")), Collections.singletonList(violation), null);
         ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
         validateResponse(result, true, Collections.<ApiError>singletonList(
             // We expect it to be the generic error, with some metadata about the field that had an issue
-            new ApiErrorWithMetadata(testProjectApiErrors.getGenericServiceError(), Pair.of("field", (Object)"path.to.violation"))
+            new ApiErrorWithMetadata(
+                testProjectApiErrors.getGenericServiceError(),
+                Pair.of("field", "path.to.violation")
+            )
         ));
     }
 
@@ -181,12 +185,16 @@ public class ClientDataValidationErrorHandlerListenerTest extends ListenerTestBa
         ConstraintViolation<Object> violation1 = setupConstraintViolation(SomeValidatableObject.class, "path.to.violation1", NotNull.class, "MISSING_EXPECTED_CONTENT");
         ConstraintViolation<Object> violation2 = setupConstraintViolation(SomeValidatableObject.class, "path.to.violation2", NotEmpty.class, "TYPE_CONVERSION_ERROR");
         ClientDataValidationError ex = new ClientDataValidationError(
-            Collections.<Object>singletonList(new SomeValidatableObject("someArg1", "someArg2")), Arrays.asList(violation1, violation2), null);
+            Collections.singletonList(new SomeValidatableObject("someArg1", "someArg2")), Arrays.asList(violation1, violation2), null);
         ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
         validateResponse(result, true, Arrays.<ApiError>asList(
             // We expect them to be the properly associated errors, with some metadata about the field that had an issue
-            new ApiErrorWithMetadata(BarebonesCoreApiErrorForTesting.MISSING_EXPECTED_CONTENT, Pair.of("field", (Object)"path.to.violation1")),
-            new ApiErrorWithMetadata(BarebonesCoreApiErrorForTesting.TYPE_CONVERSION_ERROR, Pair.of("field", (Object)"path.to.violation2"))
+            new ApiErrorWithMetadata(BarebonesCoreApiErrorForTesting.MISSING_EXPECTED_CONTENT, Pair.of("field",
+                                                                                                       "path.to.violation1"
+            )),
+            new ApiErrorWithMetadata(BarebonesCoreApiErrorForTesting.TYPE_CONVERSION_ERROR, Pair.of("field",
+                                                                                                    "path.to.violation2"
+            ))
         ));
     }
 
@@ -211,14 +219,14 @@ public class ClientDataValidationErrorHandlerListenerTest extends ListenerTestBa
         );
     }
 
-    private static interface SomeValidationGroup {}
+    private interface SomeValidationGroup {}
 
     private static class SomeValidatableObject {
 
         @NotEmpty(message = "MISSING_EXPECTED_CONTENT")
-        private String arg1;
+        private final String arg1;
         @NotEmpty(message = "MISSING_EXPECTED_CONTENT")
-        private String arg2;
+        private final String arg2;
 
         public SomeValidatableObject(String arg1, String arg2) {
             this.arg1 = arg1;

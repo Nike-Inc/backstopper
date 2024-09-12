@@ -20,7 +20,7 @@ import static com.nike.backstopper.apierror.ApiErrorConstants.HTTP_STATUS_CODE_U
 
 /**
  * A sample/example of some core errors that many APIs are likely to need. Any given {@link ProjectApiErrors} could
- * return these as its {@link ProjectApiErrors#getCoreApiErrors()} if the error codes and messages associated with these
+ * return these as its {@code ProjectApiErrors#getCoreApiErrors()} if the error codes and messages associated with these
  * are fine for your project (see {@link SampleProjectApiErrorsBase} for a base implementation that does exactly that).
  *
  * <p>In practice most organizations should copy/paste this class and customize the error codes and messages for their
@@ -64,7 +64,7 @@ public enum SampleCoreApiError implements ApiError {
 
     SampleCoreApiError(int errorCode, String message, int httpStatusCode) {
         this(new ApiErrorBase(
-            "delegated-to-enum-wrapper-" + UUID.randomUUID().toString(), errorCode, message, httpStatusCode
+            "delegated-to-enum-wrapper-" + UUID.randomUUID(), errorCode, message, httpStatusCode
         ));
     }
 

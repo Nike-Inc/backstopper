@@ -264,7 +264,7 @@ public class JsonUtilWithDefaultErrorContractDTOSupportTest {
         ErrorContractSerializationFactory impl = new ErrorContractSerializationFactory(null, true, true);
 
         // when
-        BeanPropertyWriter result = impl.findPropWriter(Collections.<BeanPropertyWriter>emptyList(), UUID.randomUUID().toString());
+        BeanPropertyWriter result = impl.findPropWriter(Collections.emptyList(), UUID.randomUUID().toString());
 
         // then
         assertThat(result).isNull();

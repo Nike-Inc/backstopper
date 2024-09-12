@@ -47,9 +47,9 @@ public class DefaultErrorContractDTOTest {
 
     @Test
     public void shouldCorrectlyTranslateApiErrorsToIndividualErrorViews() {
-        List<ApiError> apiErrors = Arrays.<ApiError>asList(BarebonesCoreApiErrorForTesting.NO_ACCEPTABLE_REPRESENTATION,
-                                                           BarebonesCoreApiErrorForTesting.MALFORMED_REQUEST,
-                                                           BarebonesCoreApiErrorForTesting.OUTSIDE_DEPENDENCY_RETURNED_AN_UNRECOVERABLE_ERROR);
+        List<ApiError> apiErrors = Arrays.asList(BarebonesCoreApiErrorForTesting.NO_ACCEPTABLE_REPRESENTATION,
+                                                 BarebonesCoreApiErrorForTesting.MALFORMED_REQUEST,
+                                                 BarebonesCoreApiErrorForTesting.OUTSIDE_DEPENDENCY_RETURNED_AN_UNRECOVERABLE_ERROR);
         DefaultErrorContractDTO erv = new DefaultErrorContractDTO(null, apiErrors);
         assertThat(erv.errors
                 .size(), is(apiErrors.size()));

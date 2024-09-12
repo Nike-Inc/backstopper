@@ -44,7 +44,7 @@ public class FailFastServersideValidationServiceTest {
     @Test(expected = ServersideValidationError.class)
     public void shouldThrowExceptionIfValidatorFindsConstraintViolations() {
         Object validateMe = new Object();
-        when(validator.validate(validateMe)).thenReturn(Collections.<ConstraintViolation<Object>>singleton(mock(ConstraintViolation.class)));
+        when(validator.validate(validateMe)).thenReturn(Collections.singleton(mock(ConstraintViolation.class)));
         validationService.validateObjectFailFast(validateMe);
     }
 }

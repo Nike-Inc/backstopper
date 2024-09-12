@@ -41,7 +41,7 @@ public class ApiErrorBase implements ApiError {
         }
 
         this.metadata = (metadata.isEmpty())
-                        ? Collections.<String, Object>emptyMap()
+                        ? Collections.emptyMap()
                         : Collections.unmodifiableMap(new HashMap<>(metadata));
     }
 

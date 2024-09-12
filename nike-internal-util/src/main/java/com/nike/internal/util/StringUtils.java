@@ -64,7 +64,7 @@ public class StringUtils {
         for (Object obj : iterable) {
             if (!firstItem)
                 sb.append(delimiter);
-            sb.append(String.valueOf(obj));
+            sb.append(obj);
             firstItem = false;
         }
 
@@ -140,7 +140,7 @@ public class StringUtils {
             return true;
         }
         for (int i = 0; i < strLen; i++) {
-            if (Character.isWhitespace(cs.charAt(i)) == false) {
+            if (!Character.isWhitespace(cs.charAt(i))) {
                 return false;
             }
         }

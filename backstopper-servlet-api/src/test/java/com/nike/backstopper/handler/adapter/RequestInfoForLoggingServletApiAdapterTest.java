@@ -79,7 +79,7 @@ public class RequestInfoForLoggingServletApiAdapterTest {
     @Test
     public void getHeaderMapDelegatesToServletRequestAndCachesResult() {
         Map<String, List<String>> expectedHeaderMap = new TreeMap<>(MapBuilder.<String, List<String>>builder()
-                                                                              .put("header1", Arrays.asList("h1val1"))
+                                                                              .put("header1", List.of("h1val1"))
                                                                               .put("header2", Arrays.asList("h2val1", "h2val2"))
                                                                               .build());
         doReturn(Collections.enumeration(expectedHeaderMap.keySet())).when(requestMock).getHeaderNames();
@@ -102,7 +102,7 @@ public class RequestInfoForLoggingServletApiAdapterTest {
     @Test
     public void getHeaderMapIgnoresHeadersWhereServletRequestGetHeadersMethodReturnsNull() {
         Map<String, List<String>> expectedHeaderMap = new TreeMap<>(MapBuilder.<String, List<String>>builder()
-                                                                              .put("header1", Arrays.asList("h1val1"))
+                                                                              .put("header1", List.of("h1val1"))
                                                                               .build());
         doReturn(Collections.enumeration(Arrays.asList("header1", "header2"))).when(requestMock).getHeaderNames();
         doReturn(Collections.enumeration(expectedHeaderMap.get("header1"))).when(requestMock).getHeaders("header1");
@@ -120,7 +120,7 @@ public class RequestInfoForLoggingServletApiAdapterTest {
 
     @Test
     public void getHeadersDelegatesToServletRequest() {
-        Pair<String, List<String>> header1 = Pair.of("header1", Arrays.asList("h1val1"));
+        Pair<String, List<String>> header1 = Pair.of("header1", List.of("h1val1"));
         Pair<String, List<String>> header2 = Pair.of("header2", Arrays.asList("h2val1", "h2val2"));
         Map<String, List<String>> expectedHeaderMap = new TreeMap<>(MapBuilder.<String, List<String>>builder()
                                                                               .put(header1.getKey(), header1.getValue())
@@ -139,7 +139,7 @@ public class RequestInfoForLoggingServletApiAdapterTest {
         String attributeName = "someattribute";
         UUID expectedValue = UUID.randomUUID();
         doReturn(expectedValue).when(requestMock).getAttribute(attributeName);
-        assertThat(adapter.getAttribute(attributeName), Is.<Object>is(expectedValue));
+        assertThat(adapter.getAttribute(attributeName), Is.is(expectedValue));
     }
 
     @Test

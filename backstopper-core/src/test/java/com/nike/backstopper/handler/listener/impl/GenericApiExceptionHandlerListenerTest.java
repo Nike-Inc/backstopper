@@ -21,7 +21,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 public class GenericApiExceptionHandlerListenerTest extends ListenerTestBase {
 
-    private GenericApiExceptionHandlerListener listener = new GenericApiExceptionHandlerListener();
+    private final GenericApiExceptionHandlerListener listener = new GenericApiExceptionHandlerListener();
 
     @Test
     public void shouldIgnoreExceptionThatItDoesNotWantToHandle() {

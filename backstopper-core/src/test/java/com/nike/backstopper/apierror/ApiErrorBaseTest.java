@@ -74,7 +74,7 @@ public class ApiErrorBaseTest {
 
         // then
         assertThat(aeb.getName()).isEqualTo(name);
-        assertThat(aeb.getErrorCode()).isEqualTo(String.valueOf(errorCode));
+        assertThat(aeb.getErrorCode()).isEqualTo(errorCode);
         assertThat(aeb.getMessage()).isEqualTo(message);
         assertThat(aeb.getHttpStatusCode()).isEqualTo(httpStatusCode);
     }

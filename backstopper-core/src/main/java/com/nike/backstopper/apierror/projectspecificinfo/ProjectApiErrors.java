@@ -336,7 +336,7 @@ public abstract class ProjectApiErrors {
      *          the possibility of null being returned and have a strategy for picking a winner.
      */
     public Integer determineHighestPriorityHttpStatusCode(Collection<ApiError> apiErrors) {
-        if (apiErrors == null || apiErrors.size() == 0) {
+        if (apiErrors == null || apiErrors.isEmpty()) {
             return null;
         }
 
@@ -368,7 +368,7 @@ public abstract class ProjectApiErrors {
         logger.error(
             "None of the HTTP status codes in the ApiErrors passed to determineHighestPriorityHttpStatusCode() were"
             + " found in the getStatusCodePriorityOrder() list. Offending set of http status codes (these should be "
-            + "added to the getStatusCodePriorityOrder() list for this project): " + validStatusCodePossibilities
+            + "added to the getStatusCodePriorityOrder() list for this project): {}", validStatusCodePossibilities
         );
 
         return null;

@@ -97,7 +97,7 @@ public class ApiErrorWithMetadataTest {
     @Test
     public void convenience_constructor_throws_IllegalArgumentException_if_delegate_is_null() {
         // when
-        Throwable ex = catchThrowable(() -> new ApiErrorWithMetadata(null, Pair.of("foo", (Object)"bar")));
+        Throwable ex = catchThrowable(() -> new ApiErrorWithMetadata(null, Pair.of("foo", "bar")));
 
         // then
         assertThat(ex)
@@ -152,7 +152,7 @@ public class ApiErrorWithMetadataTest {
     @Test
     public void constructor_supports_null_or_empty_extra_metadata(boolean useNull) {
         // given
-        Map<String, Object> extraMetadataToUse = (useNull) ? null : Collections.<String, Object>emptyMap();
+        Map<String, Object> extraMetadataToUse = (useNull) ? null : Collections.emptyMap();
 
         // when
         ApiErrorWithMetadata awm = new ApiErrorWithMetadata(delegateWithMetadata, extraMetadataToUse);
@@ -270,7 +270,7 @@ public class ApiErrorWithMetadataTest {
                 changeMetadata? metadata2 : metadata);
 
         ApiErrorWithMetadata awm = new ApiErrorWithMetadata(aeb, extraMetadata);
-        ApiErrorWithMetadata awm2 = new ApiErrorWithMetadata(aeb2, hasExtraMetadata? extraMetadata : Collections.<String, Object>emptyMap());
+        ApiErrorWithMetadata awm2 = new ApiErrorWithMetadata(aeb2, hasExtraMetadata? extraMetadata : Collections.emptyMap());
 
         // then
         assertThat(awm.equals(awm2)).isEqualTo(isEqual);

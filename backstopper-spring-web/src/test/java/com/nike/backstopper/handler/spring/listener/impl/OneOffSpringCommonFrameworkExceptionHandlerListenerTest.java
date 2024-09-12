@@ -90,7 +90,7 @@ import static org.mockito.Mockito.verify;
 public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends ListenerTestBase {
 
     private static final ProjectApiErrors testProjectApiErrors = ProjectApiErrorsForTesting.withProjectSpecificData(null, null);
-    private OneOffSpringCommonFrameworkExceptionHandlerListener listener = new OneOffListenerBasicImpl(
+    private final OneOffSpringCommonFrameworkExceptionHandlerListener listener = new OneOffListenerBasicImpl(
         testProjectApiErrors, ApiExceptionHandlerUtils.DEFAULT_IMPL
     );
 
@@ -407,7 +407,7 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
 
     private enum HttpMessageNotReadableExceptionScenario {
         KNOWN_MESSAGE_FOR_MISSING_CONTENT(
-            new HttpMessageNotReadableException("Required request body is missing " + UUID.randomUUID().toString()),
+            new HttpMessageNotReadableException("Required request body is missing " + UUID.randomUUID()),
             ProjectApiErrors::getMissingExpectedContentApiError
         ),
         JSON_MAPPING_EXCEPTION_CAUSE_INDICATING_NO_CONTENT(
@@ -1116,7 +1116,7 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
 
         ServerErrorException ex =
             (nullDetails)
-            ? new ServerErrorException("Some reason", (Throwable) null)
+            ? new ServerErrorException("Some reason", null)
             : new ServerErrorException("Some reason", details, null);
 
         List<Pair<String, String>> expectedExtraDetailsForLogging = new ArrayList<>();
@@ -1207,7 +1207,7 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
             paramIndex
         );
 
-        String missingParamName = "some-param-" + UUID.randomUUID().toString();
+        String missingParamName = "some-param-" + UUID.randomUUID();
         MissingRequestValueException ex = new MissingRequestValueException(
             missingParamName,
             int.class,

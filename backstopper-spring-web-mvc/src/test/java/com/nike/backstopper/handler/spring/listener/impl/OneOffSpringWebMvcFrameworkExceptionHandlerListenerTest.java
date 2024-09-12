@@ -50,7 +50,7 @@ public class OneOffSpringWebMvcFrameworkExceptionHandlerListenerTest {
     private static final ProjectApiErrors testProjectApiErrors =
         ProjectApiErrorsForTesting.withProjectSpecificData(null, null);
     
-    private OneOffSpringWebMvcFrameworkExceptionHandlerListener listener =
+    private final OneOffSpringWebMvcFrameworkExceptionHandlerListener listener =
         new OneOffSpringWebMvcFrameworkExceptionHandlerListener(
             testProjectApiErrors, ApiExceptionHandlerUtils.DEFAULT_IMPL
         );
@@ -156,8 +156,8 @@ public class OneOffSpringWebMvcFrameworkExceptionHandlerListenerTest {
         boolean isMissingRequestParamEx
     ) {
         // given
-        String missingParamName = "someParam-" + UUID.randomUUID().toString();
-        String missingParamType = "someParamType-" + UUID.randomUUID().toString();
+        String missingParamName = "someParam-" + UUID.randomUUID();
+        String missingParamType = "someParamType-" + UUID.randomUUID();
         ServletRequestBindingException ex =
             (isMissingRequestParamEx)
             ? new MissingServletRequestParameterException(missingParamName, missingParamType)

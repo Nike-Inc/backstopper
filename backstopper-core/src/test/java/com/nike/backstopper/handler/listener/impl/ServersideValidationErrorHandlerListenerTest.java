@@ -40,8 +40,8 @@ import static org.mockito.Mockito.when;
 public class ServersideValidationErrorHandlerListenerTest extends ListenerTestBase {
 
     private static final ProjectApiErrors testProjectApiErrors = ProjectApiErrorsForTesting.withProjectSpecificData(null, null);
-    private ServersideValidationErrorHandlerListener listener = new ServersideValidationErrorHandlerListener(testProjectApiErrors,
-                                                                                                             ApiExceptionHandlerUtils.DEFAULT_IMPL);
+    private final ServersideValidationErrorHandlerListener listener = new ServersideValidationErrorHandlerListener(testProjectApiErrors,
+                                                                                                                   ApiExceptionHandlerUtils.DEFAULT_IMPL);
 
     @Test
     public void constructor_sets_projectApiErrors_and_utils_to_passed_in_args() {
@@ -149,9 +149,9 @@ public class ServersideValidationErrorHandlerListenerTest extends ListenerTestBa
     private static class SomeValidatableObject {
 
         @NotEmpty(message = "INVALID_TRUSTED_HEADERS_ERROR")
-        private String arg1;
+        private final String arg1;
         @NotEmpty(message = "INVALID_TRUSTED_HEADERS_ERROR")
-        private String arg2;
+        private final String arg2;
 
         public SomeValidatableObject(String arg1, String arg2) {
             this.arg1 = arg1;

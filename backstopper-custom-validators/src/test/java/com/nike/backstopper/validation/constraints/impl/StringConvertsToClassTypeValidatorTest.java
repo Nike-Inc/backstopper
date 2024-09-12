@@ -27,7 +27,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @RunWith(DataProviderRunner.class)
 public class StringConvertsToClassTypeValidatorTest {
 
-    private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+    private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     private StringConvertsToClassTypeValidator validatorImpl;
 
@@ -308,7 +308,7 @@ public class StringConvertsToClassTypeValidatorTest {
 
     @Test
     public void shouldNotValidateLongBoxedForValueTooBigForLong() {
-        doValidationTest(newObj().withFooLongBoxed("9" + String.valueOf(Long.MAX_VALUE)), "9" + String.valueOf(Long.MAX_VALUE), Long.class, false);
+        doValidationTest(newObj().withFooLongBoxed("9" + Long.MAX_VALUE), "9" + Long.MAX_VALUE, Long.class, false);
     }
 
     @Test
@@ -323,7 +323,7 @@ public class StringConvertsToClassTypeValidatorTest {
 
     @Test
     public void shouldNotValidateLongForValueTooBigForLong() {
-        doValidationTest(newObj().withFooLong("9" + String.valueOf(Long.MAX_VALUE)), "9" + String.valueOf(Long.MAX_VALUE), long.class, false);
+        doValidationTest(newObj().withFooLong("9" + Long.MAX_VALUE), "9" + Long.MAX_VALUE, long.class, false);
     }
 
     // Float (boxed) and float (primitive) ===============================================================
@@ -385,7 +385,7 @@ public class StringConvertsToClassTypeValidatorTest {
 
     @Test
     public void shouldNotValidateDoubleBoxedForValueTooBigForDouble() {
-        doValidationTest(newObj().withFooDoubleBoxed("1" + String.valueOf(Double.MAX_VALUE)), "1" + String.valueOf(Double.MAX_VALUE), Double.class, false);
+        doValidationTest(newObj().withFooDoubleBoxed("1" + Double.MAX_VALUE), "1" + Double.MAX_VALUE, Double.class, false);
     }
 
     @Test
@@ -405,7 +405,7 @@ public class StringConvertsToClassTypeValidatorTest {
 
     @Test
     public void shouldNotValidateDoubleForValueTooBigForDouble() {
-        doValidationTest(newObj().withFooDouble("1" + String.valueOf(Double.MAX_VALUE)), "1" + String.valueOf(Double.MAX_VALUE), double.class, false);
+        doValidationTest(newObj().withFooDouble("1" + Double.MAX_VALUE), "1" + Double.MAX_VALUE, double.class, false);
     }
 
     // Boolean (boxed) and boolean (primitive) ===============================================================

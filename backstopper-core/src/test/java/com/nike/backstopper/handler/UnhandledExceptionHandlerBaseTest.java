@@ -57,8 +57,8 @@ public class UnhandledExceptionHandlerBaseTest {
     private RequestInfoForLogging reqMock;
 
     private static final ProjectApiErrors testProjectApiErrors = ProjectApiErrorsForTesting.withProjectSpecificData(null, null);
-    private List<ApiError> errorsExpectedToBeUsed = Collections.<ApiError>singletonList(BarebonesCoreApiErrorForTesting.GENERIC_SERVICE_ERROR);
-    private int httpStatusCodeExpectedToBeUsed = testProjectApiErrors.determineHighestPriorityHttpStatusCode(errorsExpectedToBeUsed);
+    private final List<ApiError> errorsExpectedToBeUsed = Collections.singletonList(BarebonesCoreApiErrorForTesting.GENERIC_SERVICE_ERROR);
+    private final int httpStatusCodeExpectedToBeUsed = testProjectApiErrors.determineHighestPriorityHttpStatusCode(errorsExpectedToBeUsed);
     private ApiExceptionHandlerUtils utilsSpy;
 
     @Before
@@ -79,7 +79,7 @@ public class UnhandledExceptionHandlerBaseTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 StringBuilder sb = (StringBuilder) invocation.getArguments()[0];
-                sb.append(UUID.randomUUID().toString());
+                sb.append(UUID.randomUUID());
                 sbHolder.add(sb);
                 return UUID.randomUUID().toString();
             }
@@ -294,7 +294,7 @@ public class UnhandledExceptionHandlerBaseTest {
             return new ErrorResponseInfo<>(
                 projectApiErrors.getGenericServiceError().getHttpStatusCode(),
                 new TestDTO(new DefaultErrorContractDTO(UUID.randomUUID().toString(), singletonList(projectApiErrors.getGenericServiceError()))),
-                Collections.<String, List<String>>emptyMap()
+                Collections.emptyMap()
             );
         }
     }

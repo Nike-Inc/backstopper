@@ -34,7 +34,7 @@ public class OneOffSpringWebFluxFrameworkExceptionHandlerListenerTest {
     private static final ProjectApiErrors testProjectApiErrors =
         ProjectApiErrorsForTesting.withProjectSpecificData(null, null);
 
-    private OneOffSpringWebFluxFrameworkExceptionHandlerListener listener =
+    private final OneOffSpringWebFluxFrameworkExceptionHandlerListener listener =
         new OneOffSpringWebFluxFrameworkExceptionHandlerListener(
             testProjectApiErrors, ApiExceptionHandlerUtils.DEFAULT_IMPL
         );

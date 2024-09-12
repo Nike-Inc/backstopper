@@ -303,8 +303,7 @@ public abstract class OneOffSpringCommonFrameworkExceptionHandlerListener implem
         //      ResponseEntityExceptionHandler for verification.
         if (ex instanceof ConversionNotSupportedException) {
             // We can add even more context log details if it's a MethodArgumentConversionNotSupportedException.
-            if (ex instanceof MethodArgumentConversionNotSupportedException) {
-                MethodArgumentConversionNotSupportedException macnsEx = (MethodArgumentConversionNotSupportedException)ex;
+            if (ex instanceof MethodArgumentConversionNotSupportedException macnsEx) {
                 extraDetailsForLogging.add(Pair.of("method_arg_name", macnsEx.getName()));
                 extraDetailsForLogging.add(Pair.of("method_arg_target_param", macnsEx.getParameter().toString()));
             }
@@ -315,8 +314,7 @@ public abstract class OneOffSpringCommonFrameworkExceptionHandlerListener implem
             // All other TypeMismatchExceptions should be treated as a 400, and we can/should include the metadata.
 
             // We can add even more context log details if it's a MethodArgumentTypeMismatchException.
-            if (ex instanceof MethodArgumentTypeMismatchException) {
-                MethodArgumentTypeMismatchException matmEx = (MethodArgumentTypeMismatchException)ex;
+            if (ex instanceof MethodArgumentTypeMismatchException matmEx) {
                 List<Pair<String, String>> hOrQMetadata = extractExtraMetadataForHeaderOrQueryParamException(matmEx);
                 if (hOrQMetadata != null) {
                     for (Pair<String, String> pair : hOrQMetadata) {
@@ -516,22 +514,19 @@ public abstract class OneOffSpringCommonFrameworkExceptionHandlerListener implem
         @NotNull ResponseStatusException ex,
         @NotNull List<Pair<String, String>> extraDetailsForLogging
     ) {
-        if (ex instanceof MethodNotAllowedException) {
-            MethodNotAllowedException detailsEx = (MethodNotAllowedException)ex;
+        if (ex instanceof MethodNotAllowedException detailsEx) {
             extraDetailsForLogging.add(
                 Pair.of("supported_methods", concatenateCollectionToString(detailsEx.getSupportedMethods()))
             );
         }
 
-        if (ex instanceof NotAcceptableStatusException) {
-            NotAcceptableStatusException detailsEx = (NotAcceptableStatusException)ex;
+        if (ex instanceof NotAcceptableStatusException detailsEx) {
             extraDetailsForLogging.add(
                 Pair.of("supported_media_types", concatenateCollectionToString(detailsEx.getSupportedMediaTypes()))
             );
         }
 
-        if (ex instanceof ServerErrorException) {
-            ServerErrorException detailsEx = (ServerErrorException)ex;
+        if (ex instanceof ServerErrorException detailsEx) {
             extraDetailsForLogging.add(
                 Pair.of("method_parameter", String.valueOf(detailsEx.getMethodParameter()))
             );
@@ -540,15 +535,13 @@ public abstract class OneOffSpringCommonFrameworkExceptionHandlerListener implem
             );
         }
 
-        if (ex instanceof ServerWebInputException) {
-            ServerWebInputException detailsEx = (ServerWebInputException)ex;
+        if (ex instanceof ServerWebInputException detailsEx) {
             extraDetailsForLogging.add(
                 Pair.of("method_parameter", String.valueOf(detailsEx.getMethodParameter()))
             );
         }
 
-        if (ex instanceof UnsupportedMediaTypeStatusException) {
-            UnsupportedMediaTypeStatusException detailsEx = (UnsupportedMediaTypeStatusException)ex;
+        if (ex instanceof UnsupportedMediaTypeStatusException detailsEx) {
             extraDetailsForLogging.add(
                 Pair.of("supported_media_types", concatenateCollectionToString(detailsEx.getSupportedMediaTypes()))
             );
@@ -602,8 +595,7 @@ public abstract class OneOffSpringCommonFrameworkExceptionHandlerListener implem
         @NotNull ResponseStatusException ex, @NotNull String[] exReasonWords, @NotNull String exReason
     ) {
         // Check for an exception type where we can get the info without parsing strings.
-        if (ex instanceof MissingRequestValueException) {
-            MissingRequestValueException detailsEx = (MissingRequestValueException)ex;
+        if (ex instanceof MissingRequestValueException detailsEx) {
             return new RequiredParamData(
                 detailsEx.getName(),
                 extractRequiredTypeNoInfoLeak(detailsEx.getType()),

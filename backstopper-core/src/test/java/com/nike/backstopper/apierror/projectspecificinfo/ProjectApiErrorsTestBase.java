@@ -65,7 +65,7 @@ public abstract class ProjectApiErrorsTestBase {
 
     @Test
     public void determineHighestPriorityHttpStatusCodeShouldReturnNullForEmptyErrorCollection() {
-        assertThat(getProjectApiErrors().determineHighestPriorityHttpStatusCode(Collections.<ApiError>emptyList()), nullValue());
+        assertThat(getProjectApiErrors().determineHighestPriorityHttpStatusCode(Collections.emptyList()), nullValue());
     }
 
     @Test
@@ -200,7 +200,7 @@ public abstract class ProjectApiErrorsTestBase {
 
     @Test(expected = IllegalStateException.class)
     public void verifyErrorsAreInRangeShouldThrowExceptionIfListIncludesNonCoreApiErrorAndRangeIsNull() {
-        ProjectApiErrorsForTesting.withProjectSpecificData(Collections.<ApiError>singletonList(new ApiErrorBase("blah", 99001, "stuff", 400)), null);
+        ProjectApiErrorsForTesting.withProjectSpecificData(Collections.singletonList(new ApiErrorBase("blah", 99001, "stuff", 400)), null);
     }
 
     @Test
@@ -224,7 +224,7 @@ public abstract class ProjectApiErrorsTestBase {
     @Test(expected = IllegalStateException.class)
     public void verifyErrorsAreInRangeShouldThrowExceptionIfListIncludesErrorOutOfRange() {
         ProjectApiErrorsForTesting.withProjectSpecificData(
-            Collections.<ApiError>singletonList(new ApiErrorBase("blah", 1, "stuff", 400)),
+            Collections.singletonList(new ApiErrorBase("blah", 1, "stuff", 400)),
             new ProjectSpecificErrorCodeRange() {
                 @Override
                 public boolean isInRange(ApiError error) {
@@ -305,11 +305,7 @@ public abstract class ProjectApiErrorsTestBase {
         boolean errorCodeMatches = Objects.equals(error1.getErrorCode(), error2.getErrorCode());
         boolean messageMatches = Objects.equals(error1.getMessage(), error2.getMessage());
         boolean httpStatusCodeMatches = error1.getHttpStatusCode() == error2.getHttpStatusCode();
-        if (errorCodeMatches && messageMatches && httpStatusCodeMatches) {
-            return true;
-        }
-
-        return false;
+        return errorCodeMatches && messageMatches && httpStatusCodeMatches;
     }
 
     @Test

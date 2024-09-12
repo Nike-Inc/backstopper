@@ -17,8 +17,8 @@ import static org.assertj.core.api.Assertions.catchThrowable;
  */
 public class NoOpJsr303ValidatorTest {
 
-    private Validator noOpValidator = NoOpJsr303Validator.SINGLETON_IMPL;
-    private FooClass constraintAnnotatedClass = new FooClass();
+    private final Validator noOpValidator = NoOpJsr303Validator.SINGLETON_IMPL;
+    private final FooClass constraintAnnotatedClass = new FooClass();
 
     @Test
     public void validation_methods_return_empty_sets() {

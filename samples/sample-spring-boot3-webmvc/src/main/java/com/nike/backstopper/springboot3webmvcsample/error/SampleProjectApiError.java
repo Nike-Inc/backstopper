@@ -55,14 +55,14 @@ public enum SampleProjectApiError implements ApiError {
 
     SampleProjectApiError(int errorCode, String message, int httpStatusCode) {
         this(new ApiErrorBase(
-            "delegated-to-enum-wrapper-" + UUID.randomUUID().toString(), errorCode, message, httpStatusCode
+            "delegated-to-enum-wrapper-" + UUID.randomUUID(), errorCode, message, httpStatusCode
         ));
     }
 
     @SuppressWarnings("unused")
     SampleProjectApiError(int errorCode, String message, int httpStatusCode, Map<String, Object> metadata) {
         this(new ApiErrorBase(
-            "delegated-to-enum-wrapper-" + UUID.randomUUID().toString(), errorCode, message, httpStatusCode, metadata
+            "delegated-to-enum-wrapper-" + UUID.randomUUID(), errorCode, message, httpStatusCode, metadata
         ));
     }
 

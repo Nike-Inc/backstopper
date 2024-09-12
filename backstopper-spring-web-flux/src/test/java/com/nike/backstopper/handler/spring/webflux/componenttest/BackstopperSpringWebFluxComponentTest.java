@@ -1228,7 +1228,7 @@ public class BackstopperSpringWebFluxComponentTest {
 
         ComponentTestProjectApiError(int errorCode, String message, int httpStatusCode) {
             this(new ApiErrorBase(
-                "delegated-to-enum-wrapper-" + UUID.randomUUID().toString(), errorCode, message, httpStatusCode
+                "delegated-to-enum-wrapper-" + UUID.randomUUID(), errorCode, message, httpStatusCode
             ));
         }
 

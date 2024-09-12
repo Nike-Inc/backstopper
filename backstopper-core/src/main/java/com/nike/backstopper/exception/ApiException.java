@@ -253,9 +253,9 @@ public class ApiException extends RuntimeException {
      */
     @SuppressWarnings("WeakerAccess")
     public static class Builder {
-        private List<ApiError> apiErrors = new ArrayList<>();
-        private List<Pair<String, String>> extraDetailsForLogging = new ArrayList<>();
-        private List<Pair<String, List<String>>> extraResponseHeaders = new ArrayList<>();
+        private final List<ApiError> apiErrors = new ArrayList<>();
+        private final List<Pair<String, String>> extraDetailsForLogging = new ArrayList<>();
+        private final List<Pair<String, List<String>>> extraResponseHeaders = new ArrayList<>();
         private String message;
         private Throwable cause;
         private StackTraceLoggingBehavior stackTraceLoggingBehavior;

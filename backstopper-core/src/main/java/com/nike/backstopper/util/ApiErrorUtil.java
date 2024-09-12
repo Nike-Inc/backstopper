@@ -25,8 +25,7 @@ public class ApiErrorUtil {
     public static boolean isApiErrorEqual(ApiError apiError, Object o) {
         if (apiError == o) return true;
         if (apiError == null) return false;
-        if (o == null || !(o instanceof ApiError)) return false;
-        ApiError that = (ApiError) o;
+        if (o == null || !(o instanceof ApiError that)) return false;
         return apiError.getHttpStatusCode() == that.getHttpStatusCode() &&
                 Objects.equals(apiError.getName(), that.getName()) &&
                 Objects.equals(apiError.getErrorCode(), that.getErrorCode()) &&

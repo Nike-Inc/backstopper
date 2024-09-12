@@ -51,7 +51,7 @@ public class ApiExceptionHandlerUtilsTest {
     private RequestInfoForLogging reqMock;
 
     private static final ProjectApiErrors testProjectApiErrors = ProjectApiErrorsForTesting.withProjectSpecificData(null, null);
-    private ApiExceptionHandlerUtils impl = DEFAULT_IMPL;
+    private final ApiExceptionHandlerUtils impl = DEFAULT_IMPL;
     
     @Before
     public void setupMethod() {
@@ -172,7 +172,7 @@ public class ApiExceptionHandlerUtilsTest {
             when(reqMock.getHeader(fh.headerName)).thenReturn(fh.headerValues.get(0));
         }
 
-        List<ApiError> contributingErrors = Arrays.<ApiError>asList(BarebonesCoreApiErrorForTesting.GENERIC_SERVICE_ERROR, BarebonesCoreApiErrorForTesting.GENERIC_BAD_REQUEST);
+        List<ApiError> contributingErrors = Arrays.asList(BarebonesCoreApiErrorForTesting.GENERIC_SERVICE_ERROR, BarebonesCoreApiErrorForTesting.GENERIC_BAD_REQUEST);
         int httpStatusCodeToUse = testProjectApiErrors.determineHighestPriorityHttpStatusCode(contributingErrors);
         Exception exceptionCause = new Exception();
 
@@ -217,7 +217,7 @@ public class ApiExceptionHandlerUtilsTest {
     @Test
     public void buildErrorMessageForLogsReturnsExpectedStringForMissingDtraceId() {
         verifyBuildErrorMessageForLogs(false, null, null);
-        verifyBuildErrorMessageForLogs(false, null, Arrays.asList(Pair.of("foo", "bar")));
+        verifyBuildErrorMessageForLogs(false, null, List.of(Pair.of("foo", "bar")));
     }
 
     @Test
@@ -316,7 +316,7 @@ public class ApiExceptionHandlerUtilsTest {
 
     @Test
     public void parseSpecificHeaderToStringShouldWorkForHappyPathWithOneHeaderVal() {
-        when(reqMock.getHeaders("foo")).thenReturn(Arrays.asList("fooval"));
+        when(reqMock.getHeaders("foo")).thenReturn(List.of("fooval"));
 
         String result = impl.parseSpecificHeaderToString(reqMock, "foo");
         assertThat(result, is("foo=fooval"));
@@ -341,7 +341,7 @@ public class ApiExceptionHandlerUtilsTest {
 
     @Test
     public void parseSpecificHeaderToStringShouldReturnBlankStringIfHeadersIsEmpty() {
-        when(reqMock.getHeaders("foo")).thenReturn(Collections.<String>emptyList());
+        when(reqMock.getHeaders("foo")).thenReturn(Collections.emptyList());
 
         String result = impl.parseSpecificHeaderToString(reqMock, "foo");
         assertThat(result, is(""));
@@ -360,10 +360,10 @@ public class ApiExceptionHandlerUtilsTest {
     @Test
     public void parseRequestHeadersToStringShouldWorkForHappyPath() {
         when(reqMock.getHeadersMap()).thenReturn(new TreeMap<>(MapBuilder.<String, List<String>>builder()
-                                                           .put("header1", Arrays.asList("h1val"))
+                                                           .put("header1", List.of("h1val"))
                                                            .put("header2", Arrays.asList("h2val1", "h2val2"))
                                                            .build()));
-        when(reqMock.getHeaders("header1")).thenReturn(Arrays.asList("h1val"));
+        when(reqMock.getHeaders("header1")).thenReturn(List.of("h1val"));
         when(reqMock.getHeaders("header2")).thenReturn(Arrays.asList("h2val1", "h2val2"));
 
         String result = impl.parseRequestHeadersToString(reqMock);
@@ -374,11 +374,11 @@ public class ApiExceptionHandlerUtilsTest {
     public void parseRequestHeadersToStringShouldWorkForSpecialHeadersPath() {
         ApiExceptionHandlerUtils customImpl = new ApiExceptionHandlerUtils(true, new HashSet<>(Arrays.asList("Authorization", "X-Some-Alt-Authorization")), null);
         when(reqMock.getHeadersMap()).thenReturn(new TreeMap<>(MapBuilder.<String, List<String>>builder()
-            .put("Authorization", Arrays.asList("secret secret"))
-            .put("X-Some-Alt-Authorization", Arrays.asList("secret1 secret2"))
+            .put("Authorization", List.of("secret secret"))
+            .put("X-Some-Alt-Authorization", List.of("secret1 secret2"))
             .build()));
-        when(reqMock.getHeaders("Authorization")).thenReturn(Arrays.asList("secret secret"));
-        when(reqMock.getHeaders("X-Some-Alt-Authorization")).thenReturn(Arrays.asList("secret1 secret2"));
+        when(reqMock.getHeaders("Authorization")).thenReturn(List.of("secret secret"));
+        when(reqMock.getHeaders("X-Some-Alt-Authorization")).thenReturn(List.of("secret1 secret2"));
 
         String result = customImpl.parseRequestHeadersToString(reqMock);
         assertThat(result, is("Authorization=[MASKED],X-Some-Alt-Authorization=[MASKED]"));
@@ -386,7 +386,7 @@ public class ApiExceptionHandlerUtilsTest {
 
     @Test
     public void parseSpecificHeaderToStringShouldWorkForHeaderValInLowerCase() {
-        when(reqMock.getHeaders("authorization")).thenReturn(Arrays.asList("fooval"));
+        when(reqMock.getHeaders("authorization")).thenReturn(List.of("fooval"));
 
         String result = impl.parseSpecificHeaderToString(reqMock, "authorization");
         assertThat(result, is("authorization=[MASKED]"));
@@ -403,7 +403,7 @@ public class ApiExceptionHandlerUtilsTest {
 
     @Test
     public void parseRequestHeadersToStringShouldReturnBlankStringIfHeaderNamesIsEmpty() {
-        when(reqMock.getHeadersMap()).thenReturn(Collections.<String, List<String>>emptyMap());
+        when(reqMock.getHeadersMap()).thenReturn(Collections.emptyMap());
 
         String result = impl.parseRequestHeadersToString(reqMock);
         assertThat(result, is(""));
@@ -421,13 +421,14 @@ public class ApiExceptionHandlerUtilsTest {
 
     @Test
     public void concatenateErrorCollectionShouldWorkWithOneItemInCollection() {
-        String result = impl.concatenateErrorCollection(Arrays.<ApiError>asList(BarebonesCoreApiErrorForTesting.MISSING_EXPECTED_CONTENT));
+        String result = impl.concatenateErrorCollection(
+            List.of(BarebonesCoreApiErrorForTesting.MISSING_EXPECTED_CONTENT));
         assertThat(result, is("MISSING_EXPECTED_CONTENT"));
     }
 
     @Test
     public void concatenateErrorCollectionShouldWorkWithMultipleItemsInCollection() {
-        String result = impl.concatenateErrorCollection(Arrays.<ApiError>asList(BarebonesCoreApiErrorForTesting.MISSING_EXPECTED_CONTENT, BarebonesCoreApiErrorForTesting.TYPE_CONVERSION_ERROR));
+        String result = impl.concatenateErrorCollection(Arrays.asList(BarebonesCoreApiErrorForTesting.MISSING_EXPECTED_CONTENT, BarebonesCoreApiErrorForTesting.TYPE_CONVERSION_ERROR));
         assertThat(result, is("MISSING_EXPECTED_CONTENT,TYPE_CONVERSION_ERROR"));
     }
 

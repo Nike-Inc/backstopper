@@ -36,7 +36,7 @@ import static org.mockito.Mockito.mock;
 public class DownstreamNetworkExceptionHandlerListenerTest extends ListenerTestBase {
 
     private static final ProjectApiErrors testProjectApiErrors = ProjectApiErrorsForTesting.withProjectSpecificData(null, null);
-    private DownstreamNetworkExceptionHandlerListener listener = new DownstreamNetworkExceptionHandlerListener(testProjectApiErrors);
+    private final DownstreamNetworkExceptionHandlerListener listener = new DownstreamNetworkExceptionHandlerListener(testProjectApiErrors);
 
     private static class HttpClientErrorExceptionForTests extends Exception {
         public final int statusCode;

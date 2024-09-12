@@ -82,7 +82,7 @@ public class ClientDataValidationServiceTest {
     public void shouldDelegateValidateObjectsWithGroupsFailFastCollectionMethodWithEmptyGroups() {
         Object obj1 = new Object();
         Object obj2 = new Object();
-        validationServiceSpy.validateObjectsWithGroupsFailFast(Collections.<Class<?>>emptyList(), obj1, obj2);
+        validationServiceSpy.validateObjectsWithGroupsFailFast(Collections.emptyList(), obj1, obj2);
         verify(validationServiceSpy).validateObjectsWithGroupsFailFast((Class<?>[])null, obj1, obj2);
     }
 
@@ -94,13 +94,13 @@ public class ClientDataValidationServiceTest {
 
     @Test
     public void validateObjectsWithGroupsFailFastShouldDoNothingIfObjectsArrayIsEmpty() {
-        validationServiceSpy.validateObjectsWithGroupsFailFast((Class<?>[])null, new Object[0]);
+        validationServiceSpy.validateObjectsWithGroupsFailFast((Class<?>[])null);
         verifyNoMoreInteractions(validatorMock);
     }
 
     @Test
     public void validateObjectsWithGroupsFailFastShouldValidatePassedInObjectsNoGroups() {
-        given(validatorMock.validate(any(), any(Class[].class))).willReturn(Collections.<ConstraintViolation<Object>>emptySet());
+        given(validatorMock.validate(any(), any(Class[].class))).willReturn(Collections.emptySet());
         Object objToValidate1 = new Object();
         Object objToValidate2 = new Object();
         validationServiceSpy.validateObjectsWithGroupsFailFast((Class<?>[])null, objToValidate1, objToValidate2);
@@ -110,7 +110,7 @@ public class ClientDataValidationServiceTest {
 
     @Test
     public void validateObjectsWithGroupsFailFastShouldValidatePassedInObjectsWithGroups() {
-        given(validatorMock.validate(any(), any(Class[].class))).willReturn(Collections.<ConstraintViolation<Object>>emptySet());
+        given(validatorMock.validate(any(), any(Class[].class))).willReturn(Collections.emptySet());
         Object objToValidate1 = new Object();
         Object objToValidate2 = new Object();
         Class<?>[] groups = new Class<?>[]{Default.class, String.class};
@@ -121,7 +121,7 @@ public class ClientDataValidationServiceTest {
 
     @Test
     public void validateObjectsWithGroupsFailFastShouldNotThrowExceptionIfThereAreNoViolations() {
-        given(validatorMock.validate(any(), any(Class[].class))).willReturn(Collections.<ConstraintViolation<Object>>emptySet());
+        given(validatorMock.validate(any(), any(Class[].class))).willReturn(Collections.emptySet());
         Object objToValidate = new Object();
         validationServiceSpy.validateObjectsWithGroupsFailFast((Class<?>[])null, objToValidate);
         verify(validatorMock).validate(objToValidate);
@@ -129,9 +129,9 @@ public class ClientDataValidationServiceTest {
 
     @Test
     public void validateObjectsWithGroupsFailFastShouldNotValidateNullObjects() {
-        given(validatorMock.validate(any(), any(Class[].class))).willReturn(Collections.<ConstraintViolation<Object>>emptySet());
+        given(validatorMock.validate(any(), any(Class[].class))).willReturn(Collections.emptySet());
         Object objToValidate = new Object();
-        validationServiceSpy.validateObjectsWithGroupsFailFast((Class<?>[])null, new Object[]{objToValidate, null});
+        validationServiceSpy.validateObjectsWithGroupsFailFast((Class<?>[])null, objToValidate, null);
         verify(validatorMock).validate(objToValidate);
         verifyNoMoreInteractions(validatorMock);
     }
@@ -142,10 +142,11 @@ public class ClientDataValidationServiceTest {
         Object objToValidate2 = new Object();
         Object objToValidate3 = new Object();
         Class<?>[] groups = new Class<?>[]{Default.class, String.class};
-        List<ConstraintViolation<Object>> obj1Violations = Arrays.<ConstraintViolation<Object>>asList(mock(ConstraintViolation.class));
-        List<ConstraintViolation<Object>> obj3Violations = Arrays.<ConstraintViolation<Object>>asList(mock(ConstraintViolation.class), mock(ConstraintViolation.class));
+        List<ConstraintViolation<Object>> obj1Violations =
+            Collections.singletonList(mock(ConstraintViolation.class));
+        List<ConstraintViolation<Object>> obj3Violations = Arrays.asList(mock(ConstraintViolation.class), mock(ConstraintViolation.class));
         given(validatorMock.validate(objToValidate1, groups)).willReturn(new HashSet<>(obj1Violations));
-        given(validatorMock.validate(objToValidate2, groups)).willReturn(Collections.<ConstraintViolation<Object>>emptySet());
+        given(validatorMock.validate(objToValidate2, groups)).willReturn(Collections.emptySet());
         given(validatorMock.validate(objToValidate3, groups)).willReturn(new HashSet<>(obj3Violations));
         try {
             validationServiceSpy.validateObjectsWithGroupsFailFast(groups, objToValidate1, objToValidate2, objToValidate3);

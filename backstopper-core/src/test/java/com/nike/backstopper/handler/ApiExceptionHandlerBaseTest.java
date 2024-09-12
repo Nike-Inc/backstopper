@@ -262,9 +262,9 @@ public class ApiExceptionHandlerBaseTest {
 
     @Test
     public void shouldDeduplicateRepeatedErrors() throws UnexpectedMajorExceptionHandlingError {
-        List<ApiError> repeatedErrors = Arrays.<ApiError>asList(testProjectApiErrors.getGenericServiceError(), testProjectApiErrors.getGenericServiceError(), testProjectApiErrors.getGenericServiceError());
+        List<ApiError> repeatedErrors = Arrays.asList(testProjectApiErrors.getGenericServiceError(), testProjectApiErrors.getGenericServiceError(), testProjectApiErrors.getGenericServiceError());
         ErrorResponseInfo<TestDTO> result = handler.maybeHandleException(ApiException.newBuilder().withApiErrors(repeatedErrors).build(), reqMock);
-        validateResponse(result, Arrays.asList((ApiError)testProjectApiErrors.getGenericServiceError()));
+        validateResponse(result, singletonList(testProjectApiErrors.getGenericServiceError()));
     }
 
     @Test
@@ -337,7 +337,8 @@ public class ApiExceptionHandlerBaseTest {
         ApiExceptionHandlerBase<TestDTO> handler = new TestApiExceptionHandler();
         ErrorResponseInfo<TestDTO> result = handler.doHandleApiException(singletonSortedSetOf(CUSTOM_API_ERROR), new ArrayList<Pair<String, String>>(),
                                                                          null, new Exception(), reqMock);
-        assertThat(result.headersToAddToResponse.get("error_uid"), is(Arrays.asList(result.frameworkRepresentationObj.erv.error_id)));
+        assertThat(result.headersToAddToResponse.get("error_uid"), is(
+            singletonList(result.frameworkRepresentationObj.erv.error_id)));
     }
 
     @Test
@@ -629,7 +630,7 @@ public class ApiExceptionHandlerBaseTest {
     }
 
     private static class CustomExceptionOfDoom extends Exception { }
-    private static ApiError CUSTOM_API_ERROR = new ApiErrorBase("CUSTOM_API_ERROR", 99042, "some message", 400);
+    private static final ApiError CUSTOM_API_ERROR = new ApiErrorBase("CUSTOM_API_ERROR", 99042, "some message", 400);
     private static class CustomExceptionOfDoomHandlerListener implements ApiExceptionHandlerListener {
 
         @Override
@@ -652,7 +653,7 @@ public class ApiExceptionHandlerBaseTest {
     @Test
     public void shouldUseCustomHandlerListenersIfSet() throws UnexpectedMajorExceptionHandlingError {
         ErrorResponseInfo<TestDTO> result = handler.maybeHandleException(new CustomExceptionOfDoom(), reqMock);
-        validateResponse(result, Arrays.asList(CUSTOM_API_ERROR));
+        validateResponse(result, singletonList(CUSTOM_API_ERROR));
     }
 
     private static class TestApiExceptionHandler extends ApiExceptionHandlerBase<TestDTO> {

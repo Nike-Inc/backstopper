@@ -116,7 +116,7 @@ public class SpringUnhandledExceptionHandlerTest {
         Exception originalEx = new RuntimeException("kaboom");
         ModelAndView modelAndViewMock = mock(ModelAndView.class);
         ErrorResponseInfo<ModelAndView> handleExceptionResult =
-            new ErrorResponseInfo<>(424, modelAndViewMock, Collections.<String, List<String>>emptyMap());
+            new ErrorResponseInfo<>(424, modelAndViewMock, Collections.emptyMap());
         doReturn(handleExceptionResult).when(handlerSpy).handleException(originalEx, reqMock, responseMock);
 
         // when

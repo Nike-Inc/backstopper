@@ -139,8 +139,7 @@ public class JsonUtilWithDefaultErrorContractDTOSupport {
 
         @Override
         public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov) throws Exception {
-            if (bean instanceof DefaultErrorDTO) {
-                DefaultErrorDTO error = (DefaultErrorDTO) bean;
+            if (bean instanceof DefaultErrorDTO error) {
                 if (error.metadata == null || error.metadata.isEmpty()) {
                     return; // empty metadata. Don't serialize
                 }
@@ -157,8 +156,7 @@ public class JsonUtilWithDefaultErrorContractDTOSupport {
 
         @Override
         public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov) throws Exception {
-            if (bean instanceof DefaultErrorDTO) {
-                DefaultErrorDTO error = (DefaultErrorDTO) bean;
+            if (bean instanceof DefaultErrorDTO error) {
                 try {
                     int codeAsInt = Integer.parseInt(error.code);
                     jgen.writeFieldName(_name);

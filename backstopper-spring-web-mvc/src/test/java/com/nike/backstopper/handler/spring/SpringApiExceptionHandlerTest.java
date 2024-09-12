@@ -37,7 +37,7 @@ public class SpringApiExceptionHandlerTest {
     @Before
     public void beforeMethod() {
         projectApiErrorsMock = mock(ProjectApiErrors.class);
-        listenerList = new ApiExceptionHandlerListenerList(Collections.<ApiExceptionHandlerListener>emptyList());
+        listenerList = new ApiExceptionHandlerListenerList(Collections.emptyList());
         generalUtils = ApiExceptionHandlerUtils.DEFAULT_IMPL;
         springUtils = SpringApiExceptionHandlerUtils.DEFAULT_IMPL;
         handlerSpy = spy(new SpringApiExceptionHandler(projectApiErrorsMock, listenerList, generalUtils, springUtils));

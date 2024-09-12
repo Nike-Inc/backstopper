@@ -336,10 +336,8 @@ public class ClientfacingErrorITest extends BaseSpringEnabledValidationTestCase 
         }
 
         private byte[] responseBodyForDownstreamServiceError() {
-            StringBuilder sb = new StringBuilder();
-            sb.append("{\"result\":\"failure\",\"errorCode\":\"0x00000042\",\"errorMessage\":\"something bad happened\"}");
 
-            return sb.toString().getBytes();
+            return "{\"result\":\"failure\",\"errorCode\":\"0x00000042\",\"errorMessage\":\"something bad happened\"}".getBytes();
         }
 
         @RequestMapping("/throwServerTimeoutException")

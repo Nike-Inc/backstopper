@@ -58,8 +58,7 @@ public class ConventionBasedSpringValidationErrorToApiErrorHandlerListener imple
     @Override
     public ApiExceptionHandlerListenerResult shouldHandleException(Throwable ex) {
 
-        if (ex instanceof Errors) {
-            Errors errEx = (Errors) ex;
+        if (ex instanceof Errors errEx) {
             List<ObjectError> errList = errEx.getAllErrors();
             //noinspection ConstantValue
             if (errList != null && !errList.isEmpty()) {

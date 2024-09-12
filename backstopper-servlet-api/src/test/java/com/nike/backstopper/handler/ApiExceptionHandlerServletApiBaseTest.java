@@ -40,7 +40,7 @@ public class ApiExceptionHandlerServletApiBaseTest {
     @Before
     public void beforeMethod() {
           instanceSpy = spy(new ApiExceptionHandlerServletApiBase<Object>(mock(ProjectApiErrors.class),
-                                                                          Collections.<ApiExceptionHandlerListener>emptyList(),
+                                                                          Collections.emptyList(),
                                                                           ApiExceptionHandlerUtils.DEFAULT_IMPL) {
               @Override
               protected Object prepareFrameworkRepresentation(DefaultErrorContractDTO errorContractDTO, int httpStatusCode, Collection<ApiError> filteredClientErrors,
@@ -62,7 +62,14 @@ public class ApiExceptionHandlerServletApiBaseTest {
 
     @Test
     public void maybeHandleExceptionSetsHeadersAndStatusCodeOnServletResponse() throws UnexpectedMajorExceptionHandlingError {
-        ErrorResponseInfo<?> expectedResponseInfo = new ErrorResponseInfo(42, null, MapBuilder.<String, List<String>>builder().put("header1", Arrays.asList("h1val1")).put("header2", Arrays.asList("h2val1", "h2val2")).build());
+        ErrorResponseInfo<?> expectedResponseInfo = new ErrorResponseInfo(
+            42,
+            null,
+            MapBuilder.<String, List<String>>builder()
+                      .put("header1", List.of("h1val1"))
+                      .put("header2", Arrays.asList("h2val1", "h2val2"))
+                      .build()
+        );
         doReturn(expectedResponseInfo).when(instanceSpy).maybeHandleException(any(Throwable.class), any(RequestInfoForLogging.class));
         instanceSpy.maybeHandleException(new Exception(), servletRequestMock, servletResponseMock);
 

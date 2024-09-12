@@ -38,8 +38,8 @@ public class SpringApiExceptionHandlerUtilsTest extends BaseSpringEnabledValidat
     @Test
     public void generateModelAndViewForErrorResponseShouldGenerateModelAndViewWithErrorContractAsOnlyModelObject() throws JsonProcessingException {
         DefaultErrorContractDTO
-            erv = new DefaultErrorContractDTO("someRequestId", Arrays.<ApiError>asList(BarebonesCoreApiErrorForTesting.NO_ACCEPTABLE_REPRESENTATION,
-                                                                                       BarebonesCoreApiErrorForTesting.UNSUPPORTED_MEDIA_TYPE));
+            erv = new DefaultErrorContractDTO("someRequestId", Arrays.asList(BarebonesCoreApiErrorForTesting.NO_ACCEPTABLE_REPRESENTATION,
+                                                                             BarebonesCoreApiErrorForTesting.UNSUPPORTED_MEDIA_TYPE));
 
         ModelAndView mav = new SpringApiExceptionHandlerUtils().generateModelAndViewForErrorResponse(erv, -1, null, null, null);
         assertThat(mav.getModel().size(), is(1));
