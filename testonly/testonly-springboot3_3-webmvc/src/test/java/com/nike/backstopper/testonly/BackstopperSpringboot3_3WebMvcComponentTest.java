@@ -26,8 +26,8 @@ import java.util.UUID;
 
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
-import serverconfig.classpathscan.Springboot2WebMvcClasspathScanConfig;
-import serverconfig.directimport.Springboot2WebMvcDirectImportConfig;
+import serverconfig.classpathscan.Springboot3_3WebMvcClasspathScanConfig;
+import serverconfig.directimport.Springboot3_3WebMvcDirectImportConfig;
 import testonly.componenttest.spring.reusable.error.SampleProjectApiError;
 import testonly.componenttest.spring.reusable.model.RgbColor;
 import testonly.componenttest.spring.reusable.model.SampleModel;
@@ -39,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static testonly.componenttest.spring.reusable.controller.SampleController.CORE_ERROR_WRAPPER_ENDPOINT_SUBPATH;
 import static testonly.componenttest.spring.reusable.controller.SampleController.SAMPLE_PATH;
 import static testonly.componenttest.spring.reusable.controller.SampleController.TRIGGER_UNHANDLED_ERROR_SUBPATH;
+import static testonly.componenttest.spring.reusable.controller.SampleController.WITH_REQUIRED_HEADER_SUBPATH;
 import static testonly.componenttest.spring.reusable.controller.SampleController.WITH_REQUIRED_QUERY_PARAM_SUBPATH;
 import static testonly.componenttest.spring.reusable.error.SampleProjectApiError.FOO_STRING_CANNOT_BE_BLANK;
 import static testonly.componenttest.spring.reusable.error.SampleProjectApiError.INVALID_RANGE_VALUE;
@@ -48,12 +49,14 @@ import static testonly.componenttest.spring.reusable.testutil.TestUtils.randomiz
 import static testonly.componenttest.spring.reusable.testutil.TestUtils.verifyErrorReceived;
 
 /**
- * Component test to verify that the functionality of {@code backstopper-spring-boot2-webmvc} works as expected in a
- * Spring Boot 2 Web MVC environment, for both classpath-scanning and direct-import Backstopper configuration use cases.
+ * Component test to verify that the functionality of {@code backstopper-spring-boot3-webmvc} works as expected in a
+ * Spring Boot 3.3.x Web MVC environment, for both classpath-scanning and direct-import Backstopper configuration use
+ * cases.
  *
  * @author Nic Munroe
  */
-public class BackstopperSpringboot2WebMvcComponentTest {
+@SuppressWarnings({"ClassEscapesDefinedScope", "NewClassNamingConvention"})
+public class BackstopperSpringboot3_3WebMvcComponentTest {
 
     private static final int CLASSPATH_SCAN_SERVER_PORT = findFreePort();
     private static final int DIRECT_IMPORT_SERVER_PORT = findFreePort();
@@ -66,10 +69,10 @@ public class BackstopperSpringboot2WebMvcComponentTest {
     public static void beforeClass() {
         assertThat(CLASSPATH_SCAN_SERVER_PORT).isNotEqualTo(DIRECT_IMPORT_SERVER_PORT);
         classpathScanServerAppContext = SpringApplication.run(
-            Springboot2WebMvcClasspathScanConfig.class, "--server.port=" + CLASSPATH_SCAN_SERVER_PORT
+            Springboot3_3WebMvcClasspathScanConfig.class, "--server.port=" + CLASSPATH_SCAN_SERVER_PORT
         );
         directImportServerAppContext = SpringApplication.run(
-            Springboot2WebMvcDirectImportConfig.class, "--server.port=" + DIRECT_IMPORT_SERVER_PORT
+            Springboot3_3WebMvcDirectImportConfig.class, "--server.port=" + DIRECT_IMPORT_SERVER_PORT
         );
     }
 
@@ -408,7 +411,7 @@ public class BackstopperSpringboot2WebMvcComponentTest {
 
     @EnumSource(ServerScenario.class)
     @ParameterizedTest
-    public void verify_MALFORMED_REQUEST_is_thrown_when_required_data_is_missing(
+    public void verify_MALFORMED_REQUEST_is_thrown_when_required_query_param_is_missing(
         ServerScenario scenario
     ) {
         ExtractableResponse<?> response =
@@ -427,15 +430,16 @@ public class BackstopperSpringboot2WebMvcComponentTest {
             response,
             new ApiErrorWithMetadata(
                 SampleCoreApiError.MALFORMED_REQUEST,
+                Pair.of("missing_param_name", "requiredQueryParamValue"),
                 Pair.of("missing_param_type", "int"),
-                Pair.of("missing_param_name", "requiredQueryParamValue")
+                Pair.of("required_location", "query_param")
             )
         );
     }
 
     @EnumSource(ServerScenario.class)
     @ParameterizedTest
-    public void verify_TYPE_CONVERSION_ERROR_is_thrown_when_framework_cannot_convert_type(
+    public void verify_TYPE_CONVERSION_ERROR_is_thrown_when_framework_cannot_convert_type_for_query_param(
         ServerScenario scenario
     ) {
         ExtractableResponse<?> response =
@@ -453,8 +457,65 @@ public class BackstopperSpringboot2WebMvcComponentTest {
 
         verifyErrorReceived(response, new ApiErrorWithMetadata(
             SampleCoreApiError.TYPE_CONVERSION_ERROR,
-            MapBuilder.builder("bad_property_name", (Object)"requiredQueryParamValue")
-                      .put("bad_property_value", "not-an-integer")
+            MapBuilder.builder("bad_property_name", (Object) "requiredQueryParamValue")
+                      .put("bad_property_value","not-an-integer")
+                      .put("required_location","query_param")
+                      .put("required_type", "int")
+                      .build()
+        ));
+    }
+
+    @EnumSource(ServerScenario.class)
+    @ParameterizedTest
+    public void verify_MALFORMED_REQUEST_is_thrown_when_required_header_is_missing(
+        ServerScenario scenario
+    ) {
+        ExtractableResponse<?> response =
+            given()
+                .baseUri("http://localhost")
+                .port(scenario.serverPort)
+                .basePath(SAMPLE_PATH + WITH_REQUIRED_HEADER_SUBPATH)
+                .log().all()
+                .when()
+                .get()
+                .then()
+                .log().all()
+                .extract();
+
+        verifyErrorReceived(
+            response,
+            new ApiErrorWithMetadata(
+                SampleCoreApiError.MALFORMED_REQUEST,
+                Pair.of("missing_param_name", "requiredHeaderValue"),
+                Pair.of("missing_param_type", "int"),
+                Pair.of("required_location", "header")
+            )
+        );
+    }
+
+    @EnumSource(ServerScenario.class)
+    @ParameterizedTest
+    public void verify_TYPE_CONVERSION_ERROR_is_thrown_when_framework_cannot_convert_type_for_header(
+        ServerScenario scenario
+    ) {
+        ExtractableResponse<?> response =
+            given()
+                .baseUri("http://localhost")
+                .port(scenario.serverPort)
+                .basePath(SAMPLE_PATH + WITH_REQUIRED_HEADER_SUBPATH)
+                .header("requiredHeaderValue", "not-an-integer")
+                .log().all()
+                .when()
+                .get()
+                .then()
+                .log().all()
+                .extract();
+
+        verifyErrorReceived(response, new ApiErrorWithMetadata(
+            SampleCoreApiError.TYPE_CONVERSION_ERROR,
+            MapBuilder.builder("bad_property_name", (Object) "requiredHeaderValue")
+                      .put("bad_property_value","not-an-integer")
+                      .put("required_location","header")
                       .put("required_type", "int")
                       .build()
         ));

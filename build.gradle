@@ -89,6 +89,9 @@ ext {
     spring6_0Version = '6.0.23' // Compatible with Jakarta EE 9/10
     spring6_1Version = '6.1.12' // Compatible with Jakarta EE 9/10
     springSecurityVersion = '6.1.9' // Closest spring security version to our pinned spring6_0Version, but without going over to avoid versions being transitively bumped above what we want for testing.
+    springboot3_0Version = '3.0.13'
+    springboot3_1Version = '3.1.12'
+    springboot3_2Version = '3.2.9'
     springboot3_3Version = '3.3.3'
     jersey1Version = '1.19.2'
     jersey2Version = '2.23.2'

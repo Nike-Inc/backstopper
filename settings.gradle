@@ -12,11 +12,10 @@ include "nike-internal-util",
         "backstopper-spring-web-flux",
         "backstopper-spring-boot3-webmvc",
         // Test-only modules (not published)
-        "testonly:testonly-spring-reusable-test-support",
+        "testonly:testonly-spring-webmvc-reusable-test-support",
         "testonly:testonly-spring-6_0-webmvc",
         "testonly:testonly-spring-6_1-webmvc",
-//        "testonly:testonly-springboot2-webmvc",
-//        "testonly:testonly-springboot2-webflux",
+        "testonly:testonly-springboot3_3-webmvc",
         // Sample modules (not published)
         "samples:sample-spring-web-mvc",
         "samples:sample-spring-boot3-webmvc",

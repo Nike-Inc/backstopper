@@ -8,9 +8,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.Ordered;
 
-import javax.validation.Validation;
-import javax.validation.Validator;
-
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import testonly.componenttest.spring.reusable.error.SampleProjectApiErrorsImpl;
 import testonly.componenttest.spring.reusable.testutil.ExplodingServletFilter;
 
@@ -27,7 +26,8 @@ import testonly.componenttest.spring.reusable.testutil.ExplodingServletFilter;
     // Component scan the controller.
     "testonly.componenttest.spring.reusable.controller"
 })
-public class Springboot2WebMvcClasspathScanConfig {
+@SuppressWarnings("unused")
+public class Springboot3_3WebMvcClasspathScanConfig {
 
     @Bean
     public ProjectApiErrors getProjectApiErrors() {
@@ -36,12 +36,13 @@ public class Springboot2WebMvcClasspathScanConfig {
 
     @Bean
     public Validator getJsr303Validator() {
+        //noinspection resource
         return Validation.buildDefaultValidatorFactory().getValidator();
     }
 
     @Bean
-    public FilterRegistrationBean explodingServletFilter() {
-        FilterRegistrationBean frb = new FilterRegistrationBean<>(new ExplodingServletFilter());
+    public FilterRegistrationBean<?> explodingServletFilter() {
+        FilterRegistrationBean<?> frb = new FilterRegistrationBean<>(new ExplodingServletFilter());
         frb.setOrder(Ordered.HIGHEST_PRECEDENCE);
         return frb;
     }
