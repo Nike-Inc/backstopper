@@ -9,7 +9,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
-
 import testonly.componenttest.spring.reusable.error.SampleProjectApiErrorsImpl;
 
 /**

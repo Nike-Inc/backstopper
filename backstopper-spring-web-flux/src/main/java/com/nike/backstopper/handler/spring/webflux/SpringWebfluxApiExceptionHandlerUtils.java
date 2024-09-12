@@ -12,7 +12,6 @@ import java.util.Collection;
 
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
-
 import reactor.core.publisher.Mono;
 
 /**

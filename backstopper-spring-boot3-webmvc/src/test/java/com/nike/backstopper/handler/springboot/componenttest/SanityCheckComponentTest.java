@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import io.restassured.response.ExtractableResponse;
 import jakarta.inject.Singleton;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -48,8 +49,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
-
-import io.restassured.response.ExtractableResponse;
 
 import static com.nike.backstopper.handler.springboot.componenttest.SanityCheckComponentTest.SanityCheckController.ERROR_THROWING_ENDPOINT_PATH;
 import static com.nike.backstopper.handler.springboot.componenttest.SanityCheckComponentTest.SanityCheckController.NON_ERROR_ENDPOINT_PATH;

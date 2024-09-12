@@ -4,11 +4,10 @@ import com.nike.backstopper.apierror.ApiError;
 import com.nike.backstopper.apierror.sample.SampleCoreApiError;
 import com.nike.backstopper.validation.constraints.StringConvertsToClassType;
 
-import jakarta.validation.constraints.NotBlank;
 import org.hibernate.validator.constraints.Range;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
 import testonly.componenttest.spring.reusable.error.SampleProjectApiError;
 import testonly.componenttest.spring.reusable.error.SampleProjectApiErrorsImpl;
 
