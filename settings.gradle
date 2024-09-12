@@ -20,6 +20,8 @@ include "nike-internal-util",
         "testonly:testonly-springboot3_0-webflux",
         "testonly:testonly-springboot3_1-webmvc",
         "testonly:testonly-springboot3_1-webflux",
+        "testonly:testonly-springboot3_2-webmvc",
+        "testonly:testonly-springboot3_2-webflux",
         "testonly:testonly-springboot3_3-webmvc",
         "testonly:testonly-springboot3_3-webflux",
         // Sample modules (not published)
