@@ -1,0 +1,22 @@
+evaluationDependsOn(':')
+
+test {
+    useJUnitPlatform()
+}
+
+dependencies {
+    compileOnly(
+            project(":backstopper-spring-web-flux"),
+            project(":backstopper-custom-validators"),
+            "org.springframework:spring-context:$spring6_0Version",
+            "org.springframework:spring-webflux:$spring6_0Version",
+            "org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion",
+            "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
+            "io.rest-assured:rest-assured:$restAssuredVersion",
+            "org.assertj:assertj-core:$assertJVersion",
+    )
+    testImplementation(
+            project(":backstopper-reusable-tests-junit5"),
+            "org.springframework:spring-webflux:$spring6_0Version",
+    )
+}
