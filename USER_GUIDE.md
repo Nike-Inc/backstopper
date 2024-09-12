@@ -1,15 +1,21 @@
 # Backstopper User Guide
 
-**Backstopper is a framework-agnostic API error handling and (optional) model validation solution for Java 7 and
+**Backstopper is a framework-agnostic API error handling and (optional) model validation solution for Java 17 and
 greater.**
+
+(NOTE: The [Backstopper 1.x branch](https://github.com/Nike-Inc/backstopper/tree/v1.x) contains a version of
+Backstopper for Java 7+, and for the `javax` ecosystem. The current Backstopper supports Java 17+ and the `jakarta`
+ecosystem. The Backstopper 1.x releases also contain support for JAX-RS 2, Jersey 1 and 2, Spring 4 and 5, and
+Springboot 1 and 2 - see
+[here](https://github.com/Nike-Inc/backstopper/tree/v1.x?tab=readme-ov-file#framework_modules).)
 
 The [base project README](README.md) covers Backstopper at a surface level, including:
 
 * [Overview](README.md#overview)
+* [Quickstart](README.md#quickstart).
 * Repository library modules (both [general](README.md#general_modules)
   and [framework-specific](README.md#framework_modules))
 * Framework-specific [sample applications](README.md#samples)
-* [Quickstart](README.md#quickstart).
 
 This User Guide is for a more in-depth exploration of Backstopper.
 
@@ -19,13 +25,12 @@ This User Guide is for a more in-depth exploration of Backstopper.
 
 * [Backstopper Key Components](#key_components)
 * [JSR 303 Bean Validation Support](#jsr_303_support)
-    * [Enabling Basic JSR 303 Validation](#jsr_303_basic_setup)
+    * [Enabling Basic JSR 303 Bean Validation](#jsr_303_basic_setup)
     * [Throwing JSR 303 Violations in a Backstopper-Compatible Way](#backstopper_compatible_jsr_303_exceptions)
     * [Backstopper Conventions for JSR 303 Bean Validation Support](#jsr303_conventions)
 * [Reusable Unit Tests for Enforcing Backstopper Rules and Conventions](#reusable_tests)
     * [Unit Tests to Guarantee JSR 303 Annotation Message Naming Convention Conformance](#setup_jsr303_convention_unit_tests)
-    * [Unit Test to Verify Your
-      `ProjectApiErrors` Instance Conforms to Requirements](#setup_project_api_errors_unit_test)
+    * [Unit Test to Verify Your `ProjectApiErrors` Instance Conforms to Requirements](#setup_project_api_errors_unit_test)
 * [Creating New Framework Integrations](#new_framework_integrations)
     * [New Framework Integration Pseudocode](#new_framework_pseudocode)
     * [Pseudocode Explanation and Further Details](#new_framework_pseudocode_explanation)
@@ -133,29 +138,33 @@ grounding for further exploration.
 ## JSR 303 Bean Validation Support
 
 Guaranteeing that JSR 303 Bean Validation violations *will* map to a specific API error (represented by the `ApiError`
-values returned by each project's `ProjectApiErrors` instance) is one of the major benefits of Backstopper. It requires
-throwing an exception that Backstopper knows how to handle that wraps the JSR 303 constraint violations, following a
-specific message naming convention when declaring constraint annotations, and to be safe you should set up a few unit
-tests that will catch any JSR 303 constraint annotation declarations that don't conform to the naming convention due to
-typos, copy-paste errors, or any other reason. The following sections cover these concerns and describe how to enable
-JSR 303 Bean Validation support in Backstopper.
+values returned by each project's `ProjectApiErrors` instance) is one of the major benefits of Backstopper. Meeting 
+this guarantee requires:
+
+1. Throwing an exception that Backstopper knows how to handle that wraps the JSR 303 constraint violations.
+2. Following a specific message naming convention when declaring constraint annotations.
+3. Setting up a few unit tests that will catch any JSR 303 constraint annotation declarations that 
+   don't conform to the naming convention due to typos, copy-paste errors, or any other reason. 
+
+The following sections cover these concerns and describe how to enable JSR 303 Bean Validation support in Backstopper.
 
 (Note that JSR 303 integration is optional - you can successfully run Backstopper in an environment that does not
-include any JSR 303 support and it will work just fine.)
+include any JSR 303 support, and it will work just fine.)
 
 <a name="jsr_303_basic_setup"></a>
 
-### Enabling Basic JSR 303 Validation
+### Enabling Basic JSR 303 Bean Validation
 
-Enabling JSR 303 in your application is outside the scope of this User Guide - different containers and frameworks set
-it up in different ways and may depend on the JSR 303 implementation you're using. It is usually not too difficult -
-consult your framework's docs and google for tutorials and examples to see if your framework has built-in JSR 303
-support (if it does and we already have a [sample application](README.md#samples) for your framework you can consult the
-sample app for an example on how to enable and use the JSR 303 support in Backstopper for that framework).
+Enabling JSR 303 Bean Validation in your application is outside the scope of this User Guide - different containers and 
+frameworks set it up in different ways and may depend on the JSR 303 implementation you're using. It is usually not 
+too difficult - consult your framework's docs and google for tutorials and examples to see if your framework has 
+built-in JSR 303 support (if it does and we already have a [sample application](README.md#samples) for your 
+framework you can consult the sample app for an example on how to enable and use the JSR 303 support in Backstopper 
+for that framework).
 
 In the worst case you can always manually create a `jakarta.validation.Validator` and use `ClientDataValidationService`
-to validate your objects. Just make sure a JSR 303 implementation library is on your classpath (
-e.g. [Hibernate Validator](http://hibernate.org/validator/) or [Apache BVal](http://bval.apache.org/)) and call
+to validate your objects. Just make sure a JSR 303 implementation library is on your classpath (e.g. 
+[Hibernate Validator](http://hibernate.org/validator/)) and call 
 `jakarta.validation.Validation.buildDefaultValidatorFactory().getValidator()`. `Validator` is thread safe so you only
 technically have to create one and can share it around.
 
@@ -368,8 +377,10 @@ private MyFrameworkUnhandledExceptionHandler unhandledExceptionHandler;
  * This is some bottleneck location in the framework where errors (hopefully all of them) are guaranteed 
  * to pass through as they are converted into responses for the caller.
  */
-public MyFrameworkResponseObj frameworkErrorHandlingBottleneck(Throwable ex, 
-                                                               MyFrameworkRequestObj request) {
+public MyFrameworkResponseObj frameworkErrorHandlingBottleneck(
+    Throwable ex, 
+    MyFrameworkRequestObj request
+) {
     // Try the known exception handler first.
     try {
         ErrorResponseInfo<MyFrameworkPayloadObj> errorResponseInfo =
@@ -419,12 +430,11 @@ The main trick with creating a new framework integration for Backstopper is find
 where errors pass through before they are converted to a response for the caller. The fictional
 `frameworkErrorHandlingBottleneck(...)` method from the pseudocode represents this bottleneck. If you can't limit it to
 one spot in your actual framework then you'll need to perform similar actions in all places where errors are converted
-to caller responses. Hopefully there is only a small handful of these locations. Containers (e.g. servlet containers
-that run applications as WAR artifacts) are often contributors to this problem since they may try to detect and return
-some errors to the caller before your application framework has even seen the request, so it's not uncommon to need two
-Backstopper integrations - one for your framework and another for your container - at least if you want to guarantee
-Backstopper handling of *all* errors. If you have the option for the container to forward errors to the framework that
-is often a reasonable solution.
+to caller responses. Hopefully there is only a small handful of these locations. Containers (e.g. servlet containers)
+are often contributors to this problem since they may try to detect and return some errors to the caller before your 
+application framework has even seen the request, so it's not uncommon to need two Backstopper integrations - one for 
+your framework and another for your container - at least if you want to guarantee Backstopper handling of *all* 
+errors. If you have the option for the container to forward errors to the framework that is often a reasonable solution.
 
 Different frameworks have different error handling solutions so you may need to explore how best to hook into your
 framework's error handling system. For example Spring Web MVC has the concept of `HandlerExceptionResolver` - a series
@@ -434,8 +444,9 @@ integration has `ApiExceptionHandlerBase` and `UnhandledExceptionHandlerBase` im
 `HandlerExceptionResolver`, and individual projects are configured so that the Backstopper handlers are attempted before
 any built-in Spring Web MVC handlers in order to guarantee that Backstopper handles all errors. Jersey's error handling
 system on the other hand uses `ExceptionMapper`s to associate exception types with specific handlers. Since we want to
-associate *all* errors with Backstopper this means the Jersey/Backstopper framework integration specifies a single
-`ExceptionMapper` that handles all `Throwable`s, and that single `ExceptionMapper` coordinates the execution of
+associate *all* errors with Backstopper this means the Jersey/Backstopper framework integration (in the
+[Backstopper 1.x branch](https://github.com/Nike-Inc/backstopper/tree/v1.x)) specifies a single `ExceptionMapper` 
+that handles all `Throwable`s, and that single `ExceptionMapper` coordinates the execution of 
 `ApiExceptionHandlerBase` and `UnhandledExceptionHandlerBase`, looking much more like the pseudocode above than the
 Spring Web MVC integration.
 
@@ -453,7 +464,8 @@ quickly and easily without defining much beyond registering their `ProjectApiErr
 easy for projects to override default behavior if necessary (e.g. add custom `ApiExceptionHandlerListener`s, use a
 different `ApiExceptionHandlerUtils` to modify how errors are logged, override methods on your framework's
 `ApiExceptionHandlerBase` and `UnhandledExceptionHandlerBase` if necessary, etc). See `BackstopperSpringWebMvcConfig`
-and `Jersey2BackstopperConfigHelper` for good examples.
+and `Jersey2BackstopperConfigHelper` (in the 
+[Backstopper 1.x branch](https://github.com/Nike-Inc/backstopper/tree/v1.x)) for good examples.
 
 [[back to table of contents]][toc]
 
@@ -477,7 +489,7 @@ yourself redoing that process over and over whenever changing frameworks (or som
 Backstopper provides a set of libraries to make this process easy and replicable regardless of what framework your API
 is running in.
 
-Furthermore it integrates seamlessly with the JSR 303 (a.k.a. Bean Validation) specification - the standard Java method
+Furthermore it integrates seamlessly with the JSR 303 (a.k.a. Bean Validation) specification - the standard Java system
 for validating objects. JSR 303 Bean Validation is generally easy to use, easy to understand, and is widely integrated
 into a variety of frameworks (or you can use it independently in a standalone way). You get to see the validation
 constraints in the model objects themselves without it getting in the way, and it's easy to create new constraint
@@ -522,7 +534,7 @@ and integrate a few [reusable unit tests](#reusable_tests) into your Backstopper
       want to adjust Backstopper behavior you can usually determine where the hooks are and how to change things just by
       using breakpoints and exploring the code.
     * No need to refer to documentation for everything - the code and javadocs are usually sufficient.
-* It should be easy to add integration for new frameworks.
+* It should be easy to add an integration for new frameworks.
     * The core Backstopper functionality is free of framework dependencies and designed with hooks so that framework
       integrations can be as lightweight as possible.
 
@@ -532,8 +544,8 @@ and integrate a few [reusable unit tests](#reusable_tests) into your Backstopper
 
 ### Backstopper Key Philosophies
 
-Backstopper was based in large part on common elements found in the error contracts of API industry leaders circa 2014 (
-e.g. Facebook, Twitter, and others), and was therefore built with a few philosophies in mind. These are general
+Backstopper was based in large part on common elements found in the error contracts of API industry leaders circa 2014 
+(e.g. Facebook, Twitter, and others), and was therefore built with a few philosophies in mind. These are general
 guidelines - not everyone will agree with these ideas and there will always be legitimate exceptions even if you do
 agree. Therefore Backstopper should have hooks to allow you to override any of this behavior; if you notice an area
 where it's not possible to override the default behavior please file an issue and we'll see if there's a way to address
@@ -541,7 +553,7 @@ it.
 
 * There should be a common error contract for *all* errors. APIs are intended to be used programmatically by callers,
   and changing contracts for different error types, HTTP status codes, etc, makes that programmatic integration more
-  difficult and error prone. Metadata and optional information can be added or removed at will, but the core error
+  difficult and error-prone. Metadata and optional information can be added or removed at will, but the core error
   contract should be static.
     * Since some error responses might need to contain multiple individual errors (e.g. validation of a request payload
       that contains multiple problems), the error contract should include an array of individual errors.
