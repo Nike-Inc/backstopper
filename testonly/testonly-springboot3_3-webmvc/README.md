@@ -8,7 +8,7 @@ ecosystem. The Backstopper 1.x releases also contain support for Spring 4 and 5,
 
 This submodule contains tests to verify that the 
 [backstopper-spring-boot3-webmvc](../../backstopper-spring-boot3-webmvc) module's functionality works as expected in 
-Spring Boot 3.3 Web MVC (Servlet) environments, for both classpath-scanning and direct-import Backstopper configuration 
+Spring Boot 3.3.x Web MVC (Servlet) environments, for both classpath-scanning and direct-import Backstopper configuration 
 use cases.
 
 ## More Info

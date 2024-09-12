@@ -27,8 +27,8 @@ import java.util.UUID;
 
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
-import serverconfig.classpathscan.Springboot3_3WebFluxClasspathScanConfig;
-import serverconfig.directimport.Springboot3_3WebFluxDirectImportConfig;
+import serverconfig.classpathscan.Springboot3_0WebFluxClasspathScanConfig;
+import serverconfig.directimport.Springboot3_0WebFluxDirectImportConfig;
 import testonly.componenttest.spring.reusable.error.SampleProjectApiError;
 import testonly.componenttest.spring.reusable.model.RgbColor;
 import testonly.componenttest.spring.reusable.model.SampleModel;
@@ -55,13 +55,13 @@ import static testonly.componenttest.spring.reusable.testutil.TestUtils.verifyEr
 
 /**
  * Component test to verify that the functionality of {@code backstopper-spring-web-flux} works as expected in a
- * Spring Boot 3.3.x WebFlux environment, for both classpath-scanning and direct-import Backstopper configuration use
+ * Spring Boot 3.0.x WebFlux environment, for both classpath-scanning and direct-import Backstopper configuration use
  * cases.
  *
  * @author Nic Munroe
  */
 @SuppressWarnings({"NewClassNamingConvention", "ClassEscapesDefinedScope"})
-public class BackstopperSpringboot3_3WebFluxComponentTest {
+public class BackstopperSpringboot3_0WebFluxComponentTest {
 
     private static final int CLASSPATH_SCAN_SERVER_PORT = findFreePort();
     private static final int DIRECT_IMPORT_SERVER_PORT = findFreePort();
@@ -74,10 +74,10 @@ public class BackstopperSpringboot3_3WebFluxComponentTest {
     public static void beforeClass() {
         assertThat(CLASSPATH_SCAN_SERVER_PORT).isNotEqualTo(DIRECT_IMPORT_SERVER_PORT);
         classpathScanServerAppContext = SpringApplication.run(
-            Springboot3_3WebFluxClasspathScanConfig.class, "--server.port=" + CLASSPATH_SCAN_SERVER_PORT
+            Springboot3_0WebFluxClasspathScanConfig.class, "--server.port=" + CLASSPATH_SCAN_SERVER_PORT
         );
         directImportServerAppContext = SpringApplication.run(
-            Springboot3_3WebFluxDirectImportConfig.class, "--server.port=" + DIRECT_IMPORT_SERVER_PORT
+            Springboot3_0WebFluxDirectImportConfig.class, "--server.port=" + DIRECT_IMPORT_SERVER_PORT
         );
     }
 
@@ -623,8 +623,8 @@ public class BackstopperSpringboot3_3WebFluxComponentTest {
 
         verifyErrorReceived(response, new ApiErrorWithMetadata(
             SampleCoreApiError.TYPE_CONVERSION_ERROR,
-            MapBuilder.builder("bad_property_name", (Object) "requiredQueryParamValue")
-                      .put("bad_property_value","not-an-integer")
+            // Springboot 3.0.x and 3.1.x WebFlux do not include the property name, so we can't check for them here.
+            MapBuilder.builder("bad_property_value",(Object)"not-an-integer")
                       .put("required_location","query_param")
                       .put("required_type", "int")
                       .build()
@@ -679,8 +679,8 @@ public class BackstopperSpringboot3_3WebFluxComponentTest {
 
         verifyErrorReceived(response, new ApiErrorWithMetadata(
             SampleCoreApiError.TYPE_CONVERSION_ERROR,
-            MapBuilder.builder("bad_property_name", (Object) "requiredHeaderValue")
-                      .put("bad_property_value","not-an-integer")
+            // Springboot 3.0.x and 3.1.x WebFlux do not include the property name, so we can't check for them here.
+            MapBuilder.builder("bad_property_value",(Object)"not-an-integer")
                       .put("required_location","header")
                       .put("required_type", "int")
                       .build()

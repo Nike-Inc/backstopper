@@ -7,7 +7,6 @@ import com.nike.internal.util.MapBuilder;
 import com.nike.internal.util.Pair;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.AfterAll;
@@ -27,8 +26,8 @@ import java.util.UUID;
 
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
-import serverconfig.classpathscan.Springboot3_3WebFluxClasspathScanConfig;
-import serverconfig.directimport.Springboot3_3WebFluxDirectImportConfig;
+import serverconfig.classpathscan.Springboot3_0WebMvcClasspathScanConfig;
+import serverconfig.directimport.Springboot3_0WebMvcDirectImportConfig;
 import testonly.componenttest.spring.reusable.error.SampleProjectApiError;
 import testonly.componenttest.spring.reusable.model.RgbColor;
 import testonly.componenttest.spring.reusable.model.SampleModel;
@@ -37,15 +36,11 @@ import static com.nike.internal.util.testing.TestUtils.findFreePort;
 import static io.restassured.RestAssured.given;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static testonly.componenttest.spring.reusable.controller.SampleWebFluxController.CORE_ERROR_WRAPPER_ENDPOINT_SUBPATH;
-import static testonly.componenttest.spring.reusable.controller.SampleWebFluxController.FLUX_ERROR_SUBPATH;
-import static testonly.componenttest.spring.reusable.controller.SampleWebFluxController.MONO_ERROR_SUBPATH;
-import static testonly.componenttest.spring.reusable.controller.SampleWebFluxController.SAMPLE_FLUX_SUBPATH;
-import static testonly.componenttest.spring.reusable.controller.SampleWebFluxController.SAMPLE_FROM_ROUTER_FUNCTION_PATH;
-import static testonly.componenttest.spring.reusable.controller.SampleWebFluxController.SAMPLE_PATH;
-import static testonly.componenttest.spring.reusable.controller.SampleWebFluxController.TRIGGER_UNHANDLED_ERROR_SUBPATH;
-import static testonly.componenttest.spring.reusable.controller.SampleWebFluxController.WITH_REQUIRED_HEADER_SUBPATH;
-import static testonly.componenttest.spring.reusable.controller.SampleWebFluxController.WITH_REQUIRED_QUERY_PARAM_SUBPATH;
+import static testonly.componenttest.spring.reusable.controller.SampleController.CORE_ERROR_WRAPPER_ENDPOINT_SUBPATH;
+import static testonly.componenttest.spring.reusable.controller.SampleController.SAMPLE_PATH;
+import static testonly.componenttest.spring.reusable.controller.SampleController.TRIGGER_UNHANDLED_ERROR_SUBPATH;
+import static testonly.componenttest.spring.reusable.controller.SampleController.WITH_REQUIRED_HEADER_SUBPATH;
+import static testonly.componenttest.spring.reusable.controller.SampleController.WITH_REQUIRED_QUERY_PARAM_SUBPATH;
 import static testonly.componenttest.spring.reusable.error.SampleProjectApiError.FOO_STRING_CANNOT_BE_BLANK;
 import static testonly.componenttest.spring.reusable.error.SampleProjectApiError.INVALID_RANGE_VALUE;
 import static testonly.componenttest.spring.reusable.error.SampleProjectApiError.NOT_RGB_COLOR_ENUM;
@@ -54,14 +49,14 @@ import static testonly.componenttest.spring.reusable.testutil.TestUtils.randomiz
 import static testonly.componenttest.spring.reusable.testutil.TestUtils.verifyErrorReceived;
 
 /**
- * Component test to verify that the functionality of {@code backstopper-spring-web-flux} works as expected in a
- * Spring Boot 3.3.x WebFlux environment, for both classpath-scanning and direct-import Backstopper configuration use
+ * Component test to verify that the functionality of {@code backstopper-spring-boot3-webmvc} works as expected in a
+ * Spring Boot 3.0.x Web MVC environment, for both classpath-scanning and direct-import Backstopper configuration use
  * cases.
  *
  * @author Nic Munroe
  */
-@SuppressWarnings({"NewClassNamingConvention", "ClassEscapesDefinedScope"})
-public class BackstopperSpringboot3_3WebFluxComponentTest {
+@SuppressWarnings({"ClassEscapesDefinedScope", "NewClassNamingConvention"})
+public class BackstopperSpringboot3_0WebMvcComponentTest {
 
     private static final int CLASSPATH_SCAN_SERVER_PORT = findFreePort();
     private static final int DIRECT_IMPORT_SERVER_PORT = findFreePort();
@@ -74,10 +69,10 @@ public class BackstopperSpringboot3_3WebFluxComponentTest {
     public static void beforeClass() {
         assertThat(CLASSPATH_SCAN_SERVER_PORT).isNotEqualTo(DIRECT_IMPORT_SERVER_PORT);
         classpathScanServerAppContext = SpringApplication.run(
-            Springboot3_3WebFluxClasspathScanConfig.class, "--server.port=" + CLASSPATH_SCAN_SERVER_PORT
+            Springboot3_0WebMvcClasspathScanConfig.class, "--server.port=" + CLASSPATH_SCAN_SERVER_PORT
         );
         directImportServerAppContext = SpringApplication.run(
-            Springboot3_3WebFluxDirectImportConfig.class, "--server.port=" + DIRECT_IMPORT_SERVER_PORT
+            Springboot3_0WebMvcDirectImportConfig.class, "--server.port=" + DIRECT_IMPORT_SERVER_PORT
         );
     }
 
@@ -117,17 +112,13 @@ public class BackstopperSpringboot3_3WebFluxComponentTest {
 
         assertThat(response.statusCode()).isEqualTo(200);
         SampleModel responseBody = objectMapper.readValue(response.asString(), SampleModel.class);
-        verifyNewSampleModel(responseBody);
-    }
-
-    private void verifyNewSampleModel(SampleModel sampleModel) {
-        assertThat(sampleModel).isNotNull();
-        assertThat(sampleModel.foo).isNotEmpty();
-        assertThat(sampleModel.range_0_to_42).isNotEmpty();
-        assertThat(Integer.parseInt(sampleModel.range_0_to_42)).isBetween(0, 42);
-        assertThat(sampleModel.rgb_color).isNotEmpty();
-        assertThat(RgbColor.toRgbColor(sampleModel.rgb_color)).isNotNull();
-        assertThat(sampleModel.throw_manual_error).isFalse();
+        assertThat(responseBody).isNotNull();
+        assertThat(responseBody.foo).isNotEmpty();
+        assertThat(responseBody.range_0_to_42).isNotEmpty();
+        assertThat(Integer.parseInt(responseBody.range_0_to_42)).isBetween(0, 42);
+        assertThat(responseBody.rgb_color).isNotEmpty();
+        assertThat(RgbColor.toRgbColor(responseBody.rgb_color)).isNotNull();
+        assertThat(responseBody.throw_manual_error).isFalse();
     }
 
     @EnumSource(ServerScenario.class)
@@ -157,50 +148,6 @@ public class BackstopperSpringboot3_3WebFluxComponentTest {
         assertThat(responseBody.range_0_to_42).isEqualTo(requestPayload.range_0_to_42);
         assertThat(responseBody.rgb_color).isEqualTo(requestPayload.rgb_color);
         assertThat(responseBody.throw_manual_error).isEqualTo(requestPayload.throw_manual_error);
-    }
-
-    @EnumSource(ServerScenario.class)
-    @ParameterizedTest
-    public void verify_router_function_sample_get(ServerScenario scenario) throws IOException {
-        ExtractableResponse<?> response =
-            given()
-                .baseUri("http://localhost")
-                .port(scenario.serverPort)
-                .basePath(SAMPLE_FROM_ROUTER_FUNCTION_PATH)
-                .log().all()
-                .when()
-                .get()
-                .then()
-                .log().all()
-                .extract();
-
-        assertThat(response.statusCode()).isEqualTo(200);
-        SampleModel responseBody = objectMapper.readValue(response.asString(), SampleModel.class);
-        verifyNewSampleModel(responseBody);
-    }
-
-    @EnumSource(ServerScenario.class)
-    @ParameterizedTest
-    public void verify_flux_sample_get(ServerScenario scenario) throws IOException {
-        ExtractableResponse<?> response =
-            given()
-                .baseUri("http://localhost")
-                .port(scenario.serverPort)
-                .basePath(SAMPLE_PATH + SAMPLE_FLUX_SUBPATH)
-                .log().all()
-                .when()
-                .get()
-                .then()
-                .log().all()
-                .extract();
-
-        assertThat(response.statusCode()).isEqualTo(200);
-        List<SampleModel> responseBody = objectMapper.readValue(
-            response.asString(), new TypeReference<>() {}
-        );
-
-        assertThat(responseBody).hasSizeGreaterThan(1);
-        responseBody.forEach(this::verifyNewSampleModel);
     }
 
     // *************** JSR 303 AND ENDPOINT ERRORS ******************
@@ -355,43 +302,7 @@ public class BackstopperSpringboot3_3WebFluxComponentTest {
         verifyErrorReceived(response, SampleCoreApiError.GENERIC_SERVICE_ERROR);
     }
 
-    @EnumSource(ServerScenario.class)
-    @ParameterizedTest
-    public void verify_WEBFLUX_MONO_ERROR_is_thrown_when_correct_endpoint_is_hit(ServerScenario scenario) {
-        ExtractableResponse<?> response =
-            given()
-                .baseUri("http://localhost")
-                .port(scenario.serverPort)
-                .basePath(SAMPLE_PATH + MONO_ERROR_SUBPATH)
-                .log().all()
-                .when()
-                .get()
-                .then()
-                .log().all()
-                .extract();
-
-        verifyErrorReceived(response, SampleProjectApiError.WEBFLUX_MONO_ERROR);
-    }
-
-    @EnumSource(ServerScenario.class)
-    @ParameterizedTest
-    public void verify_WEBFLUX_FLUX_ERROR_is_thrown_when_correct_endpoint_is_hit(ServerScenario scenario) {
-        ExtractableResponse<?> response =
-            given()
-                .baseUri("http://localhost")
-                .port(scenario.serverPort)
-                .basePath(SAMPLE_PATH + FLUX_ERROR_SUBPATH)
-                .log().all()
-                .when()
-                .get()
-                .then()
-                .log().all()
-                .extract();
-
-        verifyErrorReceived(response, SampleProjectApiError.WEBFLUX_FLUX_ERROR);
-    }
-
-    // *************** FRAMEWORK/FILTER ERRORS ******************
+    // *************** FRAMEWORK ERRORS ******************
 
     @EnumSource(ServerScenario.class)
     @ParameterizedTest
@@ -411,44 +322,17 @@ public class BackstopperSpringboot3_3WebFluxComponentTest {
         verifyErrorReceived(response, SampleCoreApiError.NOT_FOUND);
     }
 
-    private enum WebFilterErrorScenario {
-        EXCEPTION_THROWN_IN_WEB_FILTER(
-            "throw-web-filter-exception", SampleProjectApiError.ERROR_THROWN_IN_WEB_FILTER
-        ),
-        EXCEPTION_RETURNED_IN_WEB_FILTER(
-            "return-exception-in-web-filter-mono", SampleProjectApiError.ERROR_RETURNED_IN_WEB_FILTER_MONO
-        );
-
-        public final String triggeringHeaderName;
-        public final ApiError expectedError;
-
-        WebFilterErrorScenario(String triggeringHeaderName, ApiError expectedError) {
-            this.triggeringHeaderName = triggeringHeaderName;
-            this.expectedError = expectedError;
-        }
-    }
-
-    public static List<Object[]> webFilterErrorScenariosDataProvider() {
-        List<Object[]> result = new ArrayList<>();
-        for (WebFilterErrorScenario webFilterErrorScenario : WebFilterErrorScenario.values()) {
-            for (ServerScenario serverScenario : ServerScenario.values()) {
-                result.add(new Object[]{webFilterErrorScenario, serverScenario});
-            }
-        }
-        return result;
-    }
-
-    @MethodSource("webFilterErrorScenariosDataProvider")
+    @EnumSource(ServerScenario.class)
     @ParameterizedTest
-    public void verify_expected_error_returned_if_web_filter_trigger_occurs(
-        WebFilterErrorScenario webFilterErrorScenario, ServerScenario serverScenario
+    public void verify_ERROR_THROWN_IN_SERVLET_FILTER_OUTSIDE_SPRING_returned_if_servlet_filter_trigger_occurs(
+        ServerScenario scenario
     ) {
         ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
-                .port(serverScenario.serverPort)
-                .basePath("/doesnotmatter")
-                .header(webFilterErrorScenario.triggeringHeaderName, "true")
+                .port(scenario.serverPort)
+                .basePath(SAMPLE_PATH)
+                .header("throw-servlet-filter-exception", "true")
                 .log().all()
                 .when()
                 .get()
@@ -456,57 +340,7 @@ public class BackstopperSpringboot3_3WebFluxComponentTest {
                 .log().all()
                 .extract();
 
-        verifyErrorReceived(response, webFilterErrorScenario.expectedError);
-    }
-
-    private enum RouterHandlerFilterErrorScenario {
-        EXCEPTION_THROWN_IN_ROUTER_HANDLER_FILTER(
-            "throw-handler-filter-function-exception",
-            SampleProjectApiError.ERROR_THROWN_IN_HANDLER_FILTER_FUNCTION
-        ),
-        EXCEPTION_RETURNED_IN_ROUTER_HANDLER_FILTER(
-            "return-exception-in-handler-filter-function-mono",
-            SampleProjectApiError.ERROR_RETURNED_IN_HANDLER_FILTER_FUNCTION_MONO
-        );
-
-        public final String triggeringHeaderName;
-        public final ApiError expectedError;
-
-        RouterHandlerFilterErrorScenario(String triggeringHeaderName, ApiError expectedError) {
-            this.triggeringHeaderName = triggeringHeaderName;
-            this.expectedError = expectedError;
-        }
-    }
-
-    public static List<Object[]> routerHandlerFilterErrorScenariosDataProvider() {
-        List<Object[]> result = new ArrayList<>();
-        for (RouterHandlerFilterErrorScenario routerHandlerFilterErrorScenario : RouterHandlerFilterErrorScenario.values()) {
-            for (ServerScenario serverScenario : ServerScenario.values()) {
-                result.add(new Object[]{routerHandlerFilterErrorScenario, serverScenario});
-            }
-        }
-        return result;
-    }
-
-    @MethodSource("routerHandlerFilterErrorScenariosDataProvider")
-    @ParameterizedTest
-    public void verify_expected_error_returned_if_handler_filter_function_trigger_occurs(
-        RouterHandlerFilterErrorScenario routerHandlerFilterErrorScenario, ServerScenario serverScenario
-    ) {
-        ExtractableResponse<?> response =
-            given()
-                .baseUri("http://localhost")
-                .port(serverScenario.serverPort)
-                .basePath(SAMPLE_FROM_ROUTER_FUNCTION_PATH)
-                .header(routerHandlerFilterErrorScenario.triggeringHeaderName, "true")
-                .log().all()
-                .when()
-                .get()
-                .then()
-                .log().all()
-                .extract();
-
-        verifyErrorReceived(response, routerHandlerFilterErrorScenario.expectedError);
+        verifyErrorReceived(response, SampleProjectApiError.ERROR_THROWN_IN_SERVLET_FILTER_OUTSIDE_SPRING);
     }
 
     @EnumSource(ServerScenario.class)
@@ -707,28 +541,6 @@ public class BackstopperSpringboot3_3WebFluxComponentTest {
                 .extract();
 
         verifyErrorReceived(response, SampleCoreApiError.MISSING_EXPECTED_CONTENT);
-    }
-
-    @EnumSource(ServerScenario.class)
-    @ParameterizedTest
-    public void verify_sample_post_fails_with_MALFORMED_REQUEST_if_passed_junk_json(
-        ServerScenario scenario
-    ) {
-        ExtractableResponse<?> response =
-            given()
-                .baseUri("http://localhost")
-                .port(scenario.serverPort)
-                .basePath(SAMPLE_PATH)
-                .contentType(ContentType.JSON)
-                .body("{notjson blah")
-                .log().all()
-                .when()
-                .post()
-                .then()
-                .log().all()
-                .extract();
-
-        verifyErrorReceived(response, SampleCoreApiError.MALFORMED_REQUEST);
     }
 
     @EnumSource(ServerScenario.class)
