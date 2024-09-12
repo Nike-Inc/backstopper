@@ -1141,7 +1141,7 @@ public class BackstopperSpringWebFluxComponentTest {
             return "we should never reach here";
         }
 
-        // Can't figure out how to get springboot 2 to trigger a ConversionNotSupportedException naturally, so
+        // Can't figure out how to get springboot to trigger a ConversionNotSupportedException naturally, so
         //      we'll just throw one ourselves.
         @GetMapping(path = CONVERSION_NOT_SUPPORTED_EXCEPTION_ENDPOINT_PATH)
         @ResponseBody

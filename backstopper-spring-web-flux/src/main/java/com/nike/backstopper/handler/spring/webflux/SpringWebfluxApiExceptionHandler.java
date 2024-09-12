@@ -15,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.core.NestedExceptionUtils;
 import org.springframework.core.Ordered;
 import org.springframework.http.codec.HttpMessageReader;
 import org.springframework.http.codec.HttpMessageWriter;
@@ -27,19 +26,17 @@ import org.springframework.web.reactive.result.view.ViewResolver;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebExceptionHandler;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
-
 import reactor.core.publisher.Mono;
+
+import static com.nike.backstopper.handler.spring.webflux.DisconnectedClientHelper.isClientDisconnectedException;
 
 /**
  * An {@link ApiExceptionHandlerBase} extension that hooks into Spring WebFlux via its
@@ -58,12 +55,6 @@ public class SpringWebfluxApiExceptionHandler extends ApiExceptionHandlerBase<Mo
     implements WebExceptionHandler, Ordered {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    /**
-     * Copied from Spring WebFlux {@link org.springframework.web.server.adapter.HttpWebHandlerAdapter}.
-     */
-    public static final Set<String> DISCONNECTED_CLIENT_EXCEPTIONS = new HashSet<>(
-        Arrays.asList("AbortedException", "ClientAbortException", "EOFException", "EofException"));
 
     /**
      * The sort order for where this handler goes in the spring exception handler chain. We default to {@link
@@ -150,8 +141,8 @@ public class SpringWebfluxApiExceptionHandler extends ApiExceptionHandlerBase<Mo
         // Before we try to write the response, we should check to see if it's already committed, or if the client
         //      disconnected.
         // This short circuit logic due to an already-committed response or disconnected client was copied from
-        //      Spring Boot 2's AbstractErrorWebExceptionHandler class.
-        if (exchange.getResponse().isCommitted() || isDisconnectedClientError(ex)) {
+        //      Spring Boot's AbstractErrorWebExceptionHandler class.
+        if (exchange.getResponse().isCommitted() || isClientDisconnectedException(ex)) {
             return Mono.error(ex);
         }
 
@@ -175,29 +166,13 @@ public class SpringWebfluxApiExceptionHandler extends ApiExceptionHandlerBase<Mo
         }
     }
 
-    // Copied from Spring Boot 2's AbstractErrorWebExceptionHandler class.
+    // Copied and slightly modified from Spring Boot 3.3.3's AbstractErrorWebExceptionHandler class.
     protected Mono<? extends Void> write(ServerWebExchange exchange, ServerResponse response) {
         // force content-type since writeTo won't overwrite response header values
         exchange.getResponse().getHeaders().setContentType(response.headers().getContentType());
         return response.writeTo(exchange, new ResponseContext(messageWriters, viewResolvers));
     }
 
-    /**
-     * Copied from Spring Boot 2's {@code AbstractErrorWebExceptionHandler} class.
-     */
-    public static boolean isDisconnectedClientError(Throwable ex) {
-        return DISCONNECTED_CLIENT_EXCEPTIONS.contains(ex.getClass().getSimpleName())
-               || isDisconnectedClientErrorMessage(NestedExceptionUtils.getMostSpecificCause(ex).getMessage());
-    }
-
-    /**
-     * Copied from Spring Boot 2's {@code AbstractErrorWebExceptionHandler} class.
-     */
-    public static boolean isDisconnectedClientErrorMessage(String message) {
-        message = (message != null) ? message.toLowerCase() : "";
-        return (message.contains("broken pipe") || message.contains("connection reset by peer"));
-    }
-    
     /**
      * See the javadocs for {@link #order} for info on what this is for.
      */
@@ -214,6 +189,7 @@ public class SpringWebfluxApiExceptionHandler extends ApiExceptionHandlerBase<Mo
         this.order = order;
     }
 
+    // Copied and slightly modified from Springboot 3.3.3's AbstractErrorWebExceptionHandler.
     public static class ResponseContext implements ServerResponse.Context {
 
         private final List<HttpMessageWriter<?>> messageWriters;
@@ -228,12 +204,12 @@ public class SpringWebfluxApiExceptionHandler extends ApiExceptionHandlerBase<Mo
         }
 
         @Override
-        public List<HttpMessageWriter<?>> messageWriters() {
+        public @NotNull List<HttpMessageWriter<?>> messageWriters() {
             return messageWriters;
         }
 
         @Override
-        public List<ViewResolver> viewResolvers() {
+        public @NotNull List<ViewResolver> viewResolvers() {
             return viewResolvers;
         }
     }

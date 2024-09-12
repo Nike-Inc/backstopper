@@ -18,8 +18,6 @@ concrete example of the information covered in this readme.**
 
 ### Spring / Spring Boot Versions
 
-// TODO javax-to-jakarta: verify this statement about spring boot 3
-
 This `backstopper-spring-web-mvc` library can be used in any Spring Web MVC `6.x.x` environment or later. This includes
 Spring 6 and Spring Boot 3.
 

@@ -23,7 +23,7 @@ import testonly.componenttest.spring.reusable.testutil.ExplodingServletFilter;
  */
 @SpringBootApplication
 @Import({
-    // Import core Backstopper+Springboot1 support.
+    // Import core Backstopper+Springboot support.
     BackstopperSpringboot3WebMvcConfig.class,
     // Import the controller.
     SampleController.class

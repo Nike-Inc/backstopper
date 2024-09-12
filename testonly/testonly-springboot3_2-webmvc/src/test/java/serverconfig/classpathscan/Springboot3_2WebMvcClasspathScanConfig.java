@@ -21,7 +21,7 @@ import testonly.componenttest.spring.reusable.testutil.ExplodingServletFilter;
  */
 @SpringBootApplication
 @ComponentScan(basePackages = {
-    // Component scan the core Backstopper+Springboot1 support.
+    // Component scan the core Backstopper+Springboot support.
     "com.nike.backstopper",
     // Component scan the controller.
     "testonly.componenttest.spring.reusable.controller"

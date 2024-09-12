@@ -33,10 +33,9 @@ import java.util.stream.Collectors;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
-
 import reactor.core.publisher.Mono;
 
-import static com.nike.backstopper.handler.spring.webflux.SpringWebfluxApiExceptionHandler.isDisconnectedClientError;
+import static com.nike.backstopper.handler.spring.webflux.DisconnectedClientHelper.isClientDisconnectedException;
 
 /**
  * An extension of {@link UnhandledExceptionHandlerBase} that acts as a final catch-all exception handler for
@@ -55,7 +54,7 @@ public class SpringWebfluxUnhandledExceptionHandler
 
     /**
      * The sort order for where this handler goes in the spring exception handler chain. We default to -2 so this gets
-     * executed after any custom handlers, but before any default spring handlers (Spring Boot 2's
+     * executed after any custom handlers, but before any default spring handlers (Spring Boot 3's
      * {@code DefaultErrorWebExceptionHandler} is ordered at -1, see {@code
      * ErrorWebFluxAutoConfiguration.errorWebExceptionHandler(...)}. And {@code WebFluxResponseStatusExceptionHandler}
      * is ordered at 0, see {@code WebFluxConfigurationSupport.responseStatusExceptionHandler(...)}).
@@ -151,8 +150,8 @@ public class SpringWebfluxUnhandledExceptionHandler
         // Before we try to write the response, we should check to see if it's already committed, or if the client
         //      disconnected.
         // This short circuit logic due to an already-committed response or disconnected client was copied from
-        //      Spring Boot 2's AbstractErrorWebExceptionHandler class.
-        if (exchange.getResponse().isCommitted() || isDisconnectedClientError(ex)) {
+        //      Spring Boot's AbstractErrorWebExceptionHandler class.
+        if (exchange.getResponse().isCommitted() || isClientDisconnectedException(ex)) {
             return Mono.error(ex);
         }
 
@@ -176,7 +175,7 @@ public class SpringWebfluxUnhandledExceptionHandler
         }
     }
 
-    // Copied from Spring Boot 2's AbstractErrorWebExceptionHandler class.
+    // Copied and slightly modified from Spring Boot 3.3.3's AbstractErrorWebExceptionHandler class.
     protected Mono<? extends Void> write(ServerWebExchange exchange, ServerResponse response) {
         // force content-type since writeTo won't overwrite response header values
         exchange.getResponse().getHeaders().setContentType(response.headers().getContentType());

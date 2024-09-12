@@ -48,6 +48,7 @@ import java.util.stream.Stream;
 import reactor.core.publisher.Mono;
 import reactor.netty.channel.AbortedException;
 
+import static com.nike.backstopper.handler.spring.webflux.DisconnectedClientHelper.isClientDisconnectedException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -484,7 +485,7 @@ public class SpringWebfluxApiExceptionHandlerTest {
     @Test
     public void isDisconnectedClientError_works_as_expected(IsDisconnectedClientErrorScenario scenario) {
         // when
-        boolean result = SpringWebfluxApiExceptionHandler.isDisconnectedClientError(scenario.ex);
+        boolean result = isClientDisconnectedException(scenario.ex);
 
         // then
         assertThat(result).isEqualTo(scenario.expectedResult);

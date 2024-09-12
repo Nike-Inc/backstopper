@@ -45,18 +45,13 @@ import jakarta.servlet.ServletRequest;
 @SuppressWarnings("WeakerAccess")
 public class UnhandledServletContainerErrorHelper {
 
-    // TODO javax-to-jakarta: Test these things in with the new spring/springboot libs/frameworks.
     protected static final List<String> DEFAULT_THROWABLE_REQUEST_ATTR_NAMES = Arrays.asList(
-        // Try the Springboot 2 attrs first.
+        // Try the Springboot 3 attrs first.
         //      Corresponds to org.springframework.boot.web.reactive.error.DefaultErrorAttributes.ERROR_ATTRIBUTE.
         "org.springframework.boot.web.reactive.error.DefaultErrorAttributes.ERROR",
         //      Corresponds to org.springframework.boot.web.servlet.error.DefaultErrorAttributes.ERROR_ATTRIBUTE.
         "org.springframework.boot.web.servlet.error.DefaultErrorAttributes.ERROR",
 
-        // Try the Springboot 1 attr next.
-        //      Corresponds to org.springframework.boot.autoconfigure.web.DefaultErrorAttributes.ERROR_ATTRIBUTE.
-        "org.springframework.boot.autoconfigure.web.DefaultErrorAttributes.ERROR",
-        
         // Fall back to the Servlet API value last.
         //      Corresponds to jakarta.servlet.RequestDispatcher.ERROR_EXCEPTION.
         "jakarta.servlet.error.exception"
