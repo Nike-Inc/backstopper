@@ -35,7 +35,6 @@ dependencies {
             "org.junit.jupiter:junit-jupiter-engine:$junit5Version",
             "org.junit.jupiter:junit-jupiter-params:$junit5Version",
             "org.mockito:mockito-core:$mockitoVersion",
-            "ch.qos.logback:logback-classic",
             "org.assertj:assertj-core:$assertJVersion",
             "io.rest-assured:rest-assured",
     )
