@@ -1,4 +1,4 @@
-# Backstopper - testonly-springboot3_3-webflux
+# Backstopper - testonly-springboot3_0-webflux
 
 Backstopper is a framework-agnostic API error handling and (optional) model validation solution for Java 17 and greater.
 
