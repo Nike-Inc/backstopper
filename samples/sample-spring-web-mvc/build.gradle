@@ -32,7 +32,7 @@ dependencies {
 
 apply plugin: "application"
 application {
-    mainClassName = "com.nike.backstopper.springsample.Main"
+    setMainClass("com.nike.backstopper.springsample.Main")
 }
 
 run {

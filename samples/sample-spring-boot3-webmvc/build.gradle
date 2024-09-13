@@ -42,7 +42,7 @@ dependencies {
 
 apply plugin: "application"
 application {
-    mainClassName = "com.nike.backstopper.springboot3webmvcsample.Main"
+    setMainClass("com.nike.backstopper.springboot3webmvcsample.Main")
 }
 
 run {
