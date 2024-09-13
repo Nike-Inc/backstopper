@@ -48,6 +48,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 
 import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -64,6 +65,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ClientfacingErrorITest extends BaseSpringEnabledValidationTestCase {
 
     @Inject
+    @SuppressWarnings("unused")
     private ProjectApiErrors projectApiErrors;
 
     @Test
@@ -259,7 +261,7 @@ public class ClientfacingErrorITest extends BaseSpringEnabledValidationTestCase 
         MvcResult result = this.mockMvc.perform(get("/error")).andReturn();
         verifyErrorResponse(result, projectApiErrors, projectApiErrors.getGenericServiceError(), ApiException.class);
         ApiException apiEx = (ApiException) result.getResolvedException();
-        Assertions.assertThat(apiEx.getMessage()).isEqualTo(
+        Assertions.assertThat(requireNonNull(apiEx).getMessage()).isEqualTo(
             "Synthetic exception for unhandled container status code: null"
         );
         Assertions.assertThat(apiEx.getExtraDetailsForLogging()).isEqualTo(singletonList(
@@ -278,6 +280,7 @@ public class ClientfacingErrorITest extends BaseSpringEnabledValidationTestCase 
         @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message="TYPE_CONVERSION_ERROR")
         public String startDate;
 
+        @SuppressWarnings("unused") // Needed for deserialization.
         public DummyRequestObject() {}
         public DummyRequestObject(String count, String offset, String startDate) {
             this.count = count;
@@ -289,6 +292,7 @@ public class ClientfacingErrorITest extends BaseSpringEnabledValidationTestCase 
     private static class DummyResponseObject implements Serializable {
         public String someField = "foo";
 
+        @SuppressWarnings("unused") // Needed for deserialization.
         public DummyResponseObject() {}
 
         public DummyResponseObject(String someField) {
@@ -298,6 +302,7 @@ public class ClientfacingErrorITest extends BaseSpringEnabledValidationTestCase 
 
     @Controller
     @RequestMapping("/clientFacingErrorTestDummy")
+    @SuppressWarnings({"unused", "ClassEscapesDefinedScope"})
     public static class DummyController {
 
         @Inject
@@ -347,8 +352,16 @@ public class ClientfacingErrorITest extends BaseSpringEnabledValidationTestCase 
 
         @RequestMapping("/throwServerUnknownHttpStatusCodeException")
         public void throwServerUnknownHttpStatusCodeException() {
+            @SuppressWarnings("DataFlowIssue")
             UnknownHttpStatusCodeException serverResponseEx = new UnknownHttpStatusCodeException(142, null, null, null, null);
-            throw new ServerUnknownHttpStatusCodeException(new Exception("Intentional test exception"), "FOO", serverResponseEx, serverResponseEx.getRawStatusCode(), serverResponseEx.getResponseHeaders(), serverResponseEx.getResponseBodyAsString());
+            throw new ServerUnknownHttpStatusCodeException(
+                new Exception("Intentional test exception"),
+                "FOO",
+                serverResponseEx,
+                serverResponseEx.getStatusCode().value(),
+                serverResponseEx.getResponseHeaders(),
+                serverResponseEx.getResponseBodyAsString()
+            );
         }
 
         @RequestMapping("/throwServerUnreachableException")
@@ -386,7 +399,7 @@ public class ClientfacingErrorITest extends BaseSpringEnabledValidationTestCase 
 
         @RequestMapping("/validateRequiredInteger")
         @ResponseBody
-        public DummyResponseObject validateRequiredInteger(@RequestParam(required = true) Integer someInt) {
+        public DummyResponseObject validateRequiredInteger(@RequestParam Integer someInt) {
             return new DummyResponseObject(String.valueOf(someInt));
         }
 

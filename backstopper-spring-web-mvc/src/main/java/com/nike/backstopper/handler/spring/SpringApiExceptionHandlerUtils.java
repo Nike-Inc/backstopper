@@ -60,7 +60,7 @@ public class SpringApiExceptionHandlerUtils {
      * RequestInfoForLogging)} for serializing the error contract. Defaults to {@link
      * JsonUtilWithDefaultErrorContractDTOSupport#DEFAULT_SMART_MAPPER}.
      */
-    @SuppressWarnings("UnusedParameters")
+    @SuppressWarnings("unused")
     protected ObjectMapper getObjectMapperForJsonErrorResponseSerialization(
         DefaultErrorContractDTO errorContractDTO, int httpStatusCode, Collection<ApiError> rawFilteredApiErrors,
         Throwable originalException, RequestInfoForLogging request

@@ -24,6 +24,7 @@ import java.util.UUID;
 
 import reactor.core.publisher.Mono;
 
+import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -51,6 +52,7 @@ public class SpringWebfluxApiExceptionHandlerUtilsTest {
         // given
         DefaultErrorContractDTO errorContractDtoMock = mock(DefaultErrorContractDTO.class);
         int statusCode = 400;
+        @SuppressWarnings("unchecked")
         Collection<ApiError> errors = mock(Collection.class);
         Throwable ex = mock(Throwable.class);
         RequestInfoForLogging requestMock = mock(RequestInfoForLogging.class);
@@ -72,7 +74,7 @@ public class SpringWebfluxApiExceptionHandlerUtilsTest {
         verify(utilsSpy).getErrorResponseContentType(errorContractDtoMock, statusCode, errors, ex, requestMock);
         verify(utilsSpy).serializeErrorContractToString(errorContractDtoMock);
         ServerResponse result = resultMono.block();
-        assertThat(result.statusCode().value()).isEqualTo(statusCode);
+        assertThat(requireNonNull(result).statusCode().value()).isEqualTo(statusCode);
         assertThat(result.headers().getContentType()).isEqualTo(expectedResponseContentType);
         // Yes this is awful. But figuring out how to spit out the ServerResponse's body to something assertable
         //      in this test is also awful.
@@ -124,6 +126,7 @@ public class SpringWebfluxApiExceptionHandlerUtilsTest {
         // given
         DefaultErrorContractDTO errorContractDtoMock = mock(DefaultErrorContractDTO.class);
         int statusCode = 400;
+        @SuppressWarnings("unchecked")
         Collection<ApiError> errors = mock(Collection.class);
         Throwable ex = mock(Throwable.class);
         RequestInfoForLogging requestMock = mock(RequestInfoForLogging.class);
@@ -134,7 +137,7 @@ public class SpringWebfluxApiExceptionHandlerUtilsTest {
         );
 
         // then
-        assertThat(result).isEqualTo(MediaType.APPLICATION_JSON_UTF8);
+        assertThat(result).isEqualTo(MediaType.APPLICATION_JSON);
         verifyNoMoreInteractions(errorContractDtoMock, errors, ex, requestMock);
     }
 

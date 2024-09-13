@@ -13,6 +13,8 @@ dependencies {
             "org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion",
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
             "io.rest-assured:rest-assured:$restAssuredVersion",
+            // Pulling in commons-codec manually to avoid vulnerability warning coming from RestAssured transitive dep.
+            "commons-codec:commons-codec:$commonsCodecVersion",
             "org.assertj:assertj-core:$assertJVersion",
     )
     testImplementation(

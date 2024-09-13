@@ -8,6 +8,7 @@ import com.nike.backstopper.handler.RequestInfoForLogging;
 import com.nike.backstopper.handler.UnhandledExceptionHandlerServletApiBase;
 import com.nike.backstopper.model.DefaultErrorContractDTO;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.core.Ordered;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
@@ -86,8 +87,12 @@ public class SpringUnhandledExceptionHandler extends UnhandledExceptionHandlerSe
     }
 
     @Override
-    public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler,
-                                         Exception ex) {
+    public ModelAndView resolveException(
+        @NotNull HttpServletRequest request,
+        @NotNull HttpServletResponse response,
+        Object handler,
+        @NotNull Exception ex
+    ) {
         return handleException(ex, request, response).frameworkRepresentationObj;
     }
 

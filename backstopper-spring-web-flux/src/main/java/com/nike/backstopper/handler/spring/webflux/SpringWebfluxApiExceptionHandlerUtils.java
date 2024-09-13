@@ -60,8 +60,7 @@ public class SpringWebfluxApiExceptionHandlerUtils {
                 getErrorResponseContentType(
                     errorContractDTO, httpStatusCode, rawFilteredApiErrors, originalException, request
                 )
-            )
-            .syncBody(serializeErrorContractToString(errorContractDTO));
+            ).bodyValue(serializeErrorContractToString(errorContractDTO));
     }
 
     protected String serializeErrorContractToString(DefaultErrorContractDTO errorContractDTO) {
@@ -76,7 +75,7 @@ public class SpringWebfluxApiExceptionHandlerUtils {
         Throwable originalException,
         RequestInfoForLogging request
     ) {
-        // Default to simply application/json in UTF8.
-        return MediaType.APPLICATION_JSON_UTF8;
+        // Default to simply application/json.
+        return MediaType.APPLICATION_JSON;
     }
 }

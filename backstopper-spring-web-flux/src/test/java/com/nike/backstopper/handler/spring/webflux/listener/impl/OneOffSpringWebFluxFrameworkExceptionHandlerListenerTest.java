@@ -57,6 +57,7 @@ public class OneOffSpringWebFluxFrameworkExceptionHandlerListenerTest {
     @Test
     public void constructor_throws_IllegalArgumentException_if_passed_null_projectApiErrors() {
         // when
+        @SuppressWarnings("DataFlowIssue")
         Throwable ex = Assertions.catchThrowable(
             () -> new OneOffSpringWebFluxFrameworkExceptionHandlerListener(null, ApiExceptionHandlerUtils.DEFAULT_IMPL)
         );
@@ -68,6 +69,7 @@ public class OneOffSpringWebFluxFrameworkExceptionHandlerListenerTest {
     @Test
     public void constructor_throws_IllegalArgumentException_if_passed_null_utils() {
         // when
+        @SuppressWarnings("DataFlowIssue")
         Throwable ex = Assertions.catchThrowable(
             () -> new OneOffSpringWebFluxFrameworkExceptionHandlerListener(mock(ProjectApiErrors.class), null)
         );
@@ -76,6 +78,7 @@ public class OneOffSpringWebFluxFrameworkExceptionHandlerListenerTest {
         assertThat(ex).isInstanceOf(IllegalArgumentException.class);
     }
 
+    @SafeVarargs
     private void validateResponse(
         ApiExceptionHandlerListenerResult result,
         boolean expectedShouldHandle,

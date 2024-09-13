@@ -4,17 +4,10 @@ import com.nike.backstopper.apierror.testing.base.BaseSpringEnabledValidationTes
 import com.nike.backstopper.apierror.testutil.BarebonesCoreApiErrorForTesting;
 import com.nike.backstopper.model.DefaultErrorContractDTO;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Arrays;
-
-import jakarta.servlet.http.HttpServletResponse;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -25,14 +18,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
  * @author Nic Munroe
  */
 public class SpringApiExceptionHandlerUtilsTest extends BaseSpringEnabledValidationTestCase {
-
-    @Mock
-    private HttpServletResponse responseMock;
-
-    @Before
-    public void setupMethod() {
-        MockitoAnnotations.initMocks(this);
-    }
 
     @Test
     public void generateModelAndViewForErrorResponseShouldGenerateModelAndViewWithErrorContractAsOnlyModelObject() {

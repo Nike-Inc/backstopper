@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -128,6 +129,7 @@ import static com.nike.backstopper.handler.spring.webflux.componenttest.Backstop
 import static com.nike.internal.util.testing.TestUtils.findFreePort;
 import static io.restassured.RestAssured.given;
 import static java.util.Collections.singleton;
+import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
 
@@ -137,6 +139,7 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
  * @author Nic Munroe
  */
 @RunWith(DataProviderRunner.class)
+@SuppressWarnings("ClassEscapesDefinedScope")
 public class BackstopperSpringWebFluxComponentTest {
 
     private static final int SERVER_PORT = findFreePort();
@@ -177,6 +180,7 @@ public class BackstopperSpringWebFluxComponentTest {
 
     @After
     public void afterMethod() {
+        // Do nothing.
     }
 
     @Test
@@ -431,10 +435,10 @@ public class BackstopperSpringWebFluxComponentTest {
         verifyHandlingResult(
             expectedApiError,
             Pair.of("exception_message", quotesToApostrophes(ex.getMessage())),
-            Pair.of("method_parameter", ex.getMethodParameter().toString()),
+            Pair.of("method_parameter", requireNonNull(ex.getMethodParameter()).toString()),
             Pair.of("bad_property_name", tme.getPropertyName()),
-            Pair.of("bad_property_value", tme.getValue().toString()),
-            Pair.of("required_type", tme.getRequiredType().toString())
+            Pair.of("bad_property_value", requireNonNull(tme.getValue()).toString()),
+            Pair.of("required_type", requireNonNull(tme.getRequiredType()).toString())
         );
     }
 
@@ -471,10 +475,10 @@ public class BackstopperSpringWebFluxComponentTest {
         verifyHandlingResult(
             expectedApiError,
             Pair.of("exception_message", quotesToApostrophes(ex.getMessage())),
-            Pair.of("method_parameter", ex.getMethodParameter().toString()),
+            Pair.of("method_parameter", requireNonNull(ex.getMethodParameter()).toString()),
             Pair.of("bad_property_name", tme.getPropertyName()),
-            Pair.of("bad_property_value", tme.getValue().toString()),
-            Pair.of("required_type", tme.getRequiredType().toString())
+            Pair.of("bad_property_value", requireNonNull(tme.getValue()).toString()),
+            Pair.of("required_type", requireNonNull(tme.getRequiredType()).toString())
         );
     }
 
@@ -498,7 +502,7 @@ public class BackstopperSpringWebFluxComponentTest {
         ResponseStatusException ex = verifyResponseStatusExceptionSeenByBackstopper(
             ResponseStatusException.class, 403
         );
-        TypeMismatchException tme = verifyExceptionHasCauseOfType(ex, TypeMismatchException.class);
+        verifyExceptionHasCauseOfType(ex, TypeMismatchException.class);
         verifyHandlingResult(
             SampleCoreApiError.FORBIDDEN,
             Pair.of("exception_message", quotesToApostrophes(ex.getMessage()))
@@ -532,7 +536,7 @@ public class BackstopperSpringWebFluxComponentTest {
         verifyHandlingResult(
             expectedApiError,
             Pair.of("exception_message", quotesToApostrophes(ex.getMessage())),
-            Pair.of("method_parameter", ex.getMethodParameter().toString())
+            Pair.of("method_parameter", requireNonNull(ex.getMethodParameter()).toString())
         );
         // Verify no cause, leaving the exception `reason` as the only way we could have gotten the metadata.
         assertThat(ex).hasNoCause();
@@ -566,7 +570,7 @@ public class BackstopperSpringWebFluxComponentTest {
         verifyHandlingResult(
             expectedApiError,
             Pair.of("exception_message", quotesToApostrophes(ex.getMessage())),
-            Pair.of("method_parameter", ex.getMethodParameter().toString())
+            Pair.of("method_parameter", requireNonNull(ex.getMethodParameter()).toString())
         );
         // Verify no cause, leaving the exception `reason` as the only way we could have gotten the metadata.
         assertThat(ex).hasNoCause();
@@ -591,8 +595,8 @@ public class BackstopperSpringWebFluxComponentTest {
         verifyHandlingResult(
             SampleCoreApiError.GENERIC_SERVICE_ERROR,
             Pair.of("exception_message", quotesToApostrophes(ex.getMessage())),
-            Pair.of("method_parameter", ex.getMethodParameter().toString()),
-            Pair.of("handler_method", ex.getHandlerMethod().toString())
+            Pair.of("method_parameter", requireNonNull(ex.getMethodParameter()).toString()),
+            Pair.of("handler_method", requireNonNull(ex.getHandlerMethod()).toString())
         );
     }
 
@@ -616,8 +620,8 @@ public class BackstopperSpringWebFluxComponentTest {
             SampleCoreApiError.GENERIC_SERVICE_ERROR,
             Pair.of("exception_message", quotesToApostrophes(ex.getMessage())),
             Pair.of("bad_property_name", cnse.getPropertyName()),
-            Pair.of("bad_property_value", cnse.getValue().toString()),
-            Pair.of("required_type", cnse.getRequiredType().toString())
+            Pair.of("bad_property_value", requireNonNull(cnse.getValue()).toString()),
+            Pair.of("required_type", requireNonNull(cnse.getRequiredType()).toString())
         );
     }
 
@@ -643,7 +647,7 @@ public class BackstopperSpringWebFluxComponentTest {
         verifyHandlingResult(
             SampleCoreApiError.MISSING_EXPECTED_CONTENT,
             Pair.of("exception_message", quotesToApostrophes(ex.getMessage())),
-            Pair.of("method_parameter", ex.getMethodParameter().toString())
+            Pair.of("method_parameter", requireNonNull(ex.getMethodParameter()).toString())
         );
         // Verify DecodingException as the cause, leaving the exception `reason` as the only way we could have determined this case.
         assertThat(ex).hasCauseInstanceOf(DecodingException.class);
@@ -680,7 +684,7 @@ public class BackstopperSpringWebFluxComponentTest {
         verifyHandlingResult(
             SampleCoreApiError.MALFORMED_REQUEST,
             Pair.of("exception_message", quotesToApostrophes(ex.getMessage())),
-            Pair.of("method_parameter", ex.getMethodParameter().toString())
+            Pair.of("method_parameter", requireNonNull(ex.getMethodParameter()).toString())
         );
     }
 
@@ -688,7 +692,7 @@ public class BackstopperSpringWebFluxComponentTest {
         return new SampleModel(UUID.randomUUID().toString(), String.valueOf(nextRangeInt(0, 42)), nextRandomColor().name(), false);
     }
 
-    static int nextRangeInt(int lowerBound, int upperBound) {
+    static int nextRangeInt(@SuppressWarnings("SameParameterValue") int lowerBound, int upperBound) {
         return (int)Math.round(Math.random() * upperBound) + lowerBound;
     }
 
@@ -818,6 +822,7 @@ public class BackstopperSpringWebFluxComponentTest {
         "506"
     }, splitBy = "\\|")
     @Test
+    @SuppressWarnings("ExtractMethodRecommender")
     public void verify_generic_ResponseStatusCode_exception_with_unknown_status_code_results_in_synthetic_ApiError(
         int unknownStatusCode
     ) {
@@ -893,7 +898,9 @@ public class BackstopperSpringWebFluxComponentTest {
 
         assertThat(exceptionSeenByUnhandledBackstopperHandler).isNull();
 
-        return (T) ex;
+        @SuppressWarnings("unchecked")
+        T asT = (T) ex;
+        return asT;
     }
 
     private <T extends ResponseStatusException> T verifyResponseStatusExceptionSeenByBackstopper(
@@ -910,7 +917,9 @@ public class BackstopperSpringWebFluxComponentTest {
 
     private <T extends Throwable> T verifyExceptionHasCauseOfType(Throwable origEx, Class<T> expectedCauseType) {
         assertThat(origEx.getCause()).isInstanceOf(expectedCauseType);
-        return (T) origEx.getCause();
+        @SuppressWarnings("unchecked")
+        T asT = (T) origEx.getCause();
+        return asT;
     }
 
     private String quotesToApostrophes(String str) {
@@ -918,8 +927,8 @@ public class BackstopperSpringWebFluxComponentTest {
     }
 
     @SafeVarargs
-    private final void verifyHandlingResult(
-        ApiError expectedApiError, Pair<String, String> ... expectedExtraLoggingPairs
+    private void verifyHandlingResult(
+        ApiError expectedApiError, Pair<String, String>... expectedExtraLoggingPairs
     ) {
         ApiExceptionHandlerListenerResult result = normalBackstopperHandlingResult;
         assertThat(result.shouldHandleResponse).isTrue();
@@ -930,6 +939,7 @@ public class BackstopperSpringWebFluxComponentTest {
     @SpringBootApplication
     @Configuration
     @Import({BackstopperSpringWebFluxConfig.class, ComponentTestController.class })
+    @SuppressWarnings("unused")
     static class ComponentTestWebFluxApp {
         @Bean
         public ProjectApiErrors getProjectApiErrors() {
@@ -938,6 +948,7 @@ public class BackstopperSpringWebFluxComponentTest {
 
         @Bean
         public Validator getJsr303Validator() {
+            //noinspection resource
             return Validation.buildDefaultValidatorFactory().getValidator();
         }
 
@@ -992,7 +1003,7 @@ public class BackstopperSpringWebFluxComponentTest {
                 projectApiErrors, generalUtils, springUtils, viewResolversProvider, serverCodecConfigurer
             ) {
                 @Override
-                public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
+                public @NotNull Mono<Void> handle(@NotNull ServerWebExchange exchange, @NotNull Throwable ex) {
                     exceptionSeenByUnhandledBackstopperHandler = ex;
                     return super.handle(exchange, ex);
                 }
@@ -1001,6 +1012,7 @@ public class BackstopperSpringWebFluxComponentTest {
     }
 
     @Controller
+    @SuppressWarnings("unused")
     static class ComponentTestController {
         static final String NON_ERROR_ENDPOINT_PATH = "/nonErrorEndpoint";
         static final String ERROR_THROWING_ENDPOINT_PATH = "/throwErrorEndpoint";
@@ -1114,7 +1126,7 @@ public class BackstopperSpringWebFluxComponentTest {
                 );
             }
 
-            return ServerResponse.ok().syncBody(ROUTER_FUNCTION_ENDPOINT_RESPONSE_PAYLOAD);
+            return ServerResponse.ok().bodyValue(ROUTER_FUNCTION_ENDPOINT_RESPONSE_PAYLOAD);
         }
 
         @GetMapping(path = INT_QUERY_PARAM_REQUIRED_ENDPOINT)
@@ -1170,7 +1182,7 @@ public class BackstopperSpringWebFluxComponentTest {
         @ResponseBody
         public String responseStatusExForSpecificStatusCodeEndpoint(ServerHttpRequest request) {
             int desiredStatusCode = Integer.parseInt(
-                request.getHeaders().getFirst("desired-status-code")
+                requireNonNull(request.getHeaders().getFirst("desired-status-code"))
             );
             throw new ResponseStatusException(
                 HttpStatus.valueOf(desiredStatusCode),
@@ -1288,8 +1300,8 @@ public class BackstopperSpringWebFluxComponentTest {
     public static class ExplodingWebFilter implements WebFilter {
 
         @Override
-        public Mono<Void> filter(
-            ServerWebExchange exchange, WebFilterChain chain
+        public @NotNull Mono<Void> filter(
+            ServerWebExchange exchange, @NotNull WebFilterChain chain
         ) {
             HttpHeaders httpHeaders = exchange.getRequest().getHeaders();
 
@@ -1319,9 +1331,9 @@ public class BackstopperSpringWebFluxComponentTest {
         implements HandlerFilterFunction<ServerResponse, ServerResponse> {
 
         @Override
-        public Mono<ServerResponse> filter(
+        public @NotNull Mono<ServerResponse> filter(
             ServerRequest serverRequest,
-            HandlerFunction<ServerResponse> handlerFunction
+            @NotNull HandlerFunction<ServerResponse> handlerFunction
         ) {
             HttpHeaders httpHeaders = serverRequest.headers().asHttpHeaders();
 

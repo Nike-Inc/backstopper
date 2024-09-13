@@ -80,14 +80,17 @@ public class SpringWebfluxApiExceptionHandlerTest {
     private List<ViewResolver> viewResolvers;
 
     private ServerWebExchange serverWebExchangeMock;
+    @SuppressWarnings("FieldCanBeLocal")
     private ServerHttpRequest serverHttpRequestMock;
     private ServerHttpResponse serverHttpResponseMock;
     private HttpHeaders serverHttpResponseHeadersMock;
+    @SuppressWarnings("FieldCanBeLocal")
     private URI uri;
 
     private Throwable exMock;
 
     @Before
+    @SuppressWarnings("unchecked")
     public void beforeMethod() {
         projectApiErrorsMock = mock(ProjectApiErrors.class);
         listenerList = new SpringWebFluxApiExceptionHandlerListenerList(
@@ -146,6 +149,7 @@ public class SpringWebfluxApiExceptionHandlerTest {
     @Test
     public void constructor_throws_IllegalArgumentException_if_passed_null_ProjectApiErrors() {
         // when
+        @SuppressWarnings("DataFlowIssue")
         Throwable ex = catchThrowable(
             () -> new SpringWebfluxApiExceptionHandler(
                 null, listenerList, generalUtils, springUtilsMock, viewResolversProviderMock,
@@ -162,6 +166,7 @@ public class SpringWebfluxApiExceptionHandlerTest {
     @Test
     public void constructor_throws_NullPointerException_if_passed_null_ApiExceptionHandlerListenerList() {
         // when
+        @SuppressWarnings("DataFlowIssue")
         Throwable ex = catchThrowable(
             () -> new SpringWebfluxApiExceptionHandler(
                 projectApiErrorsMock, null, generalUtils, springUtilsMock, viewResolversProviderMock,
@@ -196,6 +201,7 @@ public class SpringWebfluxApiExceptionHandlerTest {
     @Test
     public void constructor_throws_IllegalArgumentException_if_passed_null_ApiExceptionHandlerUtils() {
         // when
+        @SuppressWarnings("DataFlowIssue")
         Throwable ex = catchThrowable(
             () -> new SpringWebfluxApiExceptionHandler(
                 projectApiErrorsMock, listenerList, null, springUtilsMock, viewResolversProviderMock,
@@ -212,6 +218,7 @@ public class SpringWebfluxApiExceptionHandlerTest {
     @Test
     public void constructor_throws_NullPointerException_if_passed_null_SpringWebfluxApiExceptionHandlerUtils() {
         // when
+        @SuppressWarnings("DataFlowIssue")
         Throwable ex = catchThrowable(
             () -> new SpringWebfluxApiExceptionHandler(
                 projectApiErrorsMock, listenerList, generalUtils, null, viewResolversProviderMock,
@@ -228,6 +235,7 @@ public class SpringWebfluxApiExceptionHandlerTest {
     @Test
     public void constructor_throws_NullPointerException_if_passed_null_ViewResolver_ObjectProvider() {
         // when
+        @SuppressWarnings("DataFlowIssue")
         Throwable ex = catchThrowable(
             () -> new SpringWebfluxApiExceptionHandler(
                 projectApiErrorsMock, listenerList, generalUtils, springUtilsMock, null,
@@ -244,6 +252,7 @@ public class SpringWebfluxApiExceptionHandlerTest {
     @Test
     public void constructor_throws_NullPointerException_if_passed_null_ServerCodecConfigurer() {
         // when
+        @SuppressWarnings("DataFlowIssue")
         Throwable ex = catchThrowable(
             () -> new SpringWebfluxApiExceptionHandler(
                 projectApiErrorsMock, listenerList, generalUtils, springUtilsMock, viewResolversProviderMock,
@@ -260,10 +269,12 @@ public class SpringWebfluxApiExceptionHandlerTest {
     @Test
     public void prepareFrameworkRepresentation_delegates_to_SpringWebfluxApiExceptionHandlerUtils() {
         // given
+        @SuppressWarnings("unchecked")
         Mono<ServerResponse> expectedResult = mock(Mono.class);
 
         DefaultErrorContractDTO errorContractDTOMock = mock(DefaultErrorContractDTO.class);
         int httpStatusCode = 400;
+        @SuppressWarnings("unchecked")
         Collection<ApiError> rawFilteredApiErrors = mock(Collection.class);
         Throwable originalException = mock(Throwable.class);
         RequestInfoForLogging request = mock(RequestInfoForLogging.class);
@@ -360,7 +371,7 @@ public class SpringWebfluxApiExceptionHandlerTest {
     }
 
     private void verifyMonoIsErrorMono(Mono<?> mono, Throwable expectedCause) {
-        Throwable ex = catchThrowable(() -> mono.block());
+        Throwable ex = catchThrowable(mono::block);
 
         assertThat(ex).isNotNull();
 
@@ -394,8 +405,10 @@ public class SpringWebfluxApiExceptionHandlerTest {
             .builder("foo", Arrays.asList("bar1", "bar2"))
             .put("blah", Collections.singletonList(UUID.randomUUID().toString()))
             .build();
+        @SuppressWarnings("unchecked")
+        Mono<ServerResponse> monoMock = mock(Mono.class);
         ErrorResponseInfo<Mono<ServerResponse>> errorResponseInfo = new ErrorResponseInfo<>(
-            400, mock(Mono.class), headersToAddToResponse
+            400, monoMock, headersToAddToResponse
         );
 
         // when

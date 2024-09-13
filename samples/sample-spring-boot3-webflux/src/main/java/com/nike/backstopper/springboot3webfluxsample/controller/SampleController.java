@@ -129,7 +129,7 @@ public class SampleController {
     }
 
     public Mono<ServerResponse> getSampleModelRouterFunction(ServerRequest request) {
-        return ServerResponse.ok().syncBody(
+        return ServerResponse.ok().bodyValue(
             new SampleModel(
                 UUID.randomUUID().toString(),
                 String.valueOf(nextRangeInt(0, 42)),

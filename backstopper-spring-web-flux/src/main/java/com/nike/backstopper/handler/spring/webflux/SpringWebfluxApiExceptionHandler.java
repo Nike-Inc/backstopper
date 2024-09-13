@@ -114,7 +114,7 @@ public class SpringWebfluxApiExceptionHandler extends ApiExceptionHandlerBase<Mo
     }
 
     @Override
-    public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
+    public @NotNull Mono<Void> handle(@NotNull ServerWebExchange exchange, @NotNull Throwable ex) {
         ServerRequest fluxRequest = ServerRequest.create(exchange, messageReaders);
         RequestInfoForLogging requestInfoForLogging = new RequestInfoForLoggingWebFluxAdapter(fluxRequest);
 
@@ -125,9 +125,8 @@ public class SpringWebfluxApiExceptionHandler extends ApiExceptionHandlerBase<Mo
             );
         }
         catch (UnexpectedMajorExceptionHandlingError ohNoException) {
-            logger.error(
-                "Unexpected major error while handling exception. "
-                + SpringWebfluxUnhandledExceptionHandler.class.getName() + " should handle it.", ohNoException
+            logger.error("Unexpected major error while handling exception. {} should handle it.",
+                         SpringWebfluxUnhandledExceptionHandler.class.getName(), ohNoException
             );
             return Mono.error(ex);
         }

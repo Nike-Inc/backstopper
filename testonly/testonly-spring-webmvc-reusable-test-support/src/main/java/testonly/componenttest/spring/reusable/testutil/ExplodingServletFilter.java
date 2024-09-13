@@ -2,6 +2,7 @@ package testonly.componenttest.spring.reusable.testutil;
 
 import com.nike.backstopper.exception.ApiException;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -23,7 +24,7 @@ public class ExplodingServletFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
-        HttpServletRequest request, HttpServletResponse response, FilterChain filterChain
+        HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain
     ) throws ServletException, IOException {
         if ("true".equals(request.getHeader("throw-servlet-filter-exception"))) {
             throw ApiException

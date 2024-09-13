@@ -32,6 +32,7 @@ public class MapBuilder<K, V> {
         return this;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public MapBuilder<K, V> putAll(Map<K, V> otherMap) {
         for (Map.Entry<K, V> entry : otherMap.entrySet()) {
             put(entry.getKey(), entry.getValue());

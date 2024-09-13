@@ -5,6 +5,9 @@ groupId = nikeInternalUtilGroupId
 group = nikeInternalUtilGroupId
 
 dependencies {
+    compileOnly(
+           "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
+    )
     testImplementation(
             "junit:junit:$junitVersion",
             "org.mockito:mockito-core:$mockitoVersion",

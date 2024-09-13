@@ -141,7 +141,7 @@ public class SpringWebfluxUnhandledExceptionHandler
     }
 
     @Override
-    public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
+    public @NotNull Mono<Void> handle(@NotNull ServerWebExchange exchange, @NotNull Throwable ex) {
         ServerRequest fluxRequest = ServerRequest.create(exchange, messageReaders);
         RequestInfoForLogging requestInfoForLogging = new RequestInfoForLoggingWebFluxAdapter(fluxRequest);
 

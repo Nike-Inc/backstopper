@@ -115,7 +115,11 @@ ext {
     javassistVersion = '3.23.2-GA'
 
     jettyVersion = '11.0.24'
+    // RestAssured has a vulnerability warning due to pulling in commons-codec:commons-codec:1.11, so we are manually
+    //      bumping it to remove the vuln warning. When we update RestAssured versions, see if we can get rid of this
+    //      hack fix.
     restAssuredVersion = '5.5.0'
+    commonsCodecVersion = '1.17.1'
 
     // JACOCO PROPERTIES
     jacocoToolVersion = '0.8.12'

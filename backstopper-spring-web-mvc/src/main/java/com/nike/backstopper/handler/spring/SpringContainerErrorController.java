@@ -86,13 +86,13 @@ public class SpringContainerErrorController {
     protected static class SpringbootErrorControllerIsNotOnClasspath implements ConfigurationCondition {
 
         @Override
-        public ConfigurationPhase getConfigurationPhase() {
+        public @NotNull ConfigurationPhase getConfigurationPhase() {
             return ConfigurationPhase.REGISTER_BEAN;
         }
 
         @Override
         public boolean matches(
-            ConditionContext context, AnnotatedTypeMetadata metadata
+            @NotNull ConditionContext context, @NotNull AnnotatedTypeMetadata metadata
         ) {
             // If we're in a Springboot application we want to return false to prevent registration.
             return !isClassAvailableOnClasspath("org.springframework.boot.web.servlet.error.ErrorController");

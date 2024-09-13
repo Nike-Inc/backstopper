@@ -13,6 +13,7 @@ dependencies {
             project(":backstopper-core").sourceSets.test.output,
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
             "junit:junit:$junitVersion",
+            "org.hamcrest:hamcrest-all:$hamcrestVersion",
             "org.mockito:mockito-core:$mockitoVersion",
             "ch.qos.logback:logback-classic:$logbackVersion",
             "org.assertj:assertj-core:$assertJVersion",

@@ -7,6 +7,7 @@ import com.nike.backstopper.handler.springboot.controller.BackstopperSpringboot3
 import com.nike.backstopper.springboot3webmvcsample.error.SampleProjectApiError;
 import com.nike.backstopper.springboot3webmvcsample.error.SampleProjectApiErrorsImpl;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,6 +40,7 @@ import jakarta.validation.Validator;
 @Import(BackstopperSpringboot3WebMvcConfig.class)
 // Instead of @Import(BackstopperSpringboot3WebMvcConfig.class), you could component scan the com.nike.backstopper
 //      package like this if you prefer component scanning: @ComponentScan(basePackages = "com.nike.backstopper")
+@SuppressWarnings("unused")
 public class SampleSpringboot3WebMvcSpringConfig {
 
     /**
@@ -60,6 +62,7 @@ public class SampleSpringboot3WebMvcSpringConfig {
      */
     @Bean
     public Validator getJsr303Validator() {
+        //noinspection resource
         return Validation.buildDefaultValidatorFactory().getValidator();
     }
 
@@ -70,7 +73,7 @@ public class SampleSpringboot3WebMvcSpringConfig {
      * a real app.
      */
     @Bean
-    public FilterRegistrationBean explodingServletFilter() {
+    public FilterRegistrationBean<?> explodingServletFilter() {
         FilterRegistrationBean<ExplodingFilter> frb = new FilterRegistrationBean<>(new ExplodingFilter());
         frb.setOrder(Ordered.HIGHEST_PRECEDENCE);
         return frb;
@@ -80,7 +83,7 @@ public class SampleSpringboot3WebMvcSpringConfig {
 
         @Override
         protected void doFilterInternal(
-            HttpServletRequest request, HttpServletResponse response, FilterChain filterChain
+            HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain
         ) throws ServletException, IOException {
             if ("true".equals(request.getHeader("throw-servlet-filter-exception"))) {
                 throw ApiException

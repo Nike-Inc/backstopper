@@ -25,5 +25,7 @@ dependencies {
             "org.mockito:mockito-core:$mockitoVersion",
             "org.assertj:assertj-core:$assertJVersion",
             "io.rest-assured:rest-assured:$restAssuredVersion",
+            // Pulling in commons-codec manually to avoid vulnerability warning coming from RestAssured transitive dep.
+            "commons-codec:commons-codec:$commonsCodecVersion",
     )
 }

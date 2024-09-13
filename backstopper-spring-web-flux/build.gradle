@@ -20,6 +20,8 @@ dependencies {
             "org.assertj:assertj-core:$assertJVersion",
             "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
             "io.rest-assured:rest-assured:$restAssuredVersion",
+            // Pulling in commons-codec manually to avoid vulnerability warning coming from RestAssured transitive dep.
+            "commons-codec:commons-codec:$commonsCodecVersion",
             "org.springframework.boot:spring-boot-starter-webflux:$springboot3_3Version",
             "jakarta.validation:jakarta.validation-api:$jakartaValidationVersion",
             "org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion",

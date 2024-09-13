@@ -157,18 +157,12 @@ public class JsonUtilWithDefaultErrorContractDTOSupportTest {
         assertThat(resultString).isEqualTo(defaultSerialization);
     }
 
-    private static class NonErrorObject {
-        public final String someString;
-        public final Integer someInt;
-        public final Double someDouble;
-        public final Map<String, String> someMap;
-
-        private NonErrorObject(String someString, Integer someInt, Double someDouble, Map<String, String> someMap) {
-            this.someString = someString;
-            this.someInt = someInt;
-            this.someDouble = someDouble;
-            this.someMap = someMap;
-        }
+    private record NonErrorObject(
+        String someString,
+        Integer someInt,
+        Double someDouble,
+        Map<String, String> someMap
+    ) {
     }
 
     @DataProvider(value = {

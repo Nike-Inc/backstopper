@@ -13,9 +13,9 @@ import java.util.Collection;
 public class StringUtils {
 
     /**
-     * Intentionally protected - use the static methods.
+     * Intentionally private - use the static methods.
      */
-    protected StringUtils() {
+    private StringUtils() {
         // do nothing
     }
 

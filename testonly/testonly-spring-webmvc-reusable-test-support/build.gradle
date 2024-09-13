@@ -16,6 +16,8 @@ dependencies {
             "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
             "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
             "io.rest-assured:rest-assured:$restAssuredVersion",
+            // Pulling in commons-codec manually to avoid vulnerability warning coming from RestAssured transitive dep.
+            "commons-codec:commons-codec:$commonsCodecVersion",
             "org.assertj:assertj-core:$assertJVersion",
     )
     testImplementation(

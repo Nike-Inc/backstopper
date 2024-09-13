@@ -22,7 +22,6 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.IOException;
@@ -64,9 +63,9 @@ public abstract class BaseSpringEnabledValidationTestCase extends AbstractJUnit4
 
         @Override
         public void beforeTestClass(TestContext testContext) throws Exception {
-            Class testClass = testContext.getTestClass();
+            Class<?> testClass = testContext.getTestClass();
             Logger logger = LoggerFactory.getLogger(testClass);
-            logger.info("******** Starting test_class=" + testClass.getName());
+            logger.info("******** Starting test_class={}", testClass.getName());
             super.beforeTestClass(testContext);
         }
     }
@@ -75,18 +74,15 @@ public abstract class BaseSpringEnabledValidationTestCase extends AbstractJUnit4
 
         @Override
         public void afterTestClass(TestContext testContext) throws Exception {
-            Class testClass = testContext.getTestClass();
+            Class<?> testClass = testContext.getTestClass();
             Logger logger = LoggerFactory.getLogger(testClass);
-            logger.info("******** Shutting down test_class=" + testClass.getName());
+            logger.info("******** Shutting down test_class={}", testClass.getName());
             super.afterTestClass(testContext);
         }
     }
 
     @Inject
     protected WebApplicationContext wac;
-
-    @Inject
-    protected RestTemplate restTemplate;
 
     protected MockMvc mockMvc;
 
@@ -122,7 +118,6 @@ public abstract class BaseSpringEnabledValidationTestCase extends AbstractJUnit4
      * expected errors (as per the default error handling contract), and that the MvcResult's {@link
      * org.springframework.test.web.servlet.MvcResult#getResolvedException()} matches the given expectedExceptionType.
      */
-    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
     protected void verifyErrorResponse(MvcResult result, ProjectApiErrors projectApiErrors,
                                        List<ApiError> expectedErrors, Class<? extends Exception> expectedExceptionType)
         throws IOException {

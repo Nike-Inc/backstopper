@@ -34,6 +34,7 @@ import java.util.List;
 @Configuration
 @ComponentScan(basePackages = "com.nike.backstopper") // Enable app-wide JSR-330 annotation-driven dependency injection.
 @Import(BackstopperSpringWebMvcConfig.class)
+@SuppressWarnings("unused")
 public class TestCaseValidationSpringConfig extends WebMvcConfigurationSupport {
 
     public static final ApiError INVALID_COUNT_VALUE = new ApiErrorBase("INVALID_COUNT_VALUE", 99042, "Invalid count value", 400, null);

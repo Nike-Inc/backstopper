@@ -20,6 +20,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.method.annotation.MethodArgumentConversionNotSupportedException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.MethodNotAllowedException;
@@ -94,11 +95,7 @@ public abstract class OneOffSpringCommonFrameworkExceptionHandlerListener implem
     ));
 
     // Support 503 cases from competing dependencies using classname matching.
-    protected final Set<String> DEFAULT_TO_503_CLASSNAMES = singleton(
-        // AsyncRequestTimeoutException didn't show up until more recent versions of Spring, so we'll check for it
-        //      by classname to prevent unnecessarily breaking existing Backstopper users on older versions of Spring.
-        "org.springframework.web.context.request.async.AsyncRequestTimeoutException"
-    );
+    protected final Set<String> DEFAULT_TO_503_CLASSNAMES = Collections.emptySet();
 
     /**
      * @param projectApiErrors The {@link ProjectApiErrors} that should be used by this instance when finding {@link
@@ -164,7 +161,7 @@ public abstract class OneOffSpringCommonFrameworkExceptionHandlerListener implem
             return handleHttpMessageConversionException((HttpMessageConversionException)ex, extraDetailsForLogging);
         }
 
-        if (isA503TemporaryProblemExceptionClassname(exClassname)) {
+        if (ex instanceof AsyncRequestTimeoutException || isA503TemporaryProblemExceptionClassname(exClassname)) {
             return handleError(projectApiErrors.getTemporaryServiceProblemApiError(), extraDetailsForLogging);
         }
 

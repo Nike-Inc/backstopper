@@ -7,6 +7,7 @@ import com.nike.backstopper.springboot3webfluxsample.controller.SampleController
 import com.nike.backstopper.springboot3webfluxsample.error.SampleProjectApiError;
 import com.nike.backstopper.springboot3webfluxsample.error.SampleProjectApiErrorsImpl;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -46,6 +47,7 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 @Import(BackstopperSpringWebFluxConfig.class)
 // Instead of @Import(BackstopperSpringWebFluxConfig.class), you could component scan the com.nike.backstopper
 //      package like this if you prefer component scanning: @ComponentScan(basePackages = "com.nike.backstopper")
+@SuppressWarnings("unused")
 public class SampleSpringboot3WebFluxSpringConfig {
 
     /**
@@ -67,6 +69,7 @@ public class SampleSpringboot3WebFluxSpringConfig {
      */
     @Bean
     public Validator getJsr303Validator() {
+        //noinspection resource
         return Validation.buildDefaultValidatorFactory().getValidator();
     }
 
@@ -96,8 +99,8 @@ public class SampleSpringboot3WebFluxSpringConfig {
     public static class ExplodingWebFilter implements WebFilter {
         
         @Override
-        public Mono<Void> filter(
-            ServerWebExchange exchange, WebFilterChain chain
+        public @NotNull Mono<Void> filter(
+            ServerWebExchange exchange, @NotNull WebFilterChain chain
         ) {
             HttpHeaders httpHeaders = exchange.getRequest().getHeaders();
             
@@ -127,9 +130,9 @@ public class SampleSpringboot3WebFluxSpringConfig {
         implements HandlerFilterFunction<ServerResponse, ServerResponse> {
 
         @Override
-        public Mono<ServerResponse> filter(
+        public @NotNull Mono<ServerResponse> filter(
             ServerRequest serverRequest,
-            HandlerFunction<ServerResponse> handlerFunction
+            @NotNull HandlerFunction<ServerResponse> handlerFunction
         ) {
             HttpHeaders httpHeaders = serverRequest.headers().asHttpHeaders();
 

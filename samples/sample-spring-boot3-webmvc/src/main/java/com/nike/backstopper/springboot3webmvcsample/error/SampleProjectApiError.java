@@ -18,7 +18,7 @@ import java.util.UUID;
  * conform to the range specified in {@link SampleProjectApiErrorsImpl#getProjectSpecificErrorCodeRange()} or an
  * exception will be thrown on app startup, and unit tests should fail. The one exception to this rule is a "core
  * error wrapper" - an instance that shares the same error code, message, and HTTP status code as a
- * {@link SampleProjectApiErrorsImpl#getCoreApiErrors()} instance (in this case that means a wrapper around
+ * {@code SampleProjectApiErrorsImpl.getCoreApiErrors()} instance (in this case that means a wrapper around
  * {@link SampleCoreApiError}).
  *
  * @author Nic Munroe

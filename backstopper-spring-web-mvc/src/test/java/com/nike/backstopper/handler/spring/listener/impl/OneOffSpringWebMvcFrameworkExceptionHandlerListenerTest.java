@@ -73,6 +73,7 @@ public class OneOffSpringWebMvcFrameworkExceptionHandlerListenerTest {
     @Test
     public void constructor_throws_IllegalArgumentException_if_passed_null_projectApiErrors() {
         // when
+        @SuppressWarnings("DataFlowIssue")
         Throwable ex = Assertions.catchThrowable(
             () -> new OneOffSpringWebMvcFrameworkExceptionHandlerListener(null, ApiExceptionHandlerUtils.DEFAULT_IMPL)
         );
@@ -84,6 +85,7 @@ public class OneOffSpringWebMvcFrameworkExceptionHandlerListenerTest {
     @Test
     public void constructor_throws_IllegalArgumentException_if_passed_null_utils() {
         // when
+        @SuppressWarnings("DataFlowIssue")
         Throwable ex = Assertions.catchThrowable(
             () -> new OneOffSpringWebMvcFrameworkExceptionHandlerListener(mock(ProjectApiErrors.class), null)
         );
@@ -116,7 +118,7 @@ public class OneOffSpringWebMvcFrameworkExceptionHandlerListenerTest {
 
     private void validateResponse(
         ApiExceptionHandlerListenerResult result,
-        boolean expectedShouldHandle,
+        @SuppressWarnings("SameParameterValue") boolean expectedShouldHandle,
         Collection<? extends ApiError> expectedErrors,
         List<Pair<String, String>> expectedExtraDetailsForLogging
     ) {
@@ -229,6 +231,7 @@ public class OneOffSpringWebMvcFrameworkExceptionHandlerListenerTest {
         validateResponse(result, true, singletonList(testProjectApiErrors.getUnsupportedMediaTypeApiError()));
     }
 
+    @SuppressWarnings("unused")
     public void methodWithAnnotatedParams(
         @RequestHeader int headerParam,
         @RequestParam int queryParam,

@@ -49,6 +49,7 @@ public class SpringApiExceptionHandlerTest {
         doReturn(null).when(handlerSpy).maybeHandleException(isNull(), isNull(), isNull());
 
         // when
+        @SuppressWarnings("DataFlowIssue")
         ModelAndView result = handlerSpy.resolveException(null, null, null, null);
 
         // then
@@ -64,6 +65,7 @@ public class SpringApiExceptionHandlerTest {
             .when(handlerSpy).maybeHandleException(isNull(), isNull(), isNull());
 
         // when
+        @SuppressWarnings("DataFlowIssue")
         ModelAndView result = handlerSpy.resolveException(null, null, null, null);
 
         // then

@@ -4,6 +4,8 @@ package com.nike.internal.util;
 //       entire library for just a few utilities. See the license notification in NOTICE.txt at the root of this project
 //       for license info.
 
+import java.io.Serial;
+
 /**
  * <p>An immutable pair consisting of two {@code Object} elements.</p>
  *
@@ -22,6 +24,7 @@ package com.nike.internal.util;
 public final class ImmutablePair<L, R> extends Pair<L, R> {
 
     /** Serialization version */
+    @Serial
     private static final long serialVersionUID = 4954918890077093841L;
 
     /** Left object */

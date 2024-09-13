@@ -21,11 +21,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class StringUtilsTest {
 
     @Test
-    public void use_protected_constructor_for_no_good_reason_other_than_code_coverage() {
-        new StringUtils();
-    }
-
-    @Test
     @DataProvider(value = {
             "foo        |   bar         |   ,           |   foo,bar",
             "whee       |   42          |   !           |   whee!42",

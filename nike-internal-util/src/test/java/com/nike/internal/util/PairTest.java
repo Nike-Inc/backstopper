@@ -69,6 +69,7 @@ public class PairTest {
         Pair<String, String> pair = PairForTests.of("foo", "bar");
 
         // expect
+        //noinspection EqualsWithItself
         assertThat(pair.compareTo(pair), is(0));
     }
 
