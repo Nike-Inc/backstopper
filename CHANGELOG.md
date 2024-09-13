@@ -7,6 +7,10 @@ Note that the `nike-internal-util` library is technically version-independent ev
 this repository. Check out that library's [CHANGELOG.md](./nike-internal-util/CHANGELOG.md) for details on its changes. This changelog file is 
 specifically for the `backstopper-*` libraries. 
 
+#### 2.x Releases
+
+- `2.0.x` Releases - [2.0.0](#200)
+
 #### 1.x Releases
 
 - `1.15.x` Releases - [1.15.2](#1152)
@@ -20,6 +24,51 @@ specifically for the `backstopper-*` libraries.
 - `0.11.x` Releases - [0.11.5](#0115), [0.11.4](#0114), [0.11.3](#0113), [0.11.2](#0112), [0.11.1](#0111), [0.11.0](#0110)
 - `0.10.x` Releases - [0.10.0](#0100)                     
 - `0.9.x` Releases - [0.9.2](#092), [0.9.1.1](#0911), [0.9.1](#091), [0.9.0.1](#0901), [0.9.0](#090)
+
+## [2.0.0](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v2.0.0)
+
+Released on 2024-09-13.
+             
+All changes for `2.0.0` were made by [Nic Munroe][contrib_nicmunroe] in pull request
+[#72](https://github.com/Nike-Inc/backstopper/pull/72).
+        
+### Breaking Changes
+
+- Backstopper `2.0.0` represents a major change from the old `javax` ecosystem to the new `jakarta` ecosystem. 
+  All `javax` based dependencies and references have been replaced with their `jakarta` counterparts. 
+- Java 17 is now the minimum required Java version.
+- Support for many older frameworks has been dropped due to these changes, and some new ones added. For the
+  frameworks currently supported in `2.x`, see the 
+  [Integration Modules](https://github.com/Nike-Inc/backstopper?tab=readme-ov-file#modules) section in the main branch
+  readme (includes Servlet API `6.x`, Spring `6.x`, and Spring Boot `3.x`).
+
+NOTE: If you still need support for older Java versions and the `javax` ecosystem, see the 
+[Backstopper 1.x branch](https://github.com/Nike-Inc/backstopper/tree/v1.x). The Backstopper `1.x` releases also contain 
+support for JAX-RS 2, Jersey 1 and 2, Spring 4 and 5, and Springboot 1 and 2 - see
+[here](https://github.com/Nike-Inc/backstopper/tree/v1.x?tab=readme-ov-file#framework_modules).
+
+### Updated
+
+- Migrated all code from `javax` to the `jakarta` ecosystem.
+- Updated all libraries to Java 17.
+- Updated all dependencies to the latest versions.
+
+### Removed
+
+- Removed support for JAX-RS 2, Jersey 1 and 2, Spring 4 and 5, and Springboot 1 and 2. 
+  + These are still supported in the Backstopper `1.x` branch - see 
+    [here](https://github.com/Nike-Inc/backstopper/tree/v1.x?tab=readme-ov-file#framework_modules). Everything in the 
+    `1.x` branch should be considered deprecated - it's unlikely to see much further development.
+
+### Added
+
+- Added support for Servlet API `6.x`, Spring `6.x`, and Spring Boot `3.x`.
+  + See the [Integration Modules](https://github.com/Nike-Inc/backstopper?tab=readme-ov-file#modules) section in the 
+    main branch readme for details.
+- Added sample apps for Spring `6.x` and Spring Boot `3.x`, for both WebMVC and WebFlux. 
+  + See the [samples](https://github.com/Nike-Inc/backstopper?tab=readme-ov-file#modules) section of the main readme 
+    for details.
+
 
 ## [1.15.2](https://github.com/Nike-Inc/backstopper/releases/tag/backstopper-v1.15.2)
 
