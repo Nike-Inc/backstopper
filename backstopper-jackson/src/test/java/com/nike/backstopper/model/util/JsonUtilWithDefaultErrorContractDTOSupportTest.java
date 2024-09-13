@@ -253,11 +253,6 @@ public class JsonUtilWithDefaultErrorContractDTOSupportTest {
     }
 
     @Test
-    public void code_coverage_hoops() {
-        new JsonUtilWithDefaultErrorContractDTOSupport();
-    }
-
-    @Test
     public void ErrorContractSerializationFactory_findPropWriter_returns_null_if_it_cannot_find_() {
         // given
         ErrorContractSerializationFactory impl = new ErrorContractSerializationFactory(null, true, true);
@@ -322,6 +317,7 @@ public class JsonUtilWithDefaultErrorContractDTOSupportTest {
         assertThat(ex).isInstanceOf(NullPointerException.class);
     }
 
+    @SuppressWarnings("unused")
     public static class FooClass {
         public String metadata = "foo";
         public String code = "42";

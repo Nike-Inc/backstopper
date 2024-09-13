@@ -24,7 +24,7 @@ import jakarta.validation.Validator;
  * SpringApiExceptionHandler} and {@link SpringUnhandledExceptionHandler} in your application. These two exception
  * handlers will supersede the built-in spring exception handler chain and will translate <b>ALL</b> errors heading to
  * the caller so that they conform to the API error contract.
- *
+ * <p>
  * This also pulls in {@link BackstopperSpringboot3ContainerErrorController} to handle exceptions that originate in the
  * Servlet container outside Spring proper so they can also be handled by Backstopper. See the
  * {@link SpringApiExceptionHandler}, {@link SpringUnhandledExceptionHandler}, and

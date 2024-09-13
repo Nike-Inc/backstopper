@@ -29,6 +29,7 @@ import org.springframework.core.MethodParameter;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.codec.DecodingException;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -87,6 +88,7 @@ import static org.mockito.Mockito.verify;
  * @author Nic Munroe
  */
 @RunWith(DataProviderRunner.class)
+@SuppressWarnings("ClassEscapesDefinedScope")
 public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends ListenerTestBase {
 
     private static final ProjectApiErrors testProjectApiErrors = ProjectApiErrorsForTesting.withProjectSpecificData(null, null);
@@ -129,6 +131,7 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
     @Test
     public void constructor_throws_IllegalArgumentException_if_passed_null_projectApiErrors() {
         // when
+        @SuppressWarnings("DataFlowIssue")
         Throwable ex = Assertions.catchThrowable(
             () -> new OneOffListenerBasicImpl(null, ApiExceptionHandlerUtils.DEFAULT_IMPL)
         );
@@ -140,6 +143,7 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
     @Test
     public void constructor_throws_IllegalArgumentException_if_passed_null_utils() {
         // when
+        @SuppressWarnings("DataFlowIssue")
         Throwable ex = Assertions.catchThrowable(
             () -> new OneOffListenerBasicImpl(mock(ProjectApiErrors.class), null)
         );
@@ -407,23 +411,27 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
 
     private enum HttpMessageNotReadableExceptionScenario {
         KNOWN_MESSAGE_FOR_MISSING_CONTENT(
-            new HttpMessageNotReadableException("Required request body is missing " + UUID.randomUUID()),
+            new HttpMessageNotReadableException("Required request body is missing " + UUID.randomUUID(),
+                                                mock(HttpInputMessage.class)),
             ProjectApiErrors::getMissingExpectedContentApiError
         ),
         JSON_MAPPING_EXCEPTION_CAUSE_INDICATING_NO_CONTENT(
-            new HttpMessageNotReadableException("foobar", new JsonMappingException("No content to map due to end-of-input")),
+            new HttpMessageNotReadableException("foobar", new JsonMappingException(null, "No content to map due to end-of-input"),
+                                                mock(HttpInputMessage.class)),
             ProjectApiErrors::getMissingExpectedContentApiError
         ),
         CAUSE_IS_NULL(
-            new HttpMessageNotReadableException("foobar", null, null),
+            new HttpMessageNotReadableException("foobar", null, mock(HttpInputMessage.class)),
             ProjectApiErrors::getMalformedRequestApiError
         ),
         CAUSE_IS_NOT_JSON_MAPPING_EXCEPTION(
-            new HttpMessageNotReadableException("foobar", new Exception("No content to map due to end-of-input")),
+            new HttpMessageNotReadableException("foobar", new Exception("No content to map due to end-of-input"),
+                                                mock(HttpInputMessage.class)),
             ProjectApiErrors::getMalformedRequestApiError
         ),
         CAUSE_IS_JSON_MAPPING_EXCEPTION_BUT_JME_MESSAGE_IS_NOT_THE_NO_CONTENT_MESSAGE(
-            new HttpMessageNotReadableException("foobar", new JsonMappingException("garbagio")),
+            new HttpMessageNotReadableException("foobar", new JsonMappingException(null, "garbagio"),
+                                                mock(HttpInputMessage.class)),
             ProjectApiErrors::getMalformedRequestApiError
         );
 
@@ -643,21 +651,7 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
 
     private void validateResponse(
         ApiExceptionHandlerListenerResult result,
-        boolean expectedShouldHandle,
-        Collection<? extends ApiError> expectedErrors,
-        Pair<String, String> ... expectedExtraDetailsForLogging
-    ) {
-        List<Pair<String, String>> loggingDetailsList = (expectedExtraDetailsForLogging == null)
-                                                        ? Collections.emptyList()
-                                                        : Arrays.asList(expectedExtraDetailsForLogging);
-        validateResponse(
-            result, expectedShouldHandle, expectedErrors, loggingDetailsList
-        );
-    }
-
-    private void validateResponse(
-        ApiExceptionHandlerListenerResult result,
-        boolean expectedShouldHandle,
+        @SuppressWarnings("SameParameterValue") boolean expectedShouldHandle,
         Collection<? extends ApiError> expectedErrors,
         List<Pair<String, String>> expectedExtraDetailsForLogging
     ) {
@@ -672,7 +666,7 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
 
     private enum TypeMismatchExceptionScenario {
         CONVERSION_NOT_SUPPORTED_500(
-            HttpStatus.resolve(500),
+            HttpStatus.valueOf(500),
             new ConversionNotSupportedException(
                 new PropertyChangeEvent("doesNotMatter", "somePropertyName", "oldValue", "newValue"),
                 Integer.class,
@@ -686,7 +680,7 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
             )
         ),
         GENERIC_TYPE_MISMATCH_EXCEPTION_400(
-            HttpStatus.resolve(400),
+            HttpStatus.valueOf(400),
             new TypeMismatchException(
                 new PropertyChangeEvent("doesNotMatter", "somePropertyName", "oldValue", "newValue"),
                 Integer.class
@@ -704,19 +698,19 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
             )
         ),
         UNEXPECTED_4XX_STATUS_CODE(
-            HttpStatus.resolve(403),
+            HttpStatus.valueOf(403),
             new TypeMismatchException("doesNotMatter", Integer.class),
             testProjectApiErrors.getForbiddenApiError(),
             Collections.emptyList()
         ),
         UNEXPECTED_5XX_STATUS_CODE(
-            HttpStatus.resolve(503),
+            HttpStatus.valueOf(503),
             new TypeMismatchException("doesNotMatter", Integer.class),
             testProjectApiErrors.getTemporaryServiceProblemApiError(),
             Collections.emptyList()
         ),
         UNKNOWN_4XX_STATUS_CODE(
-            HttpStatus.resolve(418),
+            HttpStatus.valueOf(418),
             new TypeMismatchException("doesNotMatter", Integer.class),
             new ApiErrorBase(
                 "GENERIC_API_ERROR_FOR_RESPONSE_STATUS_CODE_418",
@@ -727,7 +721,7 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
             Collections.emptyList()
         ),
         UNKNOWN_5XX_STATUS_CODE(
-            HttpStatus.resolve(509),
+            HttpStatus.valueOf(509),
             new TypeMismatchException("doesNotMatter", Integer.class),
             new ApiErrorBase(
                 "GENERIC_API_ERROR_FOR_RESPONSE_STATUS_CODE_509",
@@ -798,7 +792,7 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
     ) {
         // given
         ResponseStatusException ex = new ResponseStatusException(
-            HttpStatus.resolve(statusCode),
+            HttpStatus.valueOf(statusCode),
             "Some ResponseStatusException reason",
             new DecodingException("Some decoding ex")
         );
@@ -869,7 +863,7 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
         BarebonesCoreApiErrorForTesting expectedBaseError
     ) {
         // given
-        ResponseStatusException ex = new ResponseStatusException(HttpStatus.resolve(statusCode), exReasonString);
+        ResponseStatusException ex = new ResponseStatusException(HttpStatus.valueOf(statusCode), exReasonString);
         List<Pair<String, String>> expectedExtraDetailsForLogging = new ArrayList<>();
         ApiExceptionHandlerUtils.DEFAULT_IMPL.addBaseExceptionMessageToExtraDetailsForLogging(
             ex, expectedExtraDetailsForLogging
@@ -908,7 +902,7 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
         int statusCode, String exReasonString, BarebonesCoreApiErrorForTesting expectedError
     ) {
         // given
-        ResponseStatusException ex = new ResponseStatusException(HttpStatus.resolve(statusCode), exReasonString);
+        ResponseStatusException ex = new ResponseStatusException(HttpStatus.valueOf(statusCode), exReasonString);
         List<Pair<String, String>> expectedExtraDetailsForLogging = new ArrayList<>();
         ApiExceptionHandlerUtils.DEFAULT_IMPL.addBaseExceptionMessageToExtraDetailsForLogging(
             ex, expectedExtraDetailsForLogging
@@ -944,7 +938,7 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
     ) {
         // given
         ResponseStatusException ex = new ResponseStatusException(
-            HttpStatus.resolve(desiredStatusCode), "Some ResponseStatusException reason"
+            HttpStatus.valueOf(desiredStatusCode), "Some ResponseStatusException reason"
         );
         List<Pair<String, String>> expectedExtraDetailsForLogging = new ArrayList<>();
         ApiExceptionHandlerUtils.DEFAULT_IMPL.addBaseExceptionMessageToExtraDetailsForLogging(
@@ -968,12 +962,13 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
         "509"
     })
     @Test
+    @SuppressWarnings("ExtractMethodRecommender")
     public void shouldHandleException_handles_generic_ResponseStatusException_by_returning_synthetic_ApiError_if_status_code_is_unknown(
         int desiredStatusCode
     ) {
         // given
         ResponseStatusException ex = new ResponseStatusException(
-            HttpStatus.resolve(desiredStatusCode), "Some ResponseStatusException reason"
+            HttpStatus.valueOf(desiredStatusCode), "Some ResponseStatusException reason"
         );
         List<Pair<String, String>> expectedExtraDetailsForLogging = new ArrayList<>();
         ApiExceptionHandlerUtils.DEFAULT_IMPL.addBaseExceptionMessageToExtraDetailsForLogging(
@@ -1042,7 +1037,7 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
         assertThat(supportedMethodsLoggingDetailsValue).isPresent();
         List<HttpMethod> actualLoggingDetailsMethods = supportedMethodsLoggingDetailsValue
             .map(s -> {
-                if (s.equals("")) {
+                if (s.isEmpty()) {
                     return Collections.<HttpMethod>emptyList();
                 }
                 return Arrays.stream(s.split(",")).map(HttpMethod::valueOf).collect(Collectors.toList());
@@ -1180,6 +1175,7 @@ public class OneOffSpringCommonFrameworkExceptionHandlerListenerTest extends Lis
         );
     }
 
+    @SuppressWarnings("unused")
     public void methodWithAnnotatedParams(
         @RequestHeader int headerParam,
         @RequestParam int queryParam,

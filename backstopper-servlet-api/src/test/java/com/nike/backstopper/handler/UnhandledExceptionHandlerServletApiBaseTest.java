@@ -30,7 +30,7 @@ import static org.mockito.Mockito.verify;
  */
 public class UnhandledExceptionHandlerServletApiBaseTest {
 
-    private UnhandledExceptionHandlerServletApiBase instanceSpy;
+    private UnhandledExceptionHandlerServletApiBase<?> instanceSpy;
     private HttpServletRequest servletRequestMock;
     private HttpServletResponse servletResponseMock;
 
@@ -57,15 +57,15 @@ public class UnhandledExceptionHandlerServletApiBaseTest {
 
     @Test
     public void handleExceptionReturnsSuperValue() {
-        ErrorResponseInfo expectedResponseInfo = new ErrorResponseInfo(42, null, null);
+        ErrorResponseInfo<?> expectedResponseInfo = new ErrorResponseInfo<>(42, null, null);
         doReturn(expectedResponseInfo).when(instanceSpy).handleException(any(Throwable.class), any(RequestInfoForLogging.class));
-        ErrorResponseInfo actualResponseInfo = instanceSpy.handleException(new Exception(), servletRequestMock, servletResponseMock);
+        ErrorResponseInfo<?> actualResponseInfo = instanceSpy.handleException(new Exception(), servletRequestMock, servletResponseMock);
         assertThat(actualResponseInfo, sameInstance(expectedResponseInfo));
     }
 
     @Test
     public void handleExceptionSetsHeadersAndStatusCodeOnServletResponse() {
-        ErrorResponseInfo<?> expectedResponseInfo = new ErrorResponseInfo(
+        ErrorResponseInfo<?> expectedResponseInfo = new ErrorResponseInfo<>(
             42,
             null,
             MapBuilder.<String, List<String>>builder()

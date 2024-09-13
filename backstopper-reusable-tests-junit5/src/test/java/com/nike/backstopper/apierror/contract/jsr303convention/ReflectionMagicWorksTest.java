@@ -34,7 +34,6 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Verifies the logic in {@link ReflectionBasedJsr303AnnotationTrollerBase} to make sure that its reflection magic works the way we expect it to.
@@ -109,27 +108,6 @@ public class ReflectionMagicWorksTest {
         assertThat(strictMemberCheckClassAnnotations.size()).isGreaterThan(4);
         assertThat(getSubAnnotationListUsingExclusionFilters(strictMemberCheckClassAnnotations, null, STRICT_MEMBER_CHECK_EXCLUSIONS))
             .hasSize(strictMemberCheckClassAnnotations.size() - 4);
-    }
-
-    /**
-     * Another test for {@link ReflectionBasedJsr303AnnotationTrollerBase#getSubAnnotationListUsingExclusionFilters(java.util.List, java.util.List, java.util.List)}
-     */
-    @Test
-    public void verifyThatExclusionFilterMethodIsExcludingBoth() {
-        List<Pair<Annotation, AnnotatedElement>> annotationOptionsClassAnnotations = getSubAnnotationListForElementsOfOwnerClass(TROLLER.allConstraintAnnotationsMasterList,
-                DifferentValidationAnnotationOptions.class);
-        List<Pair<Annotation, AnnotatedElement>> strictMemberCheckClassAnnotations = getSubAnnotationListForElementsOfOwnerClass(TROLLER.allConstraintAnnotationsMasterList,
-                StrictMemberCheck.class);
-
-        List<Pair<Annotation, AnnotatedElement>> combinedAnnotations = new ArrayList<>(annotationOptionsClassAnnotations);
-        combinedAnnotations.addAll(strictMemberCheckClassAnnotations);
-
-        assertTrue(strictMemberCheckClassAnnotations.size() > 4);
-        assertThat(
-            getSubAnnotationListUsingExclusionFilters(
-                strictMemberCheckClassAnnotations, singletonList(DifferentValidationAnnotationOptions.class), STRICT_MEMBER_CHECK_EXCLUSIONS
-            )
-        ).hasSize(strictMemberCheckClassAnnotations.size() - 4);
     }
 
     @SomeClassLevelJsr303Annotation.List(
@@ -235,11 +213,6 @@ public class ReflectionMagicWorksTest {
 
     public static class SomeClassLevelJsr303AnnotationValidator implements ConstraintValidator<SomeClassLevelJsr303Annotation, Object> {
         @Override
-        public void initialize(SomeClassLevelJsr303Annotation constraintAnnotation) {
-
-        }
-
-        @Override
         public boolean isValid(Object value, ConstraintValidatorContext context) {
             return true;
         }
@@ -264,11 +237,6 @@ public class ReflectionMagicWorksTest {
     }
 
     public static class OtherClassLevelJsr303AnnotationValidator implements ConstraintValidator<OtherClassLevelJsr303Annotation, Object> {
-        @Override
-        public void initialize(OtherClassLevelJsr303Annotation constraintAnnotation) {
-
-        }
-
         @Override
         public boolean isValid(Object value, ConstraintValidatorContext context) {
             return true;

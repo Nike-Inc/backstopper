@@ -11,6 +11,7 @@ dependencies {
             "jakarta.servlet:jakarta.servlet-api:$servletApiVersion",
     )
     testImplementation(
+            "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
             "junit:junit:$junitVersion",
             "org.mockito:mockito-core:$mockitoVersion",
             "ch.qos.logback:logback-classic:$logbackVersion",

@@ -26,7 +26,7 @@ public class TestUtils {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public static void verifyErrorReceived(ExtractableResponse response, ApiError expectedError) {
+    public static void verifyErrorReceived(ExtractableResponse<?> response, ApiError expectedError) {
         verifyErrorReceived(response, singleton(expectedError), expectedError.getHttpStatusCode());
     }
 
@@ -41,7 +41,7 @@ public class TestUtils {
     }
 
     public static void verifyErrorReceived(
-        ExtractableResponse response,
+        ExtractableResponse<?> response,
         Collection<ApiError> expectedErrors,
         int expectedHttpStatusCode
     ) {

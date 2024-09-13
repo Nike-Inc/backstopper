@@ -181,7 +181,7 @@ public class BackstopperSpringWebFluxComponentTest {
 
     @Test
     public void verify_non_error_endpoint_responds_without_error() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -198,7 +198,7 @@ public class BackstopperSpringWebFluxComponentTest {
 
     @Test
     public void verify_ENDPOINT_ERROR_returned_if_error_endpoint_is_called() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -214,7 +214,7 @@ public class BackstopperSpringWebFluxComponentTest {
 
     @Test
     public void verify_NOT_FOUND_returned_if_unknown_path_is_requested() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -238,7 +238,7 @@ public class BackstopperSpringWebFluxComponentTest {
     public void verify_mono_endpoint(
         String specialHeader, ComponentTestProjectApiError expectedError
     ) {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -268,7 +268,7 @@ public class BackstopperSpringWebFluxComponentTest {
     public void verify_flux_endpoint(
         String specialHeader, ComponentTestProjectApiError expectedError
     ) {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -298,7 +298,7 @@ public class BackstopperSpringWebFluxComponentTest {
     public void verify_router_function_endpoint(
         String specialHeader, ComponentTestProjectApiError expectedError
     ) {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -329,7 +329,7 @@ public class BackstopperSpringWebFluxComponentTest {
     public void verify_exploding_filter_behavior(
         String specialHeader, ComponentTestProjectApiError expectedError
     ) {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -346,7 +346,7 @@ public class BackstopperSpringWebFluxComponentTest {
 
     @Test
     public void verify_METHOD_NOT_ALLOWED_returned_if_known_path_is_requested_with_invalid_http_method() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -362,7 +362,7 @@ public class BackstopperSpringWebFluxComponentTest {
 
     @Test
     public void verify_sample_get_fails_with_NO_ACCEPTABLE_REPRESENTATION_if_passed_invalid_accept_header() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -382,7 +382,7 @@ public class BackstopperSpringWebFluxComponentTest {
         SampleModel requestPayload = randomizedSampleModel();
         String requestPayloadAsString = objectMapper.writeValueAsString(requestPayload);
 
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -400,7 +400,7 @@ public class BackstopperSpringWebFluxComponentTest {
     
     @Test
     public void verify_TYPE_CONVERSION_ERROR_is_thrown_when_framework_cannot_convert_type_for_query_param() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -440,7 +440,7 @@ public class BackstopperSpringWebFluxComponentTest {
 
     @Test
     public void verify_TYPE_CONVERSION_ERROR_is_thrown_when_framework_cannot_convert_type_for_header() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -480,7 +480,7 @@ public class BackstopperSpringWebFluxComponentTest {
 
     @Test
     public void verify_ResponseStatusException_with_TypeMismatchException_is_handled_generically_when_status_code_is_unexpected() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -507,7 +507,7 @@ public class BackstopperSpringWebFluxComponentTest {
 
     @Test
     public void verify_MALFORMED_REQUEST_is_thrown_when_required_query_param_is_missing_and_error_metadata_must_be_extracted_from_ex_reason() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -541,7 +541,7 @@ public class BackstopperSpringWebFluxComponentTest {
 
     @Test
     public void verify_MALFORMED_REQUEST_is_thrown_when_required_header_is_missing_and_error_metadata_must_be_extracted_from_ex_reason() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -575,7 +575,7 @@ public class BackstopperSpringWebFluxComponentTest {
 
     @Test
     public void verify_GENERIC_SERVICE_ERROR_returned_if_ServerErrorException_is_thrown() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -598,7 +598,7 @@ public class BackstopperSpringWebFluxComponentTest {
 
     @Test
     public void verify_GENERIC_SERVICE_ERROR_returned_if_ResponseStatusException_with_ConversionNotSupportedException_cause_is_thrown() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -623,7 +623,7 @@ public class BackstopperSpringWebFluxComponentTest {
 
     @Test
     public void verify_sample_post_fails_with_MISSING_EXPECTED_CONTENT_if_passed_empty_body() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -659,7 +659,7 @@ public class BackstopperSpringWebFluxComponentTest {
         badRequestPayloadAsMap.put("throw_manual_error", "not-a-boolean");
         String badJsonPayloadAsString = objectMapper.writeValueAsString(badRequestPayloadAsMap);
 
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -714,7 +714,7 @@ public class BackstopperSpringWebFluxComponentTest {
         SampleModel requestPayload = new SampleModel(fooString, rangeString, rgbColorString, false);
         String requestPayloadAsString = objectMapper.writeValueAsString(requestPayload);
 
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -756,7 +756,7 @@ public class BackstopperSpringWebFluxComponentTest {
 
     @Test
     public void verify_GENERIC_SERVICE_ERROR_returned_if_unhandled_exception_is_thrown() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -791,7 +791,7 @@ public class BackstopperSpringWebFluxComponentTest {
     public void verify_generic_ResponseStatusCode_exceptions_result_in_ApiError_from_project_if_status_code_is_known(
         int desiredStatusCode, SampleCoreApiError expectedError
     ) {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -821,7 +821,7 @@ public class BackstopperSpringWebFluxComponentTest {
     public void verify_generic_ResponseStatusCode_exception_with_unknown_status_code_results_in_synthetic_ApiError(
         int unknownStatusCode
     ) {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -854,7 +854,7 @@ public class BackstopperSpringWebFluxComponentTest {
         );
     }
 
-    private void verifyErrorReceived(ExtractableResponse response, ApiError expectedError) {
+    private void verifyErrorReceived(ExtractableResponse<?> response, ApiError expectedError) {
         verifyErrorReceived(response, singleton(expectedError), expectedError.getHttpStatusCode());
     }
 
@@ -867,7 +867,7 @@ public class BackstopperSpringWebFluxComponentTest {
         return null;
     }
 
-    private void verifyErrorReceived(ExtractableResponse response, Collection<ApiError> expectedErrors, int expectedHttpStatusCode) {
+    private void verifyErrorReceived(ExtractableResponse<?> response, Collection<ApiError> expectedErrors, int expectedHttpStatusCode) {
         assertThat(response.statusCode()).isEqualTo(expectedHttpStatusCode);
         try {
             DefaultErrorContractDTO errorContract = objectMapper.readValue(response.asString(), DefaultErrorContractDTO.class);
@@ -1173,7 +1173,7 @@ public class BackstopperSpringWebFluxComponentTest {
                 request.getHeaders().getFirst("desired-status-code")
             );
             throw new ResponseStatusException(
-                HttpStatus.resolve(desiredStatusCode),
+                HttpStatus.valueOf(desiredStatusCode),
                 "Synthetic ResponseStatusException with specific desired status code: " + desiredStatusCode
             );
         }

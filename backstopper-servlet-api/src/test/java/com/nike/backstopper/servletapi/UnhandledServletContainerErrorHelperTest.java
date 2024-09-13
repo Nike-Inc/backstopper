@@ -36,6 +36,7 @@ import static org.mockito.Mockito.mock;
  * @author Nic Munroe
  */
 @RunWith(DataProviderRunner.class)
+@SuppressWarnings("ClassEscapesDefinedScope")
 public class UnhandledServletContainerErrorHelperTest {
 
     private UnhandledServletContainerErrorHelper helper;

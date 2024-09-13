@@ -32,7 +32,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  */
 public class ApiExceptionHandlerServletApiBaseTest {
 
-    private ApiExceptionHandlerServletApiBase instanceSpy;
+    private ApiExceptionHandlerServletApiBase<?> instanceSpy;
     private HttpServletRequest servletRequestMock;
     private HttpServletResponse servletResponseMock;
 
@@ -53,15 +53,15 @@ public class ApiExceptionHandlerServletApiBaseTest {
 
     @Test
     public void maybeHandleExceptionReturnsSuperValue() throws UnexpectedMajorExceptionHandlingError {
-        ErrorResponseInfo expectedResponseInfo = new ErrorResponseInfo(42, null, null);
+        ErrorResponseInfo<?> expectedResponseInfo = new ErrorResponseInfo<>(42, null, null);
         doReturn(expectedResponseInfo).when(instanceSpy).maybeHandleException(any(Throwable.class), any(RequestInfoForLogging.class));
-        ErrorResponseInfo actualResponseInfo = instanceSpy.maybeHandleException(new Exception(), servletRequestMock, servletResponseMock);
+        ErrorResponseInfo<?> actualResponseInfo = instanceSpy.maybeHandleException(new Exception(), servletRequestMock, servletResponseMock);
         assertThat(actualResponseInfo, sameInstance(expectedResponseInfo));
     }
 
     @Test
     public void maybeHandleExceptionSetsHeadersAndStatusCodeOnServletResponse() throws UnexpectedMajorExceptionHandlingError {
-        ErrorResponseInfo<?> expectedResponseInfo = new ErrorResponseInfo(
+        ErrorResponseInfo<?> expectedResponseInfo = new ErrorResponseInfo<>(
             42,
             null,
             MapBuilder.<String, List<String>>builder()

@@ -29,6 +29,7 @@ public class BackstopperSpringboot3ContainerErrorControllerTest {
     private UnhandledServletContainerErrorHelper unhandledContainerErrorHelperMock;
     private ServletRequest servletRequestMock;
     private ServerProperties serverPropertiesMock;
+    @SuppressWarnings("FieldCanBeLocal")
     private ErrorProperties errorPropertiesMock;
     private String errorPath;
 
@@ -62,6 +63,7 @@ public class BackstopperSpringboot3ContainerErrorControllerTest {
     @Test
     public void constructor_throws_NPE_if_passed_null_ProjectApiErrors() {
         // when
+        @SuppressWarnings("DataFlowIssue")
         Throwable ex = catchThrowable(
             () -> new BackstopperSpringboot3ContainerErrorController(
                 null, unhandledContainerErrorHelperMock, serverPropertiesMock
@@ -77,6 +79,7 @@ public class BackstopperSpringboot3ContainerErrorControllerTest {
     @Test
     public void constructor_throws_NPE_if_passed_null_UnhandledServletContainerErrorHelper() {
         // when
+        @SuppressWarnings("DataFlowIssue")
         Throwable ex = catchThrowable(
             () -> new BackstopperSpringboot3ContainerErrorController(
                 projectApiErrorsMock, null, serverPropertiesMock
@@ -92,6 +95,7 @@ public class BackstopperSpringboot3ContainerErrorControllerTest {
     @Test
     public void constructor_throws_NPE_if_passed_null_ServerProperties() {
         // when
+        @SuppressWarnings("DataFlowIssue")
         Throwable ex = catchThrowable(
             () -> new BackstopperSpringboot3ContainerErrorController(
                 projectApiErrorsMock, unhandledContainerErrorHelperMock, null
@@ -105,6 +109,7 @@ public class BackstopperSpringboot3ContainerErrorControllerTest {
     }
 
     @Test
+    @SuppressWarnings("ThrowableNotThrown")
     public void error_method_throws_result_of_calling_UnhandledServletContainerErrorHelper() {
         // given
         BackstopperSpringboot3ContainerErrorController impl = new BackstopperSpringboot3ContainerErrorController(

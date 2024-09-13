@@ -67,6 +67,7 @@ public class ConventionBasedSpringValidationErrorToApiErrorHandlerListenerTest e
     @Test
     public void constructor_throws_IllegalArgumentException_if_passed_null() {
         // when
+        @SuppressWarnings("DataFlowIssue")
         Throwable ex = Assertions.catchThrowable(
             () -> new ConventionBasedSpringValidationErrorToApiErrorHandlerListener(null)
         );
@@ -149,7 +150,7 @@ public class ConventionBasedSpringValidationErrorToApiErrorHandlerListenerTest e
         );
         when(bindingResult.getAllErrors()).thenReturn(errorsList);
 
-        WebExchangeBindException ex = new WebExchangeBindException(null, bindingResult);
+        WebExchangeBindException ex = new WebExchangeBindException(mock(MethodParameter.class), bindingResult);
 
         // when
         ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
@@ -177,7 +178,7 @@ public class ConventionBasedSpringValidationErrorToApiErrorHandlerListenerTest e
         List<ObjectError> errorsList = (objectErrorsListIsNull) ? null : Collections.emptyList();
         when(bindingResult.getAllErrors()).thenReturn(errorsList);
 
-        WebExchangeBindException ex = new WebExchangeBindException(null, bindingResult);
+        WebExchangeBindException ex = new WebExchangeBindException(mock(MethodParameter.class), bindingResult);
 
         // when
         ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);

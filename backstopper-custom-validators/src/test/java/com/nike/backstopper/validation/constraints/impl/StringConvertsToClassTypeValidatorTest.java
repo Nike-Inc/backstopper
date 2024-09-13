@@ -25,12 +25,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
  * @author Nic Munroe
  */
 @RunWith(DataProviderRunner.class)
+@SuppressWarnings("ClassEscapesDefinedScope")
 public class StringConvertsToClassTypeValidatorTest {
 
+    @SuppressWarnings("resource")
     private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     private StringConvertsToClassTypeValidator validatorImpl;
 
+    @SuppressWarnings("unused")
     private enum RgbColors {
         RED, Green, blue
     }
@@ -153,7 +156,7 @@ public class StringConvertsToClassTypeValidatorTest {
             this.fooString = fooString;
             return this;
         }
-        private CorrectAnnotationPlacement withFooObject(String fooObject) {
+        private CorrectAnnotationPlacement withFooObject(@SuppressWarnings("SameParameterValue") String fooObject) {
             this.fooObject = fooObject;
             return this;
         }

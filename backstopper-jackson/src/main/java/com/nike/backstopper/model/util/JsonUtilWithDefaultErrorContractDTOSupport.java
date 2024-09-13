@@ -31,13 +31,13 @@ import java.util.UUID;
  * <p>You can further define a default generic error response that will be returned if there's a problem during
  * serialization by calling {@link #writeValueAsString(Object, ObjectMapper, String)}. The other methods use
  * {@link #DEFAULT_ERROR_RESPONSE_STRING} as a default.
- *
+ * <p>
  * Created by dsand7 on 9/25/14.
  */
 @SuppressWarnings("WeakerAccess")
 public class JsonUtilWithDefaultErrorContractDTOSupport {
 
-    protected JsonUtilWithDefaultErrorContractDTOSupport() {
+    private JsonUtilWithDefaultErrorContractDTOSupport() {
         // Do nothing
     }
 

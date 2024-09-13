@@ -617,29 +617,23 @@ public abstract class OneOffSpringCommonFrameworkExceptionHandlerListener implem
         return null;
     }
 
-    protected static class RequiredParamData {
-        public final String paramName;
-        public final String paramType;
-        public final List<Pair<String, String>> extraMetadata;
-
-        public RequiredParamData(String paramName, String paramType, List<Pair<String, String>> extraMetadata) {
-            this.paramName = paramName;
-            this.paramType = paramType;
-            this.extraMetadata = extraMetadata;
-        }
-
+    protected record RequiredParamData(
+        String paramName,
+        String paramType,
+        List<Pair<String, String>> extraMetadata
+    ) {
         public Map<String, Object> getAsApiErrorMetadata() {
-            Map<String, Object> metadata = new LinkedHashMap<>();
-            if (extraMetadata != null) {
-                for (Pair<String, String> pair : extraMetadata) {
-                    if (pair != null) {
-                        metadata.put(pair.getKey(), pair.getValue());
+                Map<String, Object> metadata = new LinkedHashMap<>();
+                if (extraMetadata != null) {
+                    for (Pair<String, String> pair : extraMetadata) {
+                        if (pair != null) {
+                            metadata.put(pair.getKey(), pair.getValue());
+                        }
                     }
                 }
+                metadata.put("missing_param_name", paramName);
+                metadata.put("missing_param_type", paramType);
+                return metadata;
             }
-            metadata.put("missing_param_name", paramName);
-            metadata.put("missing_param_type", paramType);
-            return metadata;
         }
-    }
 }

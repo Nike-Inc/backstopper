@@ -72,10 +72,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *
  * @author Nic Munroe
  */
-@Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER })
+@Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER })
 @Retention(RUNTIME)
 @Documented
 @Constraint(validatedBy = StringConvertsToClassTypeValidator.class)
+@SuppressWarnings("unused")
 public @interface StringConvertsToClassType {
     String message() default "{StringConvertsToClassType.message}";
     Class<?>[] groups() default { };

@@ -125,8 +125,10 @@ public class RequestInfoForLoggingServletApiAdapter implements RequestInfoForLog
         try {
             closeable.close();
         } catch (Throwable e) {
-            logger.warn("An error occurred closing a Closeable resource. closeable_classname=\""
-                        + closeable.getClass().getName() + "\", exception_during_close=\"" + e + "\"");
+            logger.warn(
+                "An error occurred closing a Closeable resource. closeable_classname=\"{}\", exception_during_close=\"{}\"",
+                closeable.getClass().getName(), e.toString()
+            );
         }
     }
 }

@@ -8,8 +8,6 @@ import com.nike.backstopper.handler.listener.ApiExceptionHandlerListener;
 import com.nike.backstopper.handler.listener.ApiExceptionHandlerListenerResult;
 
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
@@ -33,9 +31,6 @@ import jakarta.inject.Singleton;
 @Singleton
 @SuppressWarnings("WeakerAccess")
 public class ConventionBasedSpringValidationErrorToApiErrorHandlerListener implements ApiExceptionHandlerListener {
-
-    private static final Logger logger =
-        LoggerFactory.getLogger(ConventionBasedSpringValidationErrorToApiErrorHandlerListener.class);
 
     protected final ProjectApiErrors projectApiErrors;
 

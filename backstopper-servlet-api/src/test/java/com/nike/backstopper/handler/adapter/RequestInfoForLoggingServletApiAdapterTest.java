@@ -207,6 +207,7 @@ public class RequestInfoForLoggingServletApiAdapterTest {
         /**
          * Return the underlying source stream (never <code>null</code>).
          */
+        @SuppressWarnings("unused")
         public final InputStream getSourceStream() {
             return this.sourceStream;
         }

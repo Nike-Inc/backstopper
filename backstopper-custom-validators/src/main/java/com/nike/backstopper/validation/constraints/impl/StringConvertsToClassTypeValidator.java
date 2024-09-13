@@ -93,7 +93,9 @@ public class StringConvertsToClassTypeValidator implements ConstraintValidator<S
     @SuppressWarnings("unchecked")
     protected boolean validateAsEnum(String value) {
         try {
-            Enum.valueOf((Class<Enum>) desiredClass, value);
+            @SuppressWarnings("rawtypes")
+            Class<Enum> castClass = (Class<Enum>) desiredClass;
+            Enum.valueOf(castClass, value);
             // No error, so it can be successfully parsed to this enum type as-is.
             return true;
         }
@@ -112,7 +114,7 @@ public class StringConvertsToClassTypeValidator implements ConstraintValidator<S
             return false;
 
         for (Object enumValue : enumValues) {
-            if (enumValue instanceof Enum && ((Enum) enumValue).name().equalsIgnoreCase(value))
+            if (enumValue instanceof Enum && ((Enum<?>) enumValue).name().equalsIgnoreCase(value))
                 return true;
         }
 

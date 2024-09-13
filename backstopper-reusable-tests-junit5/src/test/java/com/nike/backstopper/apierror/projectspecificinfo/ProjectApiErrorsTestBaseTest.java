@@ -96,6 +96,7 @@ public class ProjectApiErrorsTestBaseTest extends ProjectApiErrorsTestBase {
     }
 
     @Test
+    @SuppressWarnings("ExtractMethodRecommender")
     public void allErrorsShouldBeCoreApiErrorsOrCoreApiErrorWrappersOrFallInProjectSpecificErrorRange_works_for_valid_cases() {
         // given
         final ApiError coreError = BarebonesCoreApiErrorForTesting.TYPE_CONVERSION_ERROR;

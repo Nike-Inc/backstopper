@@ -14,6 +14,7 @@ import com.nike.backstopper.model.DefaultErrorDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -90,7 +91,7 @@ public class SanityCheckComponentTest {
     public void afterMethod() {
     }
 
-    private void verifyErrorReceived(ExtractableResponse response, ApiError expectedError) {
+    private void verifyErrorReceived(ExtractableResponse<?> response, ApiError expectedError) {
         verifyErrorReceived(response, singleton(expectedError), expectedError.getHttpStatusCode());
     }
 
@@ -103,7 +104,7 @@ public class SanityCheckComponentTest {
         return null;
     }
 
-    private void verifyErrorReceived(ExtractableResponse response, Collection<ApiError> expectedErrors, int expectedHttpStatusCode) {
+    private void verifyErrorReceived(ExtractableResponse<?> response, Collection<ApiError> expectedErrors, int expectedHttpStatusCode) {
         assertThat(response.statusCode()).isEqualTo(expectedHttpStatusCode);
         try {
             DefaultErrorContractDTO errorContract = objectMapper.readValue(response.asString(), DefaultErrorContractDTO.class);
@@ -124,7 +125,7 @@ public class SanityCheckComponentTest {
 
     @Test
     public void verify_non_error_endpoint_responds_without_error() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -142,7 +143,7 @@ public class SanityCheckComponentTest {
 
     @Test
     public void verify_ENDPOINT_ERROR_returned_if_error_endpoint_is_called() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -159,7 +160,7 @@ public class SanityCheckComponentTest {
 
     @Test
     public void verify_NOT_FOUND_returned_if_unknown_path_is_requested() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -176,7 +177,7 @@ public class SanityCheckComponentTest {
 
     @Test
     public void verify_ERROR_THROWN_IN_SERVLET_FILTER_OUTSIDE_SPRING_returned_if_servlet_filter_trigger_occurs() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -195,6 +196,7 @@ public class SanityCheckComponentTest {
     @SpringBootApplication
     @Configuration
     @Import({BackstopperSpringboot3WebMvcConfig.class, SanityCheckController.class })
+    @SuppressWarnings("unused")
     static class SanitcyCheckComponentTestApp {
         @Bean
         public ProjectApiErrors getProjectApiErrors() {
@@ -203,12 +205,13 @@ public class SanityCheckComponentTest {
 
         @Bean
         public Validator getJsr303Validator() {
+            //noinspection resource
             return Validation.buildDefaultValidatorFactory().getValidator();
         }
 
         @Bean
-        public FilterRegistrationBean explodingServletFilter() {
-            FilterRegistrationBean frb = new FilterRegistrationBean(new ExplodingFilter());
+        public FilterRegistrationBean<?> explodingServletFilter() {
+            FilterRegistrationBean<?> frb = new FilterRegistrationBean<>(new ExplodingFilter());
             frb.setOrder(Ordered.HIGHEST_PRECEDENCE);
             return frb;
         }
@@ -217,7 +220,7 @@ public class SanityCheckComponentTest {
 
             @Override
             protected void doFilterInternal(
-                HttpServletRequest request, HttpServletResponse response, FilterChain filterChain
+                HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain
             ) throws ServletException, IOException {
                 if ("true".equals(request.getHeader("throw-servlet-filter-exception"))) {
                     throw ApiException
@@ -233,6 +236,7 @@ public class SanityCheckComponentTest {
     }
 
     @Controller
+    @SuppressWarnings("unused")
     static class SanityCheckController {
         public static final String NON_ERROR_ENDPOINT_PATH = "/nonErrorEndpoint";
         public static final String ERROR_THROWING_ENDPOINT_PATH = "/throwErrorEndpoint";

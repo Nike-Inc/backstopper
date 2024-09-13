@@ -108,17 +108,11 @@ public abstract class VerifyJsr303ValidationMessagesPointToApiErrorsTest {
     /**
      * DTO class describing the context of an invalid annotation.
      */
-    @SuppressWarnings("WeakerAccess")
-    private static class InvalidAnnotationDescription {
-
-        public final Annotation annotation;
-        public final AnnotatedElement annotatedElement;
-        public final String message;
-
-        private InvalidAnnotationDescription(Annotation annotation, AnnotatedElement annotatedElement, String message) {
-            this.annotation = annotation;
-            this.annotatedElement = annotatedElement;
-            this.message = message;
-        }
+    private record InvalidAnnotationDescription(
+        Annotation annotation,
+        AnnotatedElement annotatedElement,
+        String message
+    ) {
+        // Nothing here.
     }
 }
