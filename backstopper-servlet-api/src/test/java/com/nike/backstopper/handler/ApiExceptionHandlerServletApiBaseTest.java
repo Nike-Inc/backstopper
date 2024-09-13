@@ -2,7 +2,6 @@ package com.nike.backstopper.handler;
 
 import com.nike.backstopper.apierror.ApiError;
 import com.nike.backstopper.apierror.projectspecificinfo.ProjectApiErrors;
-import com.nike.backstopper.handler.listener.ApiExceptionHandlerListener;
 import com.nike.backstopper.model.DefaultErrorContractDTO;
 import com.nike.internal.util.MapBuilder;
 

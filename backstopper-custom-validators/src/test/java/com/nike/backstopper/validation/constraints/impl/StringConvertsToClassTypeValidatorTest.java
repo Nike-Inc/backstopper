@@ -179,7 +179,7 @@ public class StringConvertsToClassTypeValidatorTest {
         Set<ConstraintViolation<CorrectAnnotationPlacement>> validatorResult = validator.validate(testMe);
 
         assertThat(directValidationResult, is(expectedResult));
-        assertThat(validatorResult.size() == 0, is(expectedResult));
+        assertThat(validatorResult.isEmpty(), is(expectedResult));
     }
 
     @DataProvider(value = {

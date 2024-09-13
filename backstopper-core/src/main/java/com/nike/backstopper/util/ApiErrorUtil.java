@@ -11,6 +11,10 @@ import java.util.Objects;
  */
 public class ApiErrorUtil {
 
+    private ApiErrorUtil() {
+        // Do nothing.
+    }
+
     /**
      * Method for generating a hashcode for the given {@link ApiError} . This can be used in implementations of
      * {@link ApiError}.
@@ -25,7 +29,7 @@ public class ApiErrorUtil {
     public static boolean isApiErrorEqual(ApiError apiError, Object o) {
         if (apiError == o) return true;
         if (apiError == null) return false;
-        if (o == null || !(o instanceof ApiError that)) return false;
+        if (!(o instanceof ApiError that)) return false;
         return apiError.getHttpStatusCode() == that.getHttpStatusCode() &&
                 Objects.equals(apiError.getName(), that.getName()) &&
                 Objects.equals(apiError.getErrorCode(), that.getErrorCode()) &&

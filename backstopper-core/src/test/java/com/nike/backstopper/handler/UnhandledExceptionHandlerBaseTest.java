@@ -12,14 +12,10 @@ import com.nike.internal.util.testing.Glassbox;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 
-import org.hamcrest.CustomTypeSafeMatcher;
-import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -34,7 +30,10 @@ import java.util.UUID;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -69,23 +68,20 @@ public class UnhandledExceptionHandlerBaseTest {
     }
 
     @Test
-    public void handleException_should_delegate_to_ApiExceptionHandlerUtils_for_building_log_message_and_should_log_the_result() throws Exception {
+    public void handleException_should_delegate_to_ApiExceptionHandlerUtils_for_building_log_message_and_should_log_the_result() {
         // given
         Exception exceptionToThrow = new Exception("kaboom");
         Logger loggerMock = mock(Logger.class);
         Glassbox.setInternalState(exHandlerSpy, "logger", loggerMock);
         final List<StringBuilder> sbHolder = new ArrayList<>();
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                StringBuilder sb = (StringBuilder) invocation.getArguments()[0];
-                sb.append(UUID.randomUUID());
-                sbHolder.add(sb);
-                return UUID.randomUUID().toString();
-            }
+        doAnswer(invocation -> {
+            StringBuilder sb = (StringBuilder) invocation.getArguments()[0];
+            sb.append(UUID.randomUUID());
+            sbHolder.add(sb);
+            return UUID.randomUUID().toString();
         }).when(utilsSpy).buildErrorMessageForLogs(
             any(StringBuilder.class), eq(reqMock), eq(errorsExpectedToBeUsed), eq(httpStatusCodeExpectedToBeUsed),
-            eq(exceptionToThrow), any(List.class)
+            eq(exceptionToThrow), anyList()
         );
 
         // when
@@ -94,19 +90,19 @@ public class UnhandledExceptionHandlerBaseTest {
         // then
         verify(utilsSpy).buildErrorMessageForLogs(
             any(StringBuilder.class), eq(reqMock), eq(errorsExpectedToBeUsed), eq(httpStatusCodeExpectedToBeUsed),
-            eq(exceptionToThrow), any(List.class)
+            eq(exceptionToThrow), anyList()
         );
         assertThat(sbHolder).hasSize(1);
         verify(loggerMock).error(sbHolder.get(0).toString(), exceptionToThrow);
     }
 
     @Test
-    public void handleException_should_delegate_to_prepareFrameworkRepresentation_for_response() throws Exception {
+    public void handleException_should_delegate_to_prepareFrameworkRepresentation_for_response() {
         // given
         Exception exceptionToThrow = new Exception("kaboom");
         TestDTO frameworkRepresentationObj = mock(TestDTO.class);
         doReturn(frameworkRepresentationObj).when(exHandlerSpy).prepareFrameworkRepresentation(
-            any(DefaultErrorContractDTO.class), anyInt(), any(Collection.class), any(Throwable.class), any(RequestInfoForLogging.class)
+            any(DefaultErrorContractDTO.class), anyInt(), anyCollection(), any(Throwable.class), any(RequestInfoForLogging.class)
         );
 
         // when
@@ -210,21 +206,22 @@ public class UnhandledExceptionHandlerBaseTest {
         if (explodeBeforeUtilsErrorIdIsGenerated) {
             doThrow(ohWowThisIsBadException).when(utilsSpy).buildErrorMessageForLogs(
                 any(StringBuilder.class), eq(reqMock), eq(errorsExpectedToBeUsed), eq(httpStatusCodeExpectedToBeUsed),
-                eq(origEx), any(List.class)
+                eq(origEx), anyList()
             );
         }
         else {
             doReturn(utilsErrorIdToReturn).when(utilsSpy).buildErrorMessageForLogs(
                 any(StringBuilder.class), eq(reqMock), eq(errorsExpectedToBeUsed), eq(httpStatusCodeExpectedToBeUsed),
-                eq(origEx), any(List.class)
+                eq(origEx), anyList()
             );
             doThrow(ohWowThisIsBadException).when(exHandlerSpy).prepareFrameworkRepresentation(
-                any(DefaultErrorContractDTO.class), anyInt(), any(Collection.class), any(Throwable.class), any(RequestInfoForLogging.class)
+                any(DefaultErrorContractDTO.class), anyInt(), anyCollection(), any(Throwable.class), any(RequestInfoForLogging.class)
             );
         }
+        @SuppressWarnings("unchecked")
         ErrorResponseInfo<TestDTO> lastDitchResponse = mock(ErrorResponseInfo.class);
         doReturn(lastDitchResponse).when(exHandlerSpy).generateLastDitchFallbackErrorResponseInfo(
-            eq(origEx), eq(reqMock), anyString(), any(Map.class)
+            eq(origEx), eq(reqMock), anyString(), anyMap()
         );
 
         // when
@@ -234,44 +231,24 @@ public class UnhandledExceptionHandlerBaseTest {
         if (explodeBeforeUtilsErrorIdIsGenerated) {
             verify(utilsSpy).buildErrorMessageForLogs(
                 any(StringBuilder.class), eq(reqMock), eq(errorsExpectedToBeUsed), eq(httpStatusCodeExpectedToBeUsed),
-                eq(origEx), any(List.class)
+                eq(origEx), anyList()
             );
         }
         else {
             verify(exHandlerSpy).prepareFrameworkRepresentation(
-                any(DefaultErrorContractDTO.class), anyInt(), any(Collection.class), any(Throwable.class), any(RequestInfoForLogging.class)
+                any(DefaultErrorContractDTO.class), anyInt(), anyCollection(), any(Throwable.class), any(RequestInfoForLogging.class)
             );
         }
         assertThat(result).isEqualTo(lastDitchResponse);
         ArgumentCaptor<String> lastDitchErrorIdCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<Map> lastDitchHeadersCaptor = ArgumentCaptor.forClass(Map.class);
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Map<String, List<String>>> lastDitchHeadersCaptor = ArgumentCaptor.forClass(Map.class);
         verify(exHandlerSpy).generateLastDitchFallbackErrorResponseInfo(eq(origEx), eq(reqMock), lastDitchErrorIdCaptor.capture(), lastDitchHeadersCaptor.capture());
         String lastDitchErrorId = lastDitchErrorIdCaptor.getValue();
         Map<String, List<String>> lastDitchHeaders = lastDitchHeadersCaptor.getValue();
         if (!explodeBeforeUtilsErrorIdIsGenerated)
             assertThat(lastDitchErrorId).isEqualTo(utilsErrorIdToReturn);
         assertThat(lastDitchHeaders).isEqualTo(MapBuilder.builder("error_uid", singletonList(lastDitchErrorId)).build());
-    }
-
-    private Matcher<DefaultErrorContractDTO> errorResponseViewMatches(final DefaultErrorContractDTO expectedErrorContract) {
-        return new CustomTypeSafeMatcher<DefaultErrorContractDTO>("a matching ErrorResponseView"){
-            @Override
-            protected boolean matchesSafely(DefaultErrorContractDTO item) {
-                if (!(item.errors.size() == expectedErrorContract.errors.size()))
-                    return false;
-
-                for (int i = 0; i < item.errors.size(); i++) {
-                    DefaultErrorDTO itemError = item.errors.get(i);
-                    DefaultErrorDTO expectedError = item.errors.get(i);
-                    if (!itemError.code.equals(expectedError.code))
-                        return false;
-                    if (!itemError.message.equals(expectedError.message))
-                        return false;
-                }
-
-                return item.error_id.equals(expectedErrorContract.error_id);
-            }
-        };
     }
 
     private static class TestUnhandledExceptionHandler extends UnhandledExceptionHandlerBase<TestDTO> {
@@ -299,11 +276,6 @@ public class UnhandledExceptionHandlerBaseTest {
         }
     }
 
-    private static class TestDTO {
-        public final DefaultErrorContractDTO erv;
-
-        private TestDTO(DefaultErrorContractDTO erv) {
-            this.erv = erv;
-        }
+    private record TestDTO(DefaultErrorContractDTO erv) {
     }
 }

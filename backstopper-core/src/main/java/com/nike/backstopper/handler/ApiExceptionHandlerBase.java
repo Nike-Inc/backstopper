@@ -293,20 +293,20 @@ public abstract class ApiExceptionHandlerBase<T> {
 
         // Bulletproof against somehow getting a completely empty collection of client errors. This should never happen
         //      but if it does we want a reasonable response.
-        if (filteredClientErrors == null || filteredClientErrors.size() == 0) {
+        if (filteredClientErrors == null || filteredClientErrors.isEmpty()) {
             ApiError genericServiceError = projectApiErrors.getGenericServiceError();
             UUID trackingUuid = UUID.randomUUID();
             String trackingLogKey = "bad_handler_logic_tracking_uuid";
             extraDetailsForLogging.add(Pair.of(trackingLogKey, trackingUuid.toString()));
-            logger.error(String.format(
+            logger.error(
                 "Found a situation where we ended up with 0 ApiErrors to return to the client. This should not happen "
                 + "and likely indicates a logic error in ApiExceptionHandlerBase, or a ProjectApiErrors that isn't "
-                + "setup properly. Defaulting to " + genericServiceError.getName() + " for now, but this should be "
-                + "investigated and fixed. Search for %s=%s in the logs to find the log message that contains the "
+                + "setup properly. Defaulting to {} for now, but this should be "
+                + "investigated and fixed. Search for {}={} in the logs to find the log message that contains the "
                 + "details of the request along with the full stack trace of the original exception. "
-                + "unfiltered_api_errors=%s",
-                trackingLogKey, trackingUuid, utils.concatenateErrorCollection(clientErrors)
-            ));
+                + "unfiltered_api_errors={}",
+                genericServiceError.getName(), trackingLogKey, trackingUuid, utils.concatenateErrorCollection(clientErrors)
+            );
             filteredClientErrors = Collections.singletonList(genericServiceError);
             highestPriorityStatusCode = genericServiceError.getHttpStatusCode();
         }
@@ -375,8 +375,11 @@ public abstract class ApiExceptionHandlerBase<T> {
      */
     @SuppressWarnings("UnusedParameters")
     protected boolean shouldLogStackTrace(
-        int statusCode, Collection<ApiError> filteredClientErrors, Throwable originalException,
-        Throwable coreException, RequestInfoForLogging request
+        int statusCode,
+        @SuppressWarnings("unused") Collection<ApiError> filteredClientErrors,
+        @SuppressWarnings("unused") Throwable originalException,
+        Throwable coreException,
+        @SuppressWarnings("unused") RequestInfoForLogging request
     ) {
         if (coreException instanceof ApiException) {
             // See if this ApiException is explicitly requesting stack trace logging to be forced on or off.

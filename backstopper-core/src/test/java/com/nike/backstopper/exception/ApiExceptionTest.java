@@ -148,6 +148,7 @@ public class ApiExceptionTest {
         ApiException.Builder builder = ApiException.newBuilder();
 
         // when
+        @SuppressWarnings("ThrowableNotThrown")
         Throwable ex = catchThrowable(() -> new ApiException(builder));
 
         // then
@@ -157,6 +158,7 @@ public class ApiExceptionTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    @SuppressWarnings("ThrowableNotThrown")
     public void single_error_constructor_fails_if_passed_null_arg() {
         // expect
         new ApiException((ApiError)null);
@@ -182,6 +184,7 @@ public class ApiExceptionTest {
         "false  |   false",
     }, splitBy = "\\|")
     @Test(expected = IllegalArgumentException.class)
+    @SuppressWarnings({"ThrowableNotThrown", "deprecation"})
     public void no_cause_constructors_fail_when_passed_null_or_empty_apiErrors_list(
         boolean useNull, boolean useConstructorWithResponseHeaders
     ) {
@@ -204,6 +207,7 @@ public class ApiExceptionTest {
         "false  |   false",
     }, splitBy = "\\|")
     @Test(expected = IllegalArgumentException.class)
+    @SuppressWarnings({"ThrowableNotThrown", "deprecation"})
     public void with_cause_constructors_fail_when_passed_null_or_empty_apiErrors_list(
         boolean useNull, boolean useConstructorWithResponseHeaders
     ) {
@@ -224,6 +228,7 @@ public class ApiExceptionTest {
         "false"
     }, splitBy = "\\|")
     @Test
+    @SuppressWarnings("deprecation")
     public void no_cause_constructors_should_translate_null_logging_details_to_empty_list(
         boolean useConstructorWithResponseHeaders
     ) {
@@ -249,6 +254,7 @@ public class ApiExceptionTest {
         List<ApiError> apiErrors = Arrays.asList(apiError1, apiError2);
 
         // when
+        @SuppressWarnings("deprecation")
         ApiException apiException = new ApiException(apiErrors, loggingDetails, null, exceptionMessage);
 
         // then
@@ -262,6 +268,7 @@ public class ApiExceptionTest {
         "false"
     }, splitBy = "\\|")
     @Test
+    @SuppressWarnings("deprecation")
     public void with_cause_constructors_should_translate_null_logging_details_to_empty_list(
         boolean useConstructorWithResponseHeaders
     ) {
@@ -287,6 +294,7 @@ public class ApiExceptionTest {
         List<ApiError> apiErrors = Arrays.asList(apiError1, apiError2);
 
         // when
+        @SuppressWarnings("deprecation")
         ApiException apiException = new ApiException(apiErrors, loggingDetails, null, exceptionMessage, cause);
 
         // then
@@ -308,6 +316,7 @@ public class ApiExceptionTest {
     }
 
     @Test
+    @SuppressWarnings("ConstantValue")
     public void extractMessage_nullListOfErrors_without_message_returns_null() {
         // when
         String extractedMessage = ApiException.extractMessage(null, null);

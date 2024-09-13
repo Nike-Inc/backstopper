@@ -313,8 +313,9 @@ public abstract class ReflectionBasedJsr303AnnotationTrollerBase {
         constraintAnnotationClasses = new ArrayList<>();
         for (Class<?> constraintAnnotatedType : reflections.getTypesAnnotatedWith(Constraint.class, true)) {
             if (constraintAnnotatedType.isAnnotation()) {
-                //noinspection unchecked
-                constraintAnnotationClasses.add((Class<? extends Annotation>) constraintAnnotatedType);
+                @SuppressWarnings("unchecked")
+                Class<? extends Annotation> castClass = (Class<? extends Annotation>) constraintAnnotatedType;
+                constraintAnnotationClasses.add(castClass);
             }
         }
 

@@ -55,7 +55,8 @@ public class ApiExceptionHandlerUtilsTest {
     
     @Before
     public void setupMethod() {
-        MockitoAnnotations.initMocks(this);
+        //noinspection resource
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
@@ -440,7 +441,7 @@ public class ApiExceptionHandlerUtilsTest {
 
     @Test
     public void concatenateErrorCollectionShouldReturnBlankStringWhenPassedEmptyCollection() {
-        String result = impl.concatenateErrorCollection(new ArrayList<ApiError>());
+        String result = impl.concatenateErrorCollection(new ArrayList<>());
         assertThat(result, is(""));
     }
 

@@ -216,7 +216,7 @@ public class ApiException extends RuntimeException {
 
     /**
      * Extracts and joins all messages from the input List&lt;{@link ApiError}> if the desired message is null.
-     *
+     * <p>
      * Will return null if the input error List is null
      */
     protected static String extractMessage(List<ApiError> apiErrors, String desiredMessage) {

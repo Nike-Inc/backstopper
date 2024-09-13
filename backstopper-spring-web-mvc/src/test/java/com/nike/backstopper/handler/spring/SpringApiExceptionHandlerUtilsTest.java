@@ -1,6 +1,5 @@
 package com.nike.backstopper.handler.spring;
 
-import com.nike.backstopper.apierror.ApiError;
 import com.nike.backstopper.apierror.testing.base.BaseSpringEnabledValidationTestCase;
 import com.nike.backstopper.apierror.testutil.BarebonesCoreApiErrorForTesting;
 import com.nike.backstopper.model.DefaultErrorContractDTO;
@@ -36,7 +35,7 @@ public class SpringApiExceptionHandlerUtilsTest extends BaseSpringEnabledValidat
     }
 
     @Test
-    public void generateModelAndViewForErrorResponseShouldGenerateModelAndViewWithErrorContractAsOnlyModelObject() throws JsonProcessingException {
+    public void generateModelAndViewForErrorResponseShouldGenerateModelAndViewWithErrorContractAsOnlyModelObject() {
         DefaultErrorContractDTO
             erv = new DefaultErrorContractDTO("someRequestId", Arrays.asList(BarebonesCoreApiErrorForTesting.NO_ACCEPTABLE_REPRESENTATION,
                                                                              BarebonesCoreApiErrorForTesting.UNSUPPORTED_MEDIA_TYPE));

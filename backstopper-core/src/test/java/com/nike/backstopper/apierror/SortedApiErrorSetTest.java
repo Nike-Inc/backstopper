@@ -68,6 +68,7 @@ public class SortedApiErrorSetTest {
     @Test
     public void one_arg_constructor_with_comparator_uses_supplied_comparator() {
         // given
+        @SuppressWarnings("unchecked")
         Comparator<ApiError> customComparator = mock(Comparator.class);
 
         // when

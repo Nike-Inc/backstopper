@@ -84,7 +84,7 @@ public class ClientDataValidationService {
      */
     public void validateObjectsWithGroupsFailFast(Collection<Class<?>> groups, Object... validateTheseObjects) {
         Class<?>[] groupsArray =
-            (groups == null || groups.size() == 0) ? null : groups.toArray(new Class<?>[groups.size()]);
+            (groups == null || groups.isEmpty()) ? null : groups.toArray(new Class<?>[0]);
 
         validateObjectsWithGroupsFailFast(groupsArray, validateTheseObjects);
     }

@@ -24,11 +24,13 @@ public class ApiErrorComparatorTest {
     @Test
     public void should_return_0_for_reference_equality() {
         ApiError mockApiError = mock(ApiError.class);
+        //noinspection EqualsWithItself
         assertThat(comparator.compare(mockApiError, mockApiError)).isEqualTo(0);
     }
 
     @Test
     public void should_return_0_for_both_null() {
+        //noinspection EqualsWithItself
         assertThat(comparator.compare(null, null)).isEqualTo(0);
     }
 

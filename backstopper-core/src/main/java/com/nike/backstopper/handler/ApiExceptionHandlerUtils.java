@@ -299,8 +299,8 @@ public class ApiExceptionHandlerUtils {
 
 
     /**
-     * @param sensitiveHeaders
-     * @param headerName
+     * @param sensitiveHeaders The set of sensitive headers names.
+     * @param headerName The header name in question.
      * @return Returns true if the header name is one of the sensitive headers in lower, upper or camel case.
      */
     private static boolean containsCaseInSensitive(Set<String> sensitiveHeaders, String headerName) {

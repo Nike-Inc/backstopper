@@ -56,7 +56,7 @@ public class UnhandledExceptionHandlerServletApiBaseTest {
     }
 
     @Test
-    public void handleExceptionReturnsSuperValue() throws UnexpectedMajorExceptionHandlingError {
+    public void handleExceptionReturnsSuperValue() {
         ErrorResponseInfo expectedResponseInfo = new ErrorResponseInfo(42, null, null);
         doReturn(expectedResponseInfo).when(instanceSpy).handleException(any(Throwable.class), any(RequestInfoForLogging.class));
         ErrorResponseInfo actualResponseInfo = instanceSpy.handleException(new Exception(), servletRequestMock, servletResponseMock);
@@ -64,7 +64,7 @@ public class UnhandledExceptionHandlerServletApiBaseTest {
     }
 
     @Test
-    public void handleExceptionSetsHeadersAndStatusCodeOnServletResponse() throws UnexpectedMajorExceptionHandlingError {
+    public void handleExceptionSetsHeadersAndStatusCodeOnServletResponse() {
         ErrorResponseInfo<?> expectedResponseInfo = new ErrorResponseInfo(
             42,
             null,

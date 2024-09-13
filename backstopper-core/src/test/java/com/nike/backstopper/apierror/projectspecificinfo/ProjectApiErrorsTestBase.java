@@ -248,7 +248,7 @@ public abstract class ProjectApiErrorsTestBase {
             if (currentCount == null)
                 currentCount = 0;
 
-            Integer newCount = currentCount + 1;
+            int newCount = currentCount + 1;
             nameToCountMap.put(apiError.getName(), newCount);
             if (newCount > 1)
                 duplicateErrorNames.add(apiError.getName());

@@ -86,6 +86,7 @@ public class ApiErrorWithMetadataTest {
     @Test
     public void constructor_throws_IllegalArgumentException_if_delegate_is_null() {
         // when
+        @SuppressWarnings("DataFlowIssue")
         Throwable ex = catchThrowable(() -> new ApiErrorWithMetadata(null, extraMetadata));
 
         // then
@@ -97,6 +98,7 @@ public class ApiErrorWithMetadataTest {
     @Test
     public void convenience_constructor_throws_IllegalArgumentException_if_delegate_is_null() {
         // when
+        @SuppressWarnings("DataFlowIssue")
         Throwable ex = catchThrowable(() -> new ApiErrorWithMetadata(null, Pair.of("foo", "bar")));
 
         // then
@@ -168,6 +170,7 @@ public class ApiErrorWithMetadataTest {
     @Test
     public void convenience_constructor_supports_null_or_empty_extra_metadata(boolean useNull) {
         // given
+        @SuppressWarnings("unchecked")
         Pair<String, Object>[] extraMetadataToUse = (useNull) ? null : new Pair[0];
 
         // when
@@ -224,6 +227,7 @@ public class ApiErrorWithMetadataTest {
         ApiErrorWithMetadata awm = new ApiErrorWithMetadata(delegateWithMetadata, extraMetadata);
 
         // then
+        //noinspection EqualsWithItself
         assertThat(awm.equals(awm)).isTrue();
     }
 
@@ -239,6 +243,7 @@ public class ApiErrorWithMetadataTest {
         String otherClass = useNull? null : "";
 
         // then
+        //noinspection EqualsBetweenInconvertibleTypes
         assertThat(awm.equals(otherClass)).isFalse();
     }
 

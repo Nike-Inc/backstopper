@@ -112,7 +112,7 @@ public class DownstreamNetworkExceptionHandlerListener implements ApiExceptionHa
      * @return true if the given exception should propagate a 429 error to the original caller, false otherwise.
      *          This method will not be called unless the given exception is a 429.
      */
-    @SuppressWarnings("UnusedParameters")
+    @SuppressWarnings("unused")
     protected boolean shouldPropagate429Error(ServerHttpStatusCodeException ex) {
         return true;
     }
@@ -120,7 +120,7 @@ public class DownstreamNetworkExceptionHandlerListener implements ApiExceptionHa
     /**
      * @return true if we should log the raw response from the given exception, false otherwise.
      */
-    @SuppressWarnings("UnusedParameters")
+    @SuppressWarnings("unused")
     protected boolean shouldLogRawResponse(ServerHttpStatusCodeException ex) {
         return true;
     }
@@ -144,7 +144,7 @@ public class DownstreamNetworkExceptionHandlerListener implements ApiExceptionHa
      *          add any relevant log data pairs to extraDetailsForLogging if it returns true.
      */
     protected boolean isTemporaryProblem(
-        Throwable ex, @SuppressWarnings("UnusedParameters") List<Pair<String, String>> extraDetailsForLogging
+        Throwable ex, @SuppressWarnings("unused") List<Pair<String, String>> extraDetailsForLogging
     ) {
         if (ex instanceof TimeoutException)
             return true;

@@ -216,7 +216,7 @@ public class VerifyExpectedErrorsAreReturnedComponentTest {
 
         assertThat(response.statusCode()).isEqualTo(200);
         List<SampleModel> responseBody = objectMapper.readValue(
-            response.asString(), new TypeReference<List<SampleModel>>(){}
+            response.asString(), new TypeReference<>() {}
         );
 
         assertThat(responseBody).hasSizeGreaterThan(1);

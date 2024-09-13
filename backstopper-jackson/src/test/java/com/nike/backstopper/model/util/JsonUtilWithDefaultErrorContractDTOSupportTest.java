@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 
-import org.assertj.core.api.ThrowableAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -296,17 +295,13 @@ public class JsonUtilWithDefaultErrorContractDTOSupportTest {
     }
 
     @Test
-    public void MetadataPropertyWriter_serializeAsField_still_works_for_non_Error_objects() throws Exception {
+    public void MetadataPropertyWriter_serializeAsField_still_works_for_non_Error_objects() {
         // given
         final MetadataPropertyWriter mpw = new MetadataPropertyWriter(mock(BeanPropertyWriter.class));
 
         // when
-        Throwable ex = catchThrowable(new ThrowableAssert.ThrowingCallable() {
-            @Override
-            public void call() throws Throwable {
-                mpw.serializeAsField(new Object(), mock(JsonGenerator.class), mock(SerializerProvider.class));
-            }
-        });
+        Throwable ex = catchThrowable(
+            () -> mpw.serializeAsField(new Object(), mock(JsonGenerator.class), mock(SerializerProvider.class)));
 
         // then
         // We expect a NPE because mocking a base BeanPropertyWriter is incredibly difficult and not worth the effort.
@@ -314,17 +309,13 @@ public class JsonUtilWithDefaultErrorContractDTOSupportTest {
     }
 
     @Test
-    public void SmartErrorCodePropertyWriter_serializeAsField_still_works_for_non_Error_objects() throws Exception {
+    public void SmartErrorCodePropertyWriter_serializeAsField_still_works_for_non_Error_objects() {
         // given
         final SmartErrorCodePropertyWriter secpw = new SmartErrorCodePropertyWriter(mock(BeanPropertyWriter.class));
 
         // when
-        Throwable ex = catchThrowable(new ThrowableAssert.ThrowingCallable() {
-            @Override
-            public void call() throws Throwable {
-                secpw.serializeAsField(new Object(), mock(JsonGenerator.class), mock(SerializerProvider.class));
-            }
-        });
+        Throwable ex = catchThrowable(
+            () -> secpw.serializeAsField(new Object(), mock(JsonGenerator.class), mock(SerializerProvider.class)));
 
         // then
         // We expect a NPE because mocking a base BeanPropertyWriter is incredibly difficult and not worth the effort.

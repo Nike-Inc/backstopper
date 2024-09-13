@@ -13,7 +13,6 @@ import com.nike.backstopper.handler.listener.ApiExceptionHandlerListenerResult;
 import com.nike.internal.util.Pair;
 
 import org.assertj.core.api.Assertions;
-import org.assertj.core.api.ThrowableAssert;
 import org.junit.Test;
 
 import java.net.ConnectException;
@@ -66,12 +65,8 @@ public class DownstreamNetworkExceptionHandlerListenerTest extends ListenerTestB
     @Test
     public void constructor_throws_IllegalArgumentException_if_passed_null() {
         // when
-        Throwable ex = Assertions.catchThrowable(new ThrowableAssert.ThrowingCallable() {
-            @Override
-            public void call() throws Throwable {
-                new DownstreamNetworkExceptionHandlerListener(null);
-            }
-        });
+        @SuppressWarnings("DataFlowIssue")
+        Throwable ex = Assertions.catchThrowable(() -> new DownstreamNetworkExceptionHandlerListener(null));
 
         // then
         Assertions.assertThat(ex).isInstanceOf(IllegalArgumentException.class);
@@ -174,7 +169,7 @@ public class DownstreamNetworkExceptionHandlerListenerTest extends ListenerTestB
     }
 
     @Test
-    public void processServerHttpStatusCodeExceptionShouldReturnOUTSIDE_DEPENDENCY_RETURNED_A_TEMPORARY_ERRORWhenItSeesTheCorrectStatusCode() throws Exception {
+    public void processServerHttpStatusCodeExceptionShouldReturnOUTSIDE_DEPENDENCY_RETURNED_A_TEMPORARY_ERRORWhenItSeesTheCorrectStatusCode() {
         HttpClientErrorExceptionForTests details = new HttpClientErrorExceptionForTests(ApiErrorConstants.HTTP_STATUS_CODE_SERVICE_UNAVAILABLE, null, null);
 
         ServerHttpStatusCodeException ex = new ServerHttpStatusCodeException(new Exception(), "FOO", details, details.statusCode, details.headers, details.rawResponseBody);
@@ -186,7 +181,7 @@ public class DownstreamNetworkExceptionHandlerListenerTest extends ListenerTestB
     }
 
     @Test
-    public void processServerHttpStatusCodeExceptionShouldReturnTOO_MANY_REQUESTSWhenItSeesTheCorrectStatusCode() throws Exception {
+    public void processServerHttpStatusCodeExceptionShouldReturnTOO_MANY_REQUESTSWhenItSeesTheCorrectStatusCode() {
         HttpClientErrorExceptionForTests details = new HttpClientErrorExceptionForTests(ApiErrorConstants.HTTP_STATUS_CODE_TOO_MANY_REQUESTS, null, null);
 
         ServerHttpStatusCodeException ex = new ServerHttpStatusCodeException(new Exception(), "FOO", details, details.statusCode, details.headers, details.rawResponseBody);

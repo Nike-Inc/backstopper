@@ -96,7 +96,7 @@ public class ServersideValidationErrorHandlerListener implements ApiExceptionHan
         if (ex.getViolations() != null) {
             StringBuilder sb = new StringBuilder();
             for (ConstraintViolation<Object> violation : ex.getViolations()) {
-                if (sb.length() > 0)
+                if (!sb.isEmpty())
                     sb.append(", ");
 
                 sb.append(violation.getPropertyPath().toString())

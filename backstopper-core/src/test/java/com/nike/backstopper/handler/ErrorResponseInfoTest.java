@@ -4,7 +4,6 @@ import com.nike.internal.util.MapBuilder;
 
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 

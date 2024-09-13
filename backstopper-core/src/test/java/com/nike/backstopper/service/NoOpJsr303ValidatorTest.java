@@ -1,6 +1,5 @@
 package com.nike.backstopper.service;
 
-import org.assertj.core.api.ThrowableAssert;
 import org.junit.Test;
 
 import jakarta.validation.ValidationException;
@@ -31,12 +30,7 @@ public class NoOpJsr303ValidatorTest {
     @Test
     public void getConstraintsForClass_throws_ValidationException() {
         // when
-        Throwable ex = catchThrowable(new ThrowableAssert.ThrowingCallable() {
-            @Override
-            public void call() throws Throwable {
-                noOpValidator.getConstraintsForClass(FooClass.class);
-            }
-        });
+        Throwable ex = catchThrowable(() -> noOpValidator.getConstraintsForClass(FooClass.class));
 
         // then
         assertThat(ex).isInstanceOf(ValidationException.class);
@@ -45,12 +39,7 @@ public class NoOpJsr303ValidatorTest {
     @Test
     public void unwrap_throws_ValidationException() {
         // when
-        Throwable ex = catchThrowable(new ThrowableAssert.ThrowingCallable() {
-            @Override
-            public void call() throws Throwable {
-                noOpValidator.unwrap(FooClass.class);
-            }
-        });
+        Throwable ex = catchThrowable(() -> noOpValidator.unwrap(FooClass.class));
 
         // then
         assertThat(ex).isInstanceOf(ValidationException.class);
@@ -58,6 +47,7 @@ public class NoOpJsr303ValidatorTest {
 
     private static class FooClass {
         @NotNull
+        @SuppressWarnings("unused")
         public String notNullString = null;
     }
 }

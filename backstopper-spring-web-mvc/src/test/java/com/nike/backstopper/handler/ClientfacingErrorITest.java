@@ -359,7 +359,7 @@ public class ClientfacingErrorITest extends BaseSpringEnabledValidationTestCase 
         @RequestMapping("/throwSpecificValidationExceptions")
         public void throwSpecificValidationExceptions(@RequestBody List<BarebonesCoreApiErrorForTesting> errorsToThrow) {
             throw ApiException.newBuilder()
-                              .withApiErrors(new ArrayList<ApiError>(errorsToThrow))
+                              .withApiErrors(new ArrayList<>(errorsToThrow))
                               .withExtraResponseHeaders(Pair.of("foo1", singletonList("bar")),
                                                         Pair.of("foo2", Arrays.asList("bar2.1", "bar2.2"))
                               )

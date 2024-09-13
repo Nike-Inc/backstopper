@@ -170,7 +170,7 @@ public abstract class UnhandledExceptionHandlerBase<T> {
                 try {
                     body = request.getBody();
                 } catch (RequestInfoForLogging.GetBodyException e) {
-                    logger.warn("Failed to retrieve request_body while handling exception ex=" + ex, e);
+                    logger.warn("Failed to retrieve request_body while handling exception ex={}", ex, e);
                     body = "[ERROR_EXTRACING_BODY]";
                 }
 
@@ -229,7 +229,7 @@ public abstract class UnhandledExceptionHandlerBase<T> {
      *          Note that in many frameworks if the body has already been read once then it cannot be read again,
      *          so you may have more work to do than just setting this method to return true.
      */
-    @SuppressWarnings("UnusedParameters")
+    @SuppressWarnings("unused")
     protected boolean logRequestBodyOnUnhandledExceptions(Throwable ex, RequestInfoForLogging request) {
         return false;
     }

@@ -142,8 +142,10 @@ public class ClientDataValidationServiceTest {
         Object objToValidate2 = new Object();
         Object objToValidate3 = new Object();
         Class<?>[] groups = new Class<?>[]{Default.class, String.class};
+        @SuppressWarnings("unchecked")
         List<ConstraintViolation<Object>> obj1Violations =
             Collections.singletonList(mock(ConstraintViolation.class));
+        @SuppressWarnings("unchecked")
         List<ConstraintViolation<Object>> obj3Violations = Arrays.asList(mock(ConstraintViolation.class), mock(ConstraintViolation.class));
         given(validatorMock.validate(objToValidate1, groups)).willReturn(new HashSet<>(obj1Violations));
         given(validatorMock.validate(objToValidate2, groups)).willReturn(Collections.emptySet());

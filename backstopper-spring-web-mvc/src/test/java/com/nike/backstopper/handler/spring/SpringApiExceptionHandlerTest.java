@@ -3,7 +3,6 @@ package com.nike.backstopper.handler.spring;
 import com.nike.backstopper.apierror.projectspecificinfo.ProjectApiErrors;
 import com.nike.backstopper.handler.ApiExceptionHandlerUtils;
 import com.nike.backstopper.handler.UnexpectedMajorExceptionHandlingError;
-import com.nike.backstopper.handler.listener.ApiExceptionHandlerListener;
 import com.nike.backstopper.handler.spring.listener.ApiExceptionHandlerListenerList;
 
 import org.junit.Before;

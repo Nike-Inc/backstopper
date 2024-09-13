@@ -66,7 +66,7 @@ public abstract class VerifyJsr303ValidationMessagesPointToApiErrorsTest {
             }
         }
 
-        if (invalidAnnotations.size() > 0) {
+        if (!invalidAnnotations.isEmpty()) {
             // We have at least one invalid annotation, so this unit test will need to fail.
             // Sort our invalid-annotations list to make it easier to fix errors for the developer looking at the error output.
             invalidAnnotations.sort(

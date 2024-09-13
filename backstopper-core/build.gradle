@@ -19,6 +19,5 @@ dependencies {
             "org.assertj:assertj-core:$assertJVersion",
             "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
             "org.hamcrest:hamcrest-all:$hamcrestVersion",
-            "org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion"
     )
 }
