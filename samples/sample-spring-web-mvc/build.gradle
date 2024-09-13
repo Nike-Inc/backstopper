@@ -19,9 +19,7 @@ dependencies {
     )
     testImplementation(
             project(":backstopper-reusable-tests-junit5"),
-            "org.junit.jupiter:junit-jupiter-api:$junit5Version",
-            "org.junit.jupiter:junit-jupiter-engine:$junit5Version",
-            "org.junit.jupiter:junit-jupiter-params:$junit5Version",
+            "org.junit.jupiter:junit-jupiter:$junit5Version",
             "org.mockito:mockito-core:$mockitoVersion",
             "org.assertj:assertj-core:$assertJVersion",
             "io.rest-assured:rest-assured:$restAssuredVersion",

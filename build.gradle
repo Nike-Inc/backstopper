@@ -82,7 +82,7 @@ configure(subprojects.findAll { it.name.startsWith("sample") || it.name.startsWi
 
 // ========== PROPERTIES FOR GRADLE BUILD - DEPENDENCY VERSIONS / ETC
 ext {
-    slf4jVersion = '1.7.36'
+    slf4jVersion = '2.0.16'
     jakartaInjectVersion = '2.0.1'
     jakartaValidationVersion = '3.0.2'
     servletApiVersion = '6.0.0' // Compatible with Jakarta EE 10
@@ -93,26 +93,19 @@ ext {
     springboot3_1Version = '3.1.12'
     springboot3_2Version = '3.2.9'
     springboot3_3Version = '3.3.3'
-    jersey1Version = '1.19.2'
-    jersey2Version = '2.23.2'
-    jaxRsVersion = '2.0.1'
-    jaxbApiVersion = '2.4.0-b180830.0359'
 
     junitVersion = '4.13.2'
-    junit5Version = '5.8.2'
+    junit5Version = '5.11.0'
     mockitoVersion = '5.13.0'
     logbackVersion = '1.5.8'
     jacksonVersion = '2.17.2'
-    assertJVersion = '3.23.1'
+    assertJVersion = '3.26.3'
     junitDataproviderVersion = '1.13.1'
     hamcrestVersion = '1.3'
     hibernateValidatorVersion = '8.0.1.Final' // Compatible with Jakarta EE 10
     glassfishExpresslyVersion = '5.0.0' // Provides EL impl support for hibernate validator, compatible with Jakarta EE 10
 
-    jetbrainsAnnotationsVersion = '16.0.3'
-
-    orgReflectionsVersion = '0.9.11'
-    javassistVersion = '3.23.2-GA'
+    jetbrainsAnnotationsVersion = '24.1.0'
 
     jettyVersion = '11.0.24'
     // RestAssured has a vulnerability warning due to pulling in commons-codec:commons-codec:1.11, so we are manually
