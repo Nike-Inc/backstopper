@@ -23,6 +23,7 @@ public class ApiErrorBaseTest {
     @Test
     public void constructor_should_throw_IllegalArgumentException_null_name() {
         // when
+        @SuppressWarnings("DataFlowIssue")
         Throwable ex = catchThrowable(() -> new ApiErrorBase(null, 42, "some error", 400));
 
         // then
@@ -34,6 +35,7 @@ public class ApiErrorBaseTest {
     @Test
     public void constructor_should_throw_IllegalArgumentException_null_error_code() {
         // when
+        @SuppressWarnings("DataFlowIssue")
         Throwable ex = catchThrowable(() -> new ApiErrorBase(UUID.randomUUID().toString(), null, "some error", 400));
 
         // then
@@ -74,7 +76,7 @@ public class ApiErrorBaseTest {
 
         // then
         assertThat(aeb.getName()).isEqualTo(name);
-        assertThat(aeb.getErrorCode()).isEqualTo(String.valueOf(errorCode));
+        assertThat(aeb.getErrorCode()).isEqualTo(errorCode);
         assertThat(aeb.getMessage()).isEqualTo(message);
         assertThat(aeb.getHttpStatusCode()).isEqualTo(httpStatusCode);
     }
@@ -106,6 +108,7 @@ public class ApiErrorBaseTest {
         ApiErrorBase error = new ApiErrorBase("name", 42, "errorMessage", 400);
 
         // then
+        //noinspection EqualsWithItself
         assertThat(error.equals(error)).isTrue();
     }
 
@@ -121,6 +124,7 @@ public class ApiErrorBaseTest {
         String otherClass = useNull? null : "";
 
         // then
+        //noinspection EqualsBetweenInconvertibleTypes
         assertThat(error.equals(otherClass)).isFalse();
     }
 

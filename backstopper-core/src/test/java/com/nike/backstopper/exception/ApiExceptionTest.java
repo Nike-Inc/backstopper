@@ -27,23 +27,23 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 @RunWith(DataProviderRunner.class)
 public class ApiExceptionTest {
 
-    private ApiError apiError1 = BarebonesCoreApiErrorForTesting.GENERIC_SERVICE_ERROR;
-    private ApiError apiError2 = BarebonesCoreApiErrorForTesting.SERVERSIDE_VALIDATION_ERROR;
-    private ApiError apiError3 = BarebonesCoreApiErrorForTesting.TYPE_CONVERSION_ERROR;
-    private ApiError apiError4 = BarebonesCoreApiErrorForTesting.OUTSIDE_DEPENDENCY_RETURNED_AN_UNRECOVERABLE_ERROR;
+    private final ApiError apiError1 = BarebonesCoreApiErrorForTesting.GENERIC_SERVICE_ERROR;
+    private final ApiError apiError2 = BarebonesCoreApiErrorForTesting.SERVERSIDE_VALIDATION_ERROR;
+    private final ApiError apiError3 = BarebonesCoreApiErrorForTesting.TYPE_CONVERSION_ERROR;
+    private final ApiError apiError4 = BarebonesCoreApiErrorForTesting.OUTSIDE_DEPENDENCY_RETURNED_AN_UNRECOVERABLE_ERROR;
 
-    private Pair<String, String> logPair1 = Pair.of("key1", "val1");
-    private Pair<String, String> logPair2 = Pair.of("key2", "val2");
-    private Pair<String, String> logPair3 = Pair.of("key3", "val3");
-    private Pair<String, String> logPair4 = Pair.of("key4", "val4");
+    private final Pair<String, String> logPair1 = Pair.of("key1", "val1");
+    private final Pair<String, String> logPair2 = Pair.of("key2", "val2");
+    private final Pair<String, String> logPair3 = Pair.of("key3", "val3");
+    private final Pair<String, String> logPair4 = Pair.of("key4", "val4");
 
-    private Pair<String, List<String>> headerPair1 = Pair.of("h1", singletonList("v1"));
-    private Pair<String, List<String>> headerPair2 = Pair.of("h2", Arrays.asList("v2.1", "v2.2"));
-    private Pair<String, List<String>> headerPair3 = Pair.of("h3", singletonList("v3"));
-    private Pair<String, List<String>> headerPair4 = Pair.of("h4", Arrays.asList("v4.1", "v4.2"));
+    private final Pair<String, List<String>> headerPair1 = Pair.of("h1", singletonList("v1"));
+    private final Pair<String, List<String>> headerPair2 = Pair.of("h2", Arrays.asList("v2.1", "v2.2"));
+    private final Pair<String, List<String>> headerPair3 = Pair.of("h3", singletonList("v3"));
+    private final Pair<String, List<String>> headerPair4 = Pair.of("h4", Arrays.asList("v4.1", "v4.2"));
 
-    private String exceptionMessage = "some ex msg";
-    private Exception cause = new Exception("intentional test exception");
+    private final String exceptionMessage = "some ex msg";
+    private final Exception cause = new Exception("intentional test exception");
 
     @DataProvider(value = {
         "true   |   FORCE_STACK_TRACE",
@@ -148,6 +148,7 @@ public class ApiExceptionTest {
         ApiException.Builder builder = ApiException.newBuilder();
 
         // when
+        @SuppressWarnings("ThrowableNotThrown")
         Throwable ex = catchThrowable(() -> new ApiException(builder));
 
         // then
@@ -157,6 +158,7 @@ public class ApiExceptionTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    @SuppressWarnings("ThrowableNotThrown")
     public void single_error_constructor_fails_if_passed_null_arg() {
         // expect
         new ApiException((ApiError)null);
@@ -182,13 +184,14 @@ public class ApiExceptionTest {
         "false  |   false",
     }, splitBy = "\\|")
     @Test(expected = IllegalArgumentException.class)
+    @SuppressWarnings({"ThrowableNotThrown", "deprecation"})
     public void no_cause_constructors_fail_when_passed_null_or_empty_apiErrors_list(
         boolean useNull, boolean useConstructorWithResponseHeaders
     ) {
         // given
         List<Pair<String, String>> logInfoList = Collections.emptyList();
         List<Pair<String, List<String>>> responseHeaders = Collections.emptyList();
-        List<ApiError> apiErrors = (useNull) ? null : Collections.<ApiError>emptyList();
+        List<ApiError> apiErrors = (useNull) ? null : Collections.emptyList();
 
         // expect
         if (useConstructorWithResponseHeaders)
@@ -204,13 +207,14 @@ public class ApiExceptionTest {
         "false  |   false",
     }, splitBy = "\\|")
     @Test(expected = IllegalArgumentException.class)
+    @SuppressWarnings({"ThrowableNotThrown", "deprecation"})
     public void with_cause_constructors_fail_when_passed_null_or_empty_apiErrors_list(
         boolean useNull, boolean useConstructorWithResponseHeaders
     ) {
         // given
         List<Pair<String, String>> logInfoList = Collections.emptyList();
         List<Pair<String, List<String>>> responseHeaders = Collections.emptyList();
-        List<ApiError> apiErrors = (useNull) ? null : Collections.<ApiError>emptyList();
+        List<ApiError> apiErrors = (useNull) ? null : Collections.emptyList();
 
         // expect
         if (useConstructorWithResponseHeaders)
@@ -224,6 +228,7 @@ public class ApiExceptionTest {
         "false"
     }, splitBy = "\\|")
     @Test
+    @SuppressWarnings("deprecation")
     public void no_cause_constructors_should_translate_null_logging_details_to_empty_list(
         boolean useConstructorWithResponseHeaders
     ) {
@@ -249,6 +254,7 @@ public class ApiExceptionTest {
         List<ApiError> apiErrors = Arrays.asList(apiError1, apiError2);
 
         // when
+        @SuppressWarnings("deprecation")
         ApiException apiException = new ApiException(apiErrors, loggingDetails, null, exceptionMessage);
 
         // then
@@ -262,6 +268,7 @@ public class ApiExceptionTest {
         "false"
     }, splitBy = "\\|")
     @Test
+    @SuppressWarnings("deprecation")
     public void with_cause_constructors_should_translate_null_logging_details_to_empty_list(
         boolean useConstructorWithResponseHeaders
     ) {
@@ -287,6 +294,7 @@ public class ApiExceptionTest {
         List<ApiError> apiErrors = Arrays.asList(apiError1, apiError2);
 
         // when
+        @SuppressWarnings("deprecation")
         ApiException apiException = new ApiException(apiErrors, loggingDetails, null, exceptionMessage, cause);
 
         // then
@@ -308,6 +316,7 @@ public class ApiExceptionTest {
     }
 
     @Test
+    @SuppressWarnings("ConstantValue")
     public void extractMessage_nullListOfErrors_without_message_returns_null() {
         // when
         String extractedMessage = ApiException.extractMessage(null, null);

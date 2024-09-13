@@ -12,12 +12,11 @@ import static org.assertj.core.api.Assertions.catchThrowable;
  */
 public class GlassboxTest {
 
-    @SuppressWarnings({"FieldCanBeLocal", "FieldMayBeFinal", "unused"})
     private static class SomeObject {
         public final String pubFinalFoo;
         private final String privFinalFoo;
-        public String pubFoo;
-        private String privFoo;
+        public final String pubFoo;
+        private final String privFoo;
 
         private SomeObject(String pubFinalFoo, String privFinalFoo, String pubFoo, String privFoo) {
             this.pubFinalFoo = pubFinalFoo;

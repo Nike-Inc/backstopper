@@ -1,15 +1,14 @@
 package com.nike.backstopper.model;
 
 import com.nike.backstopper.apierror.ApiError;
-import com.nike.internal.util.MapBuilder;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 
-import org.assertj.core.api.ThrowableAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -26,6 +25,7 @@ import static org.mockito.Mockito.mock;
  * @author Nic Munroe
  */
 @RunWith(DataProviderRunner.class)
+@SuppressWarnings("ClassEscapesDefinedScope")
 public class DefaultErrorDTOTest {
 
     @Test
@@ -44,16 +44,18 @@ public class DefaultErrorDTOTest {
     }
 
     private Map<String, Object> generateMetadata(MetadataArgOption metadataArgOption) {
-        switch(metadataArgOption) {
-            case NULL:
-                return null;
-            case EMPTY:
-                return new HashMap<>();
-            case NOT_EMPTY:
-                return MapBuilder.<String, Object>builder().put("foo", UUID.randomUUID().toString()).put("bar", 42).build();
-            default:
-                throw new IllegalArgumentException("Unhandled case: " + metadataArgOption);
-        }
+        // We need to return a modifiable map, because Map.copyOf() (which DefaultErrorDTO uses to copy metadata passed
+        //      in) is smart enough to return the original map if it's already unmodifiable, and our tests want to prove
+        //      that it will do a deep copy if necessary.
+        Map<String, Object> modifiableMetadataMap = new HashMap<>();
+        modifiableMetadataMap.put("foo", UUID.randomUUID().toString());
+        modifiableMetadataMap.put("bar", 42);
+
+        return switch (metadataArgOption) {
+            case NULL -> null;
+            case EMPTY -> new HashMap<>();
+            case NOT_EMPTY -> modifiableMetadataMap;
+        };
     }
 
     private void verifyMetadata(final DefaultErrorDTO error, MetadataArgOption metadataArgOption, Map<String, Object> expectedMetadata) {
@@ -66,21 +68,28 @@ public class DefaultErrorDTOTest {
 
                 break;
             case NOT_EMPTY:
-                assertThat(error.metadata)
-                    .isNotSameAs(expectedMetadata)
-                    .isEqualTo(expectedMetadata);
-                Throwable ex = catchThrowable(new ThrowableAssert.ThrowingCallable() {
-                    @Override
-                    public void call() throws Throwable {
-                        error.metadata.put("can't modify", "me");
-                    }
-                });
+                assertThat(error.metadata).isEqualTo(expectedMetadata);
+
+                if (isUnmodifiableMap(expectedMetadata)) {
+                    // DefaultErrorDTO uses Map.copyOf() to copy the metadata, which is smart enough to return the
+                    //      original when the original is unmodifiable.
+                    assertThat(error.metadata).isSameAs(expectedMetadata);
+                } else {
+                    assertThat(error.metadata).isNotSameAs(expectedMetadata);
+                }
+
+                @SuppressWarnings("DataFlowIssue")
+                Throwable ex = catchThrowable(() -> error.metadata.put("can't modify", "me"));
                 assertThat(ex).isInstanceOf(UnsupportedOperationException.class);
 
                 break;
             default:
                 throw new IllegalArgumentException("Unhandled case: " + metadataArgOption);
         }
+    }
+
+    private boolean isUnmodifiableMap(Map<?, ?> map) {
+        return Collections.unmodifiableMap(map).getClass().isInstance(map) || Map.copyOf(map) == map;
     }
 
     @DataProvider(value = {

@@ -7,6 +7,7 @@ import com.nike.internal.util.Pair;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -19,14 +20,15 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
 
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ReadListener;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.HttpServletRequest;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -77,7 +79,7 @@ public class RequestInfoForLoggingServletApiAdapterTest {
     @Test
     public void getHeaderMapDelegatesToServletRequestAndCachesResult() {
         Map<String, List<String>> expectedHeaderMap = new TreeMap<>(MapBuilder.<String, List<String>>builder()
-                                                                              .put("header1", Arrays.asList("h1val1"))
+                                                                              .put("header1", List.of("h1val1"))
                                                                               .put("header2", Arrays.asList("h2val1", "h2val2"))
                                                                               .build());
         doReturn(Collections.enumeration(expectedHeaderMap.keySet())).when(requestMock).getHeaderNames();
@@ -100,7 +102,7 @@ public class RequestInfoForLoggingServletApiAdapterTest {
     @Test
     public void getHeaderMapIgnoresHeadersWhereServletRequestGetHeadersMethodReturnsNull() {
         Map<String, List<String>> expectedHeaderMap = new TreeMap<>(MapBuilder.<String, List<String>>builder()
-                                                                              .put("header1", Arrays.asList("h1val1"))
+                                                                              .put("header1", List.of("h1val1"))
                                                                               .build());
         doReturn(Collections.enumeration(Arrays.asList("header1", "header2"))).when(requestMock).getHeaderNames();
         doReturn(Collections.enumeration(expectedHeaderMap.get("header1"))).when(requestMock).getHeaders("header1");
@@ -118,7 +120,7 @@ public class RequestInfoForLoggingServletApiAdapterTest {
 
     @Test
     public void getHeadersDelegatesToServletRequest() {
-        Pair<String, List<String>> header1 = Pair.of("header1", Arrays.asList("h1val1"));
+        Pair<String, List<String>> header1 = Pair.of("header1", List.of("h1val1"));
         Pair<String, List<String>> header2 = Pair.of("header2", Arrays.asList("h2val1", "h2val2"));
         Map<String, List<String>> expectedHeaderMap = new TreeMap<>(MapBuilder.<String, List<String>>builder()
                                                                               .put(header1.getKey(), header1.getValue())
@@ -137,7 +139,7 @@ public class RequestInfoForLoggingServletApiAdapterTest {
         String attributeName = "someattribute";
         UUID expectedValue = UUID.randomUUID();
         doReturn(expectedValue).when(requestMock).getAttribute(attributeName);
-        assertThat(adapter.getAttribute(attributeName), Is.<Object>is(expectedValue));
+        assertThat(adapter.getAttribute(attributeName), Is.is(expectedValue));
     }
 
     @Test
@@ -205,6 +207,7 @@ public class RequestInfoForLoggingServletApiAdapterTest {
         /**
          * Return the underlying source stream (never <code>null</code>).
          */
+        @SuppressWarnings("unused")
         public final InputStream getSourceStream() {
             return this.sourceStream;
         }
@@ -219,5 +222,31 @@ public class RequestInfoForLoggingServletApiAdapterTest {
             this.sourceStream.close();
         }
 
+        @Override
+        public boolean isFinished() {
+            try {
+                return this.sourceStream.available() <= 0;
+            }
+            catch (IOException e) {
+                LoggerFactory.getLogger(this.getClass()).error("An error occurred asking for available bytes from the underlying stream.", e);
+                return true;
+            }
+        }
+
+        @Override
+        public boolean isReady() {
+            try {
+                return this.sourceStream.available() > 0;
+            }
+            catch (IOException e) {
+                LoggerFactory.getLogger(this.getClass()).error("An error occurred asking for available bytes from the underlying stream.", e);
+                return false;
+            }
+        }
+
+        @Override
+        public void setReadListener(ReadListener readListener) {
+            // Do nothing.
+        }
     }
 }

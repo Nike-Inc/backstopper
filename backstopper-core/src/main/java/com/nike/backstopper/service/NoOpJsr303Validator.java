@@ -1,11 +1,14 @@
 package com.nike.backstopper.service;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.Set;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ValidationException;
-import javax.validation.Validator;
-import javax.validation.metadata.BeanDescriptor;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ValidationException;
+import jakarta.validation.Validator;
+import jakarta.validation.executable.ExecutableValidator;
+import jakarta.validation.metadata.BeanDescriptor;
 
 import static java.util.Collections.emptySet;
 
@@ -17,7 +20,7 @@ import static java.util.Collections.emptySet;
  * @author Nic Munroe
  */
 @SuppressWarnings("WeakerAccess")
-public class NoOpJsr303Validator implements Validator {
+public class NoOpJsr303Validator implements Validator, ExecutableValidator {
 
     public static final NoOpJsr303Validator SINGLETON_IMPL = new NoOpJsr303Validator();
 
@@ -45,5 +48,38 @@ public class NoOpJsr303Validator implements Validator {
     @Override
     public <T> T unwrap(Class<T> type) {
         throw new ValidationException(this.getClass().getName() + " does not implement unwrap()");
+    }
+
+    @Override
+    public ExecutableValidator forExecutables() {
+        return this;
+    }
+
+    @Override
+    public <T> Set<ConstraintViolation<T>> validateParameters(
+        T object, Method method, Object[] parameterValues, Class<?>... groups
+    ) {
+        return emptySet();
+    }
+
+    @Override
+    public <T> Set<ConstraintViolation<T>> validateReturnValue(
+        T object, Method method, Object returnValue, Class<?>... groups
+    ) {
+        return emptySet();
+    }
+
+    @Override
+    public <T> Set<ConstraintViolation<T>> validateConstructorParameters(
+        Constructor<? extends T> constructor, Object[] parameterValues, Class<?>... groups
+    ) {
+        return emptySet();
+    }
+
+    @Override
+    public <T> Set<ConstraintViolation<T>> validateConstructorReturnValue(
+        Constructor<? extends T> constructor, T createdObject, Class<?>... groups
+    ) {
+        return emptySet();
     }
 }

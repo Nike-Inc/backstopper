@@ -20,15 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ApiErrorUtilTest {
 
     @Test
-    public void constructor_code_coverage() {
-        // given
-        ApiErrorUtil util = new ApiErrorUtil();
-
-        // then
-        assertThat(util).isNotNull();
-    }
-
-    @Test
     public void generate_api_error_hashcode_generates_expected_hashcodes() {
         // given
         Map<String, Object> metadata = MapBuilder.<String, Object>builder().put("foo", UUID.randomUUID().toString()).build();

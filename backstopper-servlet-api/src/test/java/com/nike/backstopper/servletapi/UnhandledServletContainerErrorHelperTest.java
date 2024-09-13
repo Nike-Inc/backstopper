@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletRequest;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletRequest;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,6 +36,7 @@ import static org.mockito.Mockito.mock;
  * @author Nic Munroe
  */
 @RunWith(DataProviderRunner.class)
+@SuppressWarnings("ClassEscapesDefinedScope")
 public class UnhandledServletContainerErrorHelperTest {
 
     private UnhandledServletContainerErrorHelper helper;
@@ -60,41 +61,33 @@ public class UnhandledServletContainerErrorHelperTest {
     }
 
     @DataProvider(value = {
-        "true   |   true    |   true    |   true",
-        "false  |   true    |   true    |   true",
-        "false  |   false   |   true    |   true",
-        "false  |   false   |   false   |   true",
-        "false  |   false   |   false   |   false",
+        "true   |   true    |   true",
+        "false  |   true    |   true",
+        "false  |   false   |   true",
+        "false  |   false   |   true",
+        "false  |   false   |   false",
     }, splitBy = "\\|")
     @Test
     public void extractOrGenerateErrorForRequest_returns_wrapped_exception_from_request_attrs_if_available(
-        boolean requestHasExInSpringboot2ReactiveAttr,
-        boolean requestHasExInSpringboot2ServletAttr,
-        boolean requestHasExInSpringboot1Attr,
+        boolean requestHasExInSpringboot3ReactiveAttr,
+        boolean requestHasExInSpringboot3ServletAttr,
         boolean requestHasExInServletAttr
     ) {
         // given
-        Throwable springboot2ReactiveAttrEx = new RuntimeException("some springboot 2 reactive request attr exception");
-        Throwable springboot2ServletAttrEx = new RuntimeException("some springboot 2 servlet request attr exception");
-        Throwable springboot1AttrEx = new RuntimeException("some springboot 1 request attr exception");
+        Throwable springboot3ReactiveAttrEx = new RuntimeException("some springboot 3 reactive request attr exception");
+        Throwable springboot3ServletAttrEx = new RuntimeException("some springboot 3 servlet request attr exception");
         Throwable servletAttrEx = new RuntimeException("some servlet request attr exception");
 
-        if (requestHasExInSpringboot2ReactiveAttr) {
-            doReturn(springboot2ReactiveAttrEx)
+        if (requestHasExInSpringboot3ReactiveAttr) {
+            doReturn(springboot3ReactiveAttrEx)
                 .when(requestMock)
                 .getAttribute("org.springframework.boot.web.reactive.error.DefaultErrorAttributes.ERROR");
         }
 
-        if (requestHasExInSpringboot2ServletAttr) {
-            doReturn(springboot2ServletAttrEx)
+        if (requestHasExInSpringboot3ServletAttr) {
+            doReturn(springboot3ServletAttrEx)
                 .when(requestMock)
                 .getAttribute("org.springframework.boot.web.servlet.error.DefaultErrorAttributes.ERROR");
-        }
-
-        if (requestHasExInSpringboot1Attr) {
-            doReturn(springboot1AttrEx)
-                .when(requestMock)
-                .getAttribute("org.springframework.boot.autoconfigure.web.DefaultErrorAttributes.ERROR");
         }
 
         if (requestHasExInServletAttr) {
@@ -105,23 +98,17 @@ public class UnhandledServletContainerErrorHelperTest {
         Throwable result = helper.extractOrGenerateErrorForRequest(requestMock, projectApiErrors);
 
         // then
-        if (requestHasExInSpringboot2ReactiveAttr) {
+        if (requestHasExInSpringboot3ReactiveAttr) {
             assertThat(result)
                 .isInstanceOf(WrapperException.class)
                 .hasMessage("Caught a container exception.")
-                .hasCause(springboot2ReactiveAttrEx);
+                .hasCause(springboot3ReactiveAttrEx);
         }
-        else if (requestHasExInSpringboot2ServletAttr) {
+        else if (requestHasExInSpringboot3ServletAttr) {
             assertThat(result)
                 .isInstanceOf(WrapperException.class)
                 .hasMessage("Caught a container exception.")
-                .hasCause(springboot2ServletAttrEx);
-        }
-        else if (requestHasExInSpringboot1Attr) {
-            assertThat(result)
-                .isInstanceOf(WrapperException.class)
-                .hasMessage("Caught a container exception.")
-                .hasCause(springboot1AttrEx);
+                .hasCause(springboot3ServletAttrEx);
         }
         else if (requestHasExInServletAttr) {
             assertThat(result)
@@ -160,7 +147,7 @@ public class UnhandledServletContainerErrorHelperTest {
         Synthetic404Scenario scenario
     ) {
         // given
-        doReturn(scenario.statusCodeAttr).when(requestMock).getAttribute("javax.servlet.error.status_code");
+        doReturn(scenario.statusCodeAttr).when(requestMock).getAttribute("jakarta.servlet.error.status_code");
 
         // when
         Throwable result = helper.extractOrGenerateErrorForRequest(requestMock, projectApiErrors);
@@ -208,7 +195,7 @@ public class UnhandledServletContainerErrorHelperTest {
         Synthetic500Scenario scenario
     ) {
         // given
-        doReturn(scenario.statusCodeAttr).when(requestMock).getAttribute("javax.servlet.error.status_code");
+        doReturn(scenario.statusCodeAttr).when(requestMock).getAttribute("jakarta.servlet.error.status_code");
 
         // when
         Throwable result = helper.extractOrGenerateErrorForRequest(requestMock, projectApiErrors);

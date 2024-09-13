@@ -16,8 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Adapter that allows {@link HttpServletRequest} to be used as a {@link RequestInfoForLogging}.
@@ -125,8 +125,10 @@ public class RequestInfoForLoggingServletApiAdapter implements RequestInfoForLog
         try {
             closeable.close();
         } catch (Throwable e) {
-            logger.warn("An error occurred closing a Closeable resource. closeable_classname=\""
-                        + closeable.getClass().getName() + "\", exception_during_close=\"" + e.toString() + "\"");
+            logger.warn(
+                "An error occurred closing a Closeable resource. closeable_classname=\"{}\", exception_during_close=\"{}\"",
+                closeable.getClass().getName(), e.toString()
+            );
         }
     }
 }

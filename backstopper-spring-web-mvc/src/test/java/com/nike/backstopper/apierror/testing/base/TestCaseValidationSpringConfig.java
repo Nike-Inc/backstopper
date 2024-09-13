@@ -8,7 +8,7 @@ import com.nike.backstopper.apierror.testutil.ProjectApiErrorsForTesting;
 import com.nike.backstopper.handler.spring.config.BackstopperSpringWebMvcConfig;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -34,6 +34,7 @@ import java.util.List;
 @Configuration
 @ComponentScan(basePackages = "com.nike.backstopper") // Enable app-wide JSR-330 annotation-driven dependency injection.
 @Import(BackstopperSpringWebMvcConfig.class)
+@SuppressWarnings("unused")
 public class TestCaseValidationSpringConfig extends WebMvcConfigurationSupport {
 
     public static final ApiError INVALID_COUNT_VALUE = new ApiErrorBase("INVALID_COUNT_VALUE", 99042, "Invalid count value", 400, null);
@@ -63,7 +64,7 @@ public class TestCaseValidationSpringConfig extends WebMvcConfigurationSupport {
     @Bean
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+        mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
         return mapper;
     }
 
@@ -74,7 +75,7 @@ public class TestCaseValidationSpringConfig extends WebMvcConfigurationSupport {
         converters.add(new StringHttpMessageConverter());
         final MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
         final ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
         converter.setObjectMapper(objectMapper);
         converters.add(converter);
         super.configureMessageConverters(converters);

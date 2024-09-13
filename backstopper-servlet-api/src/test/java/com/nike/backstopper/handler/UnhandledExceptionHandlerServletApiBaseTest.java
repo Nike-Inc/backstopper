@@ -13,13 +13,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.verify;
  */
 public class UnhandledExceptionHandlerServletApiBaseTest {
 
-    private UnhandledExceptionHandlerServletApiBase instanceSpy;
+    private UnhandledExceptionHandlerServletApiBase<?> instanceSpy;
     private HttpServletRequest servletRequestMock;
     private HttpServletResponse servletResponseMock;
 
@@ -56,16 +56,23 @@ public class UnhandledExceptionHandlerServletApiBaseTest {
     }
 
     @Test
-    public void handleExceptionReturnsSuperValue() throws UnexpectedMajorExceptionHandlingError {
-        ErrorResponseInfo expectedResponseInfo = new ErrorResponseInfo(42, null, null);
+    public void handleExceptionReturnsSuperValue() {
+        ErrorResponseInfo<?> expectedResponseInfo = new ErrorResponseInfo<>(42, null, null);
         doReturn(expectedResponseInfo).when(instanceSpy).handleException(any(Throwable.class), any(RequestInfoForLogging.class));
-        ErrorResponseInfo actualResponseInfo = instanceSpy.handleException(new Exception(), servletRequestMock, servletResponseMock);
+        ErrorResponseInfo<?> actualResponseInfo = instanceSpy.handleException(new Exception(), servletRequestMock, servletResponseMock);
         assertThat(actualResponseInfo, sameInstance(expectedResponseInfo));
     }
 
     @Test
-    public void handleExceptionSetsHeadersAndStatusCodeOnServletResponse() throws UnexpectedMajorExceptionHandlingError {
-        ErrorResponseInfo<?> expectedResponseInfo = new ErrorResponseInfo(42, null, MapBuilder.<String, List<String>>builder().put("header1", Arrays.asList("h1val1")).put("header2", Arrays.asList("h2val1", "h2val2")).build());
+    public void handleExceptionSetsHeadersAndStatusCodeOnServletResponse() {
+        ErrorResponseInfo<?> expectedResponseInfo = new ErrorResponseInfo<>(
+            42,
+            null,
+            MapBuilder.<String, List<String>>builder()
+                      .put("header1", List.of("h1val1"))
+                      .put("header2", Arrays.asList("h2val1", "h2val2"))
+                      .build()
+        );
         doReturn(expectedResponseInfo).when(instanceSpy).handleException(any(Throwable.class), any(RequestInfoForLogging.class));
         instanceSpy.handleException(new Exception(), servletRequestMock, servletResponseMock);
 

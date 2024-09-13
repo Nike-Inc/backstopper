@@ -116,7 +116,7 @@ public class ReflectionBasedJsr303AnnotationTrollerBaseTest {
 
     private static class TestClass {
 
-        public String fooField = "fooField";
+        public final String fooField = "fooField";
 
         public TestClass() {}
 

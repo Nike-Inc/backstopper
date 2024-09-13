@@ -6,10 +6,10 @@ import com.nike.backstopper.springsample.error.SampleProjectApiError;
 import com.nike.backstopper.springsample.error.SampleProjectApiErrorsImpl;
 import com.nike.backstopper.validation.constraints.StringConvertsToClassType;
 
-import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.Range;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Simple model class showing the JSR 303 Bean Validation integration in Backstopper. Each message for a JSR 303

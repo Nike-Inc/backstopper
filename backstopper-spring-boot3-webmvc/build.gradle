@@ -1,0 +1,29 @@
+evaluationDependsOn(':')
+
+dependencies {
+    api(
+            project(":backstopper-spring-web-mvc"),
+    )
+    compileOnly(
+            "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
+            "org.springframework.boot:spring-boot-autoconfigure:$springboot3_3Version",
+            "org.springframework:spring-webmvc:$spring6_0Version",
+            "jakarta.servlet:jakarta.servlet-api:$servletApiVersion",
+    )
+    testImplementation(
+            "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
+            "junit:junit:$junitVersion",
+            "org.mockito:mockito-core:$mockitoVersion",
+            "ch.qos.logback:logback-classic:$logbackVersion",
+            "org.assertj:assertj-core:$assertJVersion",
+            "com.tngtech.java:junit-dataprovider:$junitDataproviderVersion",
+            "jakarta.servlet:jakarta.servlet-api:$servletApiVersion",
+            "io.rest-assured:rest-assured:$restAssuredVersion",
+            // Pulling in commons-codec manually to avoid vulnerability warning coming from RestAssured transitive dep.
+            "commons-codec:commons-codec:$commonsCodecVersion",
+            "jakarta.servlet:jakarta.servlet-api:$servletApiVersion",
+            "org.springframework.boot:spring-boot-starter-web:$springboot3_3Version",
+            "org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion",
+            "org.glassfish.expressly:expressly:$glassfishExpresslyVersion",
+    )
+}

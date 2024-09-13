@@ -12,9 +12,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.servlet.ServletRequest;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
+import jakarta.servlet.ServletRequest;
 
 /**
  * This class is intended to help with integrating Backstopper with Servlet containers for handling otherwise-unhandled
@@ -46,25 +46,21 @@ import javax.servlet.ServletRequest;
 public class UnhandledServletContainerErrorHelper {
 
     protected static final List<String> DEFAULT_THROWABLE_REQUEST_ATTR_NAMES = Arrays.asList(
-        // Try the Springboot 2 attrs first.
+        // Try the Springboot 3 attrs first.
         //      Corresponds to org.springframework.boot.web.reactive.error.DefaultErrorAttributes.ERROR_ATTRIBUTE.
         "org.springframework.boot.web.reactive.error.DefaultErrorAttributes.ERROR",
         //      Corresponds to org.springframework.boot.web.servlet.error.DefaultErrorAttributes.ERROR_ATTRIBUTE.
         "org.springframework.boot.web.servlet.error.DefaultErrorAttributes.ERROR",
 
-        // Try the Springboot 1 attr next.
-        //      Corresponds to org.springframework.boot.autoconfigure.web.DefaultErrorAttributes.ERROR_ATTRIBUTE.
-        "org.springframework.boot.autoconfigure.web.DefaultErrorAttributes.ERROR",
-        
         // Fall back to the Servlet API value last.
-        //      Corresponds to javax.servlet.RequestDispatcher.ERROR_EXCEPTION.
-        "javax.servlet.error.exception"
+        //      Corresponds to jakarta.servlet.RequestDispatcher.ERROR_EXCEPTION.
+        "jakarta.servlet.error.exception"
     );
 
     protected static final List<String> DEFAULT_ERROR_STATUS_CODE_REQUEST_ATTR_NAMES = Collections.singletonList(
         // Servlet API value.
-        //      Corresponds to javax.servlet.RequestDispatcher.ERROR_STATUS_CODE.
-        "javax.servlet.error.status_code"
+        //      Corresponds to jakarta.servlet.RequestDispatcher.ERROR_STATUS_CODE.
+        "jakarta.servlet.error.status_code"
     );
 
     public @NotNull Throwable extractOrGenerateErrorForRequest(

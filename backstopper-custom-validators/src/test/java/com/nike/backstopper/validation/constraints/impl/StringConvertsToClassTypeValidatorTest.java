@@ -12,9 +12,9 @@ import org.junit.runner.RunWith;
 
 import java.util.Set;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -25,12 +25,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
  * @author Nic Munroe
  */
 @RunWith(DataProviderRunner.class)
+@SuppressWarnings("ClassEscapesDefinedScope")
 public class StringConvertsToClassTypeValidatorTest {
 
-    private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+    @SuppressWarnings("resource")
+    private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     private StringConvertsToClassTypeValidator validatorImpl;
 
+    @SuppressWarnings("unused")
     private enum RgbColors {
         RED, Green, blue
     }
@@ -153,7 +156,7 @@ public class StringConvertsToClassTypeValidatorTest {
             this.fooString = fooString;
             return this;
         }
-        private CorrectAnnotationPlacement withFooObject(String fooObject) {
+        private CorrectAnnotationPlacement withFooObject(@SuppressWarnings("SameParameterValue") String fooObject) {
             this.fooObject = fooObject;
             return this;
         }
@@ -179,7 +182,7 @@ public class StringConvertsToClassTypeValidatorTest {
         Set<ConstraintViolation<CorrectAnnotationPlacement>> validatorResult = validator.validate(testMe);
 
         assertThat(directValidationResult, is(expectedResult));
-        assertThat(validatorResult.size() == 0, is(expectedResult));
+        assertThat(validatorResult.isEmpty(), is(expectedResult));
     }
 
     @DataProvider(value = {
@@ -308,7 +311,7 @@ public class StringConvertsToClassTypeValidatorTest {
 
     @Test
     public void shouldNotValidateLongBoxedForValueTooBigForLong() {
-        doValidationTest(newObj().withFooLongBoxed("9" + String.valueOf(Long.MAX_VALUE)), "9" + String.valueOf(Long.MAX_VALUE), Long.class, false);
+        doValidationTest(newObj().withFooLongBoxed("9" + Long.MAX_VALUE), "9" + Long.MAX_VALUE, Long.class, false);
     }
 
     @Test
@@ -323,7 +326,7 @@ public class StringConvertsToClassTypeValidatorTest {
 
     @Test
     public void shouldNotValidateLongForValueTooBigForLong() {
-        doValidationTest(newObj().withFooLong("9" + String.valueOf(Long.MAX_VALUE)), "9" + String.valueOf(Long.MAX_VALUE), long.class, false);
+        doValidationTest(newObj().withFooLong("9" + Long.MAX_VALUE), "9" + Long.MAX_VALUE, long.class, false);
     }
 
     // Float (boxed) and float (primitive) ===============================================================
@@ -385,7 +388,7 @@ public class StringConvertsToClassTypeValidatorTest {
 
     @Test
     public void shouldNotValidateDoubleBoxedForValueTooBigForDouble() {
-        doValidationTest(newObj().withFooDoubleBoxed("1" + String.valueOf(Double.MAX_VALUE)), "1" + String.valueOf(Double.MAX_VALUE), Double.class, false);
+        doValidationTest(newObj().withFooDoubleBoxed("1" + Double.MAX_VALUE), "1" + Double.MAX_VALUE, Double.class, false);
     }
 
     @Test
@@ -405,7 +408,7 @@ public class StringConvertsToClassTypeValidatorTest {
 
     @Test
     public void shouldNotValidateDoubleForValueTooBigForDouble() {
-        doValidationTest(newObj().withFooDouble("1" + String.valueOf(Double.MAX_VALUE)), "1" + String.valueOf(Double.MAX_VALUE), double.class, false);
+        doValidationTest(newObj().withFooDouble("1" + Double.MAX_VALUE), "1" + Double.MAX_VALUE, double.class, false);
     }
 
     // Boolean (boxed) and boolean (primitive) ===============================================================

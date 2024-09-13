@@ -15,16 +15,26 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.core.MethodParameter;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.ServletRequestBindingException;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -40,7 +50,7 @@ public class OneOffSpringWebMvcFrameworkExceptionHandlerListenerTest {
     private static final ProjectApiErrors testProjectApiErrors =
         ProjectApiErrorsForTesting.withProjectSpecificData(null, null);
     
-    private OneOffSpringWebMvcFrameworkExceptionHandlerListener listener =
+    private final OneOffSpringWebMvcFrameworkExceptionHandlerListener listener =
         new OneOffSpringWebMvcFrameworkExceptionHandlerListener(
             testProjectApiErrors, ApiExceptionHandlerUtils.DEFAULT_IMPL
         );
@@ -63,6 +73,7 @@ public class OneOffSpringWebMvcFrameworkExceptionHandlerListenerTest {
     @Test
     public void constructor_throws_IllegalArgumentException_if_passed_null_projectApiErrors() {
         // when
+        @SuppressWarnings("DataFlowIssue")
         Throwable ex = Assertions.catchThrowable(
             () -> new OneOffSpringWebMvcFrameworkExceptionHandlerListener(null, ApiExceptionHandlerUtils.DEFAULT_IMPL)
         );
@@ -74,6 +85,7 @@ public class OneOffSpringWebMvcFrameworkExceptionHandlerListenerTest {
     @Test
     public void constructor_throws_IllegalArgumentException_if_passed_null_utils() {
         // when
+        @SuppressWarnings("DataFlowIssue")
         Throwable ex = Assertions.catchThrowable(
             () -> new OneOffSpringWebMvcFrameworkExceptionHandlerListener(mock(ProjectApiErrors.class), null)
         );
@@ -102,6 +114,16 @@ public class OneOffSpringWebMvcFrameworkExceptionHandlerListenerTest {
         }
 
         assertThat(result.errors).containsExactlyInAnyOrderElementsOf(expectedErrors);
+    }
+
+    private void validateResponse(
+        ApiExceptionHandlerListenerResult result,
+        @SuppressWarnings("SameParameterValue") boolean expectedShouldHandle,
+        Collection<? extends ApiError> expectedErrors,
+        List<Pair<String, String>> expectedExtraDetailsForLogging
+    ) {
+        validateResponse(result, expectedShouldHandle, expectedErrors);
+        assertThat(result.extraDetailsForLogging).containsExactlyInAnyOrderElementsOf(expectedExtraDetailsForLogging);
     }
 
     @Test
@@ -136,8 +158,8 @@ public class OneOffSpringWebMvcFrameworkExceptionHandlerListenerTest {
         boolean isMissingRequestParamEx
     ) {
         // given
-        String missingParamName = "someParam-" + UUID.randomUUID().toString();
-        String missingParamType = "someParamType-" + UUID.randomUUID().toString();
+        String missingParamName = "someParam-" + UUID.randomUUID();
+        String missingParamType = "someParamType-" + UUID.randomUUID();
         ServletRequestBindingException ex =
             (isMissingRequestParamEx)
             ? new MissingServletRequestParameterException(missingParamName, missingParamType)
@@ -148,13 +170,14 @@ public class OneOffSpringWebMvcFrameworkExceptionHandlerListenerTest {
             expectedResult = new ApiErrorWithMetadata(
                 expectedResult,
                 Pair.of("missing_param_name", missingParamName),
-                Pair.of("missing_param_type", missingParamType)
+                Pair.of("missing_param_type", missingParamType),
+                Pair.of("required_location", "query_param")
             );
         }
 
         String expectedExceptionMessage =
             (isMissingRequestParamEx)
-            ? String.format("Required %s parameter '%s' is not present", missingParamType, missingParamName)
+            ? String.format("Required request parameter '%s' for method parameter type %s is not present", missingParamName, missingParamType)
             : "foo";
 
         // when
@@ -206,5 +229,50 @@ public class OneOffSpringWebMvcFrameworkExceptionHandlerListenerTest {
 
         // then
         validateResponse(result, true, singletonList(testProjectApiErrors.getUnsupportedMediaTypeApiError()));
+    }
+
+    @SuppressWarnings("unused")
+    public void methodWithAnnotatedParams(
+        @RequestHeader int headerParam,
+        @RequestParam int queryParam,
+        @RequestHeader @RequestParam int bothParam,
+        int unknownParam
+    ) {
+        // This method is used as part of shouldHandleException_handles_MissingRequestHeaderException_as_expected().
+    }
+
+    @Test
+    public void shouldHandleException_handles_MissingRequestHeaderException_as_expected() throws NoSuchMethodException {
+        // given
+        Method method = this.getClass()
+                            .getDeclaredMethod("methodWithAnnotatedParams", int.class, int.class, int.class, int.class);
+        MethodParameter headerParamDetails = new MethodParameter(method, 0);
+
+        String missingHeaderName = "some-header-" + UUID.randomUUID();
+        MissingRequestHeaderException ex = new MissingRequestHeaderException(missingHeaderName, headerParamDetails);
+
+        List<Pair<String, String>> expectedExtraDetailsForLogging = new ArrayList<>();
+        ApiExceptionHandlerUtils.DEFAULT_IMPL.addBaseExceptionMessageToExtraDetailsForLogging(
+            ex, expectedExtraDetailsForLogging
+        );
+
+        Map<String, Object> expectedMetadata = new LinkedHashMap<>();
+        expectedMetadata.put("missing_param_name", missingHeaderName);
+        expectedMetadata.put("missing_param_type", "int");
+        expectedMetadata.put("required_location", "header");
+
+        // when
+        ApiExceptionHandlerListenerResult result = listener.shouldHandleException(ex);
+
+        // then
+        validateResponse(
+            result,
+            true,
+            singleton(new ApiErrorWithMetadata(
+                testProjectApiErrors.getMalformedRequestApiError(),
+                expectedMetadata
+            )),
+            expectedExtraDetailsForLogging
+        );
     }
 }

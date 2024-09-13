@@ -18,7 +18,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 
 /**
  * This Spring Web MVC configuration is an alternative to simply scanning all of {@code com.nike.backstopper}. You can
@@ -27,7 +27,7 @@ import javax.validation.Validator;
  * handlers will supersede the built-in spring exception handler chain and will translate <b>ALL</b> errors heading to
  * the caller so that they conform to the API error contract. See the {@link SpringApiExceptionHandler} and {@link
  * SpringUnhandledExceptionHandler} classes themselves for more info.
- *
+ * <p>
  * This also pulls in {@link SpringContainerErrorController} to handle exceptions that originate in the
  * Servlet container outside Spring proper so they can also be handled by Backstopper. Note that you'll need to
  * configure your Servlet container to forward exceptions and errors it handles outside of Spring to {@code /error} for

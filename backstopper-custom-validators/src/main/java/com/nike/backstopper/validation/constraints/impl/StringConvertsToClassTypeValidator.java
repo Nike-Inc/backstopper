@@ -5,8 +5,8 @@ import com.nike.backstopper.validation.constraints.StringConvertsToClassType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 /**
  * Implementation of the validation logic for {@link StringConvertsToClassType}. See that annotation's javadocs for more
@@ -93,7 +93,9 @@ public class StringConvertsToClassTypeValidator implements ConstraintValidator<S
     @SuppressWarnings("unchecked")
     protected boolean validateAsEnum(String value) {
         try {
-            Enum.valueOf((Class<Enum>) desiredClass, value);
+            @SuppressWarnings("rawtypes")
+            Class<Enum> castClass = (Class<Enum>) desiredClass;
+            Enum.valueOf(castClass, value);
             // No error, so it can be successfully parsed to this enum type as-is.
             return true;
         }
@@ -112,7 +114,7 @@ public class StringConvertsToClassTypeValidator implements ConstraintValidator<S
             return false;
 
         for (Object enumValue : enumValues) {
-            if (enumValue instanceof Enum && ((Enum) enumValue).name().equalsIgnoreCase(value))
+            if (enumValue instanceof Enum && ((Enum<?>) enumValue).name().equalsIgnoreCase(value))
                 return true;
         }
 
@@ -170,12 +172,8 @@ public class StringConvertsToClassTypeValidator implements ConstraintValidator<S
 
     protected boolean validateAsFloat(String value) {
         try {
-            Float floatValue = Float.parseFloat(value);
-            if (floatValue.isInfinite() || floatValue.isNaN())
-                return false;
-
-            // No error, so it can be successfully parsed to this primitive type.
-            return true;
+            float floatValue = Float.parseFloat(value);
+            return !Float.isInfinite(floatValue) && !Float.isNaN(floatValue);
         }
         catch (Exception ex) {
             // Couldn't parse the given string into this primitive type, so it's not valid.
@@ -185,12 +183,8 @@ public class StringConvertsToClassTypeValidator implements ConstraintValidator<S
 
     protected boolean validateAsDouble(String value) {
         try {
-            Double doubleValue = Double.parseDouble(value);
-            if (doubleValue.isInfinite() || doubleValue.isNaN())
-                return false;
-
-            // No error, so it can be successfully parsed to this primitive type.
-            return true;
+            double doubleValue = Double.parseDouble(value);
+            return !Double.isInfinite(doubleValue) && !Double.isNaN(doubleValue);
         }
         catch (Exception ex) {
             // Couldn't parse the given string into this primitive type, so it's not valid.

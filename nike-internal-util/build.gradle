@@ -4,12 +4,10 @@ version=nikeInternalUtilVersion
 groupId = nikeInternalUtilGroupId
 group = nikeInternalUtilGroupId
 
-compileTestJava {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
-
 dependencies {
+    compileOnly(
+           "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
+    )
     testImplementation(
             "junit:junit:$junitVersion",
             "org.mockito:mockito-core:$mockitoVersion",

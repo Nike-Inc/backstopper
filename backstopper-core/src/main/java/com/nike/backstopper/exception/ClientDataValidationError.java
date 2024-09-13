@@ -2,7 +2,7 @@ package com.nike.backstopper.exception;
 
 import java.util.List;
 
-import javax.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolation;
 
 /**
  * A runtime exception representing a <b>CLIENT DATA</b> JSR 303 validation failure (i.e. a validation error with data
@@ -51,8 +51,8 @@ public class ClientDataValidationError extends RuntimeException {
 
     /**
      * @return The validation groups that were used to do the validation, if any. This may be null or empty; if this is
-     *          null/empty it means the {@link javax.validation.groups.Default} validation group was used as per
-     *          {@link javax.validation.Validator#validate(Object, Class[])} (i.e. no groups were passed in to that
+     *          null/empty it means the {@link jakarta.validation.groups.Default} validation group was used as per
+     *          {@link jakarta.validation.Validator#validate(Object, Class[])} (i.e. no groups were passed in to that
      *          method).
      */
     public Class<?>[] getValidationGroups() {

@@ -7,11 +7,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 
 /**
  * Provides methods for performing JSR 303 validation on objects that will throw a {@link ClientDataValidationError} if
@@ -62,9 +62,9 @@ public class ClientDataValidationService {
      * identical behavior).
      *
      * <p>NOTE: When asking for a specific group to be validated the Default group will not be validated - to validate
-     * constraints which are members of the Default group you must pass in {@link javax.validation.groups.Default} (in
+     * constraints which are members of the Default group you must pass in {@link jakarta.validation.groups.Default} (in
      * which case you could just call the simpler {@link #validateObjectsFailFast(Object...)} method), or you must pass
-     * in a class that extends {@link javax.validation.groups.Default}.
+     * in a class that extends {@link jakarta.validation.groups.Default}.
      */
     public void validateObjectsWithGroupFailFast(Class<?> group, Object... validateTheseObjects) {
         validateObjectsWithGroupsFailFast(new Class<?>[]{group}, validateTheseObjects);
@@ -80,11 +80,11 @@ public class ClientDataValidationService {
      *
      * <p>NOTE: When asking for specific groups to be validated the Default group will not be validated unless it is
      * included - to validate constraints which are members of the Default group one of the groups you pass in must be
-     * {@link javax.validation.groups.Default} or must extend it.
+     * {@link jakarta.validation.groups.Default} or must extend it.
      */
     public void validateObjectsWithGroupsFailFast(Collection<Class<?>> groups, Object... validateTheseObjects) {
         Class<?>[] groupsArray =
-            (groups == null || groups.size() == 0) ? null : groups.toArray(new Class<?>[groups.size()]);
+            (groups == null || groups.isEmpty()) ? null : groups.toArray(new Class<?>[0]);
 
         validateObjectsWithGroupsFailFast(groupsArray, validateTheseObjects);
     }
@@ -99,7 +99,7 @@ public class ClientDataValidationService {
      *
      * <p>NOTE: When asking for specific groups to be validated the Default group will not be validated unless it is
      * included - to validate constraints which are members of the Default group one of the groups you pass in must be
-     * {@link javax.validation.groups.Default} or must extend it.
+     * {@link jakarta.validation.groups.Default} or must extend it.
      */
     public void validateObjectsWithGroupsFailFast(Class<?>[] groups, Object... validateTheseObjects) {
         if (validateTheseObjects == null || validateTheseObjects.length == 0) {

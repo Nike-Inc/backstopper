@@ -10,6 +10,7 @@ import com.nike.backstopper.handler.UnexpectedMajorExceptionHandlingError;
 import com.nike.backstopper.handler.spring.listener.ApiExceptionHandlerListenerList;
 import com.nike.backstopper.model.DefaultErrorContractDTO;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
@@ -18,11 +19,11 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Collection;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * An {@link ApiExceptionHandlerServletApiBase} extension that hooks into Spring Web MVC via its
@@ -72,8 +73,12 @@ public class SpringApiExceptionHandler extends ApiExceptionHandlerServletApiBase
     }
 
     @Override
-    public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler,
-                                         Exception ex) {
+    public ModelAndView resolveException(
+        @NotNull HttpServletRequest request,
+        @NotNull HttpServletResponse response,
+        Object handler,
+        @NotNull Exception ex
+    ) {
 
         try {
             ErrorResponseInfo<ModelAndView> errorResponseInfo = maybeHandleException(ex, request, response);
@@ -84,9 +89,9 @@ public class SpringApiExceptionHandler extends ApiExceptionHandlerServletApiBase
 
             return errorResponseInfo.frameworkRepresentationObj;
         } catch (UnexpectedMajorExceptionHandlingError ohNoException) {
-            logger.error(
-                "Unexpected major error while handling exception. " + SpringUnhandledExceptionHandler.class.getName()
-                + " should handle it.", ohNoException);
+            logger.error("Unexpected major error while handling exception. {} should handle it.",
+                         SpringUnhandledExceptionHandler.class.getName(), ohNoException
+            );
             return null;
         }
 

@@ -3,7 +3,6 @@ package com.nike.backstopper.apierror.projectspecificinfo.range;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 
-import org.assertj.core.api.ThrowableAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -18,17 +17,12 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 @RunWith(DataProviderRunner.class)
 public class IntegerRangeTest {
 
-    private IntegerRange rangeOfOneToFour = IntegerRange.of(1, 4);
+    private final IntegerRange rangeOfOneToFour = IntegerRange.of(1, 4);
 
     @Test
     public void constructor_throws_exception_if_upper_range_less_than_lower_range() {
         // when
-        Throwable ex = catchThrowable(new ThrowableAssert.ThrowingCallable() {
-            @Override
-            public void call() throws Throwable {
-                IntegerRange.of(5, 4);
-            }
-        });
+        Throwable ex = catchThrowable(() -> IntegerRange.of(5, 4));
 
         // then
         assertThat(ex).isInstanceOf(IllegalArgumentException.class);

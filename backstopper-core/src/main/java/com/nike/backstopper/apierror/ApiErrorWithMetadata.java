@@ -83,6 +83,7 @@ public class ApiErrorWithMetadata implements ApiError {
     }
 
     @Override
+    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
     public boolean equals(Object o) {
         return ApiErrorUtil.isApiErrorEqual(this, o);
     }

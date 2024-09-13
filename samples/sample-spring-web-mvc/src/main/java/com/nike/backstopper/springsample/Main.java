@@ -8,6 +8,7 @@ import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
@@ -17,11 +18,11 @@ import org.springframework.web.servlet.DispatcherServlet;
 import java.io.IOException;
 import java.util.EnumSet;
 
-import javax.servlet.DispatcherType;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Starts up the Backstopper Spring Web MVC Sample server (on port 8080 by default).
@@ -44,14 +45,14 @@ public class Main {
         }
     }
 
-    public static Server createServer(int port) throws Exception {
+    public static Server createServer(int port) {
         Server server = new Server(port);
         server.setHandler(generateServletContextHandler(generateWebAppContext()));
 
         return server;
     }
 
-    private static ServletContextHandler generateServletContextHandler(WebApplicationContext context) throws IOException {
+    private static ServletContextHandler generateServletContextHandler(WebApplicationContext context) {
         ServletContextHandler contextHandler = new ServletContextHandler();
         contextHandler.setErrorHandler(generateErrorHandler());
         contextHandler.setContextPath("/");
@@ -88,7 +89,7 @@ public class Main {
 
         @Override
         protected void doFilterInternal(
-            HttpServletRequest request, HttpServletResponse response, FilterChain filterChain
+            HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain
         ) throws ServletException, IOException {
             if ("true".equals(request.getHeader("throw-servlet-filter-exception"))) {
                 throw ApiException

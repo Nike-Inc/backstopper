@@ -42,12 +42,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Pattern;
+import jakarta.inject.Inject;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
 
 import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -64,6 +65,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ClientfacingErrorITest extends BaseSpringEnabledValidationTestCase {
 
     @Inject
+    @SuppressWarnings("unused")
     private ProjectApiErrors projectApiErrors;
 
     @Test
@@ -259,7 +261,7 @@ public class ClientfacingErrorITest extends BaseSpringEnabledValidationTestCase 
         MvcResult result = this.mockMvc.perform(get("/error")).andReturn();
         verifyErrorResponse(result, projectApiErrors, projectApiErrors.getGenericServiceError(), ApiException.class);
         ApiException apiEx = (ApiException) result.getResolvedException();
-        Assertions.assertThat(apiEx.getMessage()).isEqualTo(
+        Assertions.assertThat(requireNonNull(apiEx).getMessage()).isEqualTo(
             "Synthetic exception for unhandled container status code: null"
         );
         Assertions.assertThat(apiEx.getExtraDetailsForLogging()).isEqualTo(singletonList(
@@ -278,6 +280,7 @@ public class ClientfacingErrorITest extends BaseSpringEnabledValidationTestCase 
         @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message="TYPE_CONVERSION_ERROR")
         public String startDate;
 
+        @SuppressWarnings("unused") // Needed for deserialization.
         public DummyRequestObject() {}
         public DummyRequestObject(String count, String offset, String startDate) {
             this.count = count;
@@ -289,6 +292,7 @@ public class ClientfacingErrorITest extends BaseSpringEnabledValidationTestCase 
     private static class DummyResponseObject implements Serializable {
         public String someField = "foo";
 
+        @SuppressWarnings("unused") // Needed for deserialization.
         public DummyResponseObject() {}
 
         public DummyResponseObject(String someField) {
@@ -298,6 +302,7 @@ public class ClientfacingErrorITest extends BaseSpringEnabledValidationTestCase 
 
     @Controller
     @RequestMapping("/clientFacingErrorTestDummy")
+    @SuppressWarnings({"unused", "ClassEscapesDefinedScope"})
     public static class DummyController {
 
         @Inject
@@ -336,10 +341,8 @@ public class ClientfacingErrorITest extends BaseSpringEnabledValidationTestCase 
         }
 
         private byte[] responseBodyForDownstreamServiceError() {
-            StringBuilder sb = new StringBuilder();
-            sb.append("{\"result\":\"failure\",\"errorCode\":\"0x00000042\",\"errorMessage\":\"something bad happened\"}");
 
-            return sb.toString().getBytes();
+            return "{\"result\":\"failure\",\"errorCode\":\"0x00000042\",\"errorMessage\":\"something bad happened\"}".getBytes();
         }
 
         @RequestMapping("/throwServerTimeoutException")
@@ -349,8 +352,16 @@ public class ClientfacingErrorITest extends BaseSpringEnabledValidationTestCase 
 
         @RequestMapping("/throwServerUnknownHttpStatusCodeException")
         public void throwServerUnknownHttpStatusCodeException() {
-            UnknownHttpStatusCodeException serverResponseEx = new UnknownHttpStatusCodeException(42, null, null, null, null);
-            throw new ServerUnknownHttpStatusCodeException(new Exception("Intentional test exception"), "FOO", serverResponseEx, serverResponseEx.getRawStatusCode(), serverResponseEx.getResponseHeaders(), serverResponseEx.getResponseBodyAsString());
+            @SuppressWarnings("DataFlowIssue")
+            UnknownHttpStatusCodeException serverResponseEx = new UnknownHttpStatusCodeException(142, null, null, null, null);
+            throw new ServerUnknownHttpStatusCodeException(
+                new Exception("Intentional test exception"),
+                "FOO",
+                serverResponseEx,
+                serverResponseEx.getStatusCode().value(),
+                serverResponseEx.getResponseHeaders(),
+                serverResponseEx.getResponseBodyAsString()
+            );
         }
 
         @RequestMapping("/throwServerUnreachableException")
@@ -361,7 +372,7 @@ public class ClientfacingErrorITest extends BaseSpringEnabledValidationTestCase 
         @RequestMapping("/throwSpecificValidationExceptions")
         public void throwSpecificValidationExceptions(@RequestBody List<BarebonesCoreApiErrorForTesting> errorsToThrow) {
             throw ApiException.newBuilder()
-                              .withApiErrors(new ArrayList<ApiError>(errorsToThrow))
+                              .withApiErrors(new ArrayList<>(errorsToThrow))
                               .withExtraResponseHeaders(Pair.of("foo1", singletonList("bar")),
                                                         Pair.of("foo2", Arrays.asList("bar2.1", "bar2.2"))
                               )
@@ -388,7 +399,7 @@ public class ClientfacingErrorITest extends BaseSpringEnabledValidationTestCase 
 
         @RequestMapping("/validateRequiredInteger")
         @ResponseBody
-        public DummyResponseObject validateRequiredInteger(@RequestParam(required = true) Integer someInt) {
+        public DummyResponseObject validateRequiredInteger(@RequestParam Integer someInt) {
             return new DummyResponseObject(String.valueOf(someInt));
         }
 

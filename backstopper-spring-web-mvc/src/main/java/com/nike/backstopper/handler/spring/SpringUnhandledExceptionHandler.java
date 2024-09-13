@@ -8,6 +8,7 @@ import com.nike.backstopper.handler.RequestInfoForLogging;
 import com.nike.backstopper.handler.UnhandledExceptionHandlerServletApiBase;
 import com.nike.backstopper.model.DefaultErrorContractDTO;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.core.Ordered;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
@@ -18,11 +19,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * An extension of {@link UnhandledExceptionHandlerServletApiBase} that acts as a final catch-all exception handler.
@@ -86,8 +87,12 @@ public class SpringUnhandledExceptionHandler extends UnhandledExceptionHandlerSe
     }
 
     @Override
-    public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler,
-                                         Exception ex) {
+    public ModelAndView resolveException(
+        @NotNull HttpServletRequest request,
+        @NotNull HttpServletResponse response,
+        Object handler,
+        @NotNull Exception ex
+    ) {
         return handleException(ex, request, response).frameworkRepresentationObj;
     }
 

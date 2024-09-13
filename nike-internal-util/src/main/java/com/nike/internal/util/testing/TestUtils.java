@@ -15,7 +15,7 @@ public class TestUtils {
 
     /**
      * Finds an unused port on the machine hosting the currently running JVM.
-     *
+     * <p>
      * Does not throw any checked {@link IOException} that occurs while trying to find a free port. If one occurs,
      * it will be wrapped in a {@link RuntimeException}.
      */

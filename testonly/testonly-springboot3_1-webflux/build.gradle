@@ -1,0 +1,42 @@
+evaluationDependsOn(':')
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springboot3_1Version}")
+    }
+}
+
+apply plugin: 'org.springframework.boot'
+apply plugin: "io.spring.dependency-management"
+
+test {
+    useJUnitPlatform()
+}
+
+dependencies {
+    implementation(
+            project(":backstopper-spring-web-flux"),
+            project(":backstopper-custom-validators"),
+            "ch.qos.logback:logback-classic",
+            "org.springframework.boot:spring-boot-dependencies:$springboot3_1Version",
+            "org.springframework.boot:spring-boot-starter-webflux",
+            "org.hibernate.validator:hibernate-validator",
+            "org.glassfish.expressly:expressly:$glassfishExpresslyVersion",
+    )
+    testImplementation(
+            project(":backstopper-reusable-tests-junit5"),
+            project(":testonly:testonly-spring-webflux-reusable-test-support"),
+            "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
+            "org.junit.jupiter:junit-jupiter:$junit5Version",
+            "org.mockito:mockito-core:$mockitoVersion",
+            "org.assertj:assertj-core:$assertJVersion",
+            "io.rest-assured:rest-assured",
+    )
+}
+
+// We're just running tests, not trying to stand up a real Springboot 3 server from gradle.
+//      Disable the bootJar task so gradle doesn't fall over.
+bootJar.enabled = false

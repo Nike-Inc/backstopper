@@ -2,7 +2,6 @@ package com.nike.backstopper.handler;
 
 import com.nike.backstopper.apierror.ApiError;
 import com.nike.backstopper.apierror.projectspecificinfo.ProjectApiErrors;
-import com.nike.backstopper.handler.listener.ApiExceptionHandlerListener;
 import com.nike.backstopper.model.DefaultErrorContractDTO;
 import com.nike.internal.util.MapBuilder;
 
@@ -15,13 +14,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -33,14 +32,14 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  */
 public class ApiExceptionHandlerServletApiBaseTest {
 
-    private ApiExceptionHandlerServletApiBase instanceSpy;
+    private ApiExceptionHandlerServletApiBase<?> instanceSpy;
     private HttpServletRequest servletRequestMock;
     private HttpServletResponse servletResponseMock;
 
     @Before
     public void beforeMethod() {
           instanceSpy = spy(new ApiExceptionHandlerServletApiBase<Object>(mock(ProjectApiErrors.class),
-                                                                          Collections.<ApiExceptionHandlerListener>emptyList(),
+                                                                          Collections.emptyList(),
                                                                           ApiExceptionHandlerUtils.DEFAULT_IMPL) {
               @Override
               protected Object prepareFrameworkRepresentation(DefaultErrorContractDTO errorContractDTO, int httpStatusCode, Collection<ApiError> filteredClientErrors,
@@ -54,15 +53,22 @@ public class ApiExceptionHandlerServletApiBaseTest {
 
     @Test
     public void maybeHandleExceptionReturnsSuperValue() throws UnexpectedMajorExceptionHandlingError {
-        ErrorResponseInfo expectedResponseInfo = new ErrorResponseInfo(42, null, null);
+        ErrorResponseInfo<?> expectedResponseInfo = new ErrorResponseInfo<>(42, null, null);
         doReturn(expectedResponseInfo).when(instanceSpy).maybeHandleException(any(Throwable.class), any(RequestInfoForLogging.class));
-        ErrorResponseInfo actualResponseInfo = instanceSpy.maybeHandleException(new Exception(), servletRequestMock, servletResponseMock);
+        ErrorResponseInfo<?> actualResponseInfo = instanceSpy.maybeHandleException(new Exception(), servletRequestMock, servletResponseMock);
         assertThat(actualResponseInfo, sameInstance(expectedResponseInfo));
     }
 
     @Test
     public void maybeHandleExceptionSetsHeadersAndStatusCodeOnServletResponse() throws UnexpectedMajorExceptionHandlingError {
-        ErrorResponseInfo<?> expectedResponseInfo = new ErrorResponseInfo(42, null, MapBuilder.<String, List<String>>builder().put("header1", Arrays.asList("h1val1")).put("header2", Arrays.asList("h2val1", "h2val2")).build());
+        ErrorResponseInfo<?> expectedResponseInfo = new ErrorResponseInfo<>(
+            42,
+            null,
+            MapBuilder.<String, List<String>>builder()
+                      .put("header1", List.of("h1val1"))
+                      .put("header2", Arrays.asList("h2val1", "h2val2"))
+                      .build()
+        );
         doReturn(expectedResponseInfo).when(instanceSpy).maybeHandleException(any(Throwable.class), any(RequestInfoForLogging.class));
         instanceSpy.maybeHandleException(new Exception(), servletRequestMock, servletResponseMock);
 

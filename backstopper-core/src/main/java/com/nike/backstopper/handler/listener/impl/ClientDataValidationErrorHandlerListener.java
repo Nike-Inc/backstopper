@@ -15,10 +15,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.validation.ConstraintViolation;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
+import jakarta.validation.ConstraintViolation;
 
 import static com.nike.backstopper.apierror.SortedApiErrorSet.singletonSortedSetOf;
 
@@ -80,10 +80,10 @@ public class ClientDataValidationErrorHandlerListener implements ApiExceptionHan
                                                               List<Pair<String, String>> extraDetailsForLogging) {
 
         // Add info about the objects that failed validation.
-        if (ex.getObjectsThatFailedValidation() != null && ex.getObjectsThatFailedValidation().size() > 0) {
+        if (ex.getObjectsThatFailedValidation() != null && !ex.getObjectsThatFailedValidation().isEmpty()) {
             StringBuilder sb = new StringBuilder();
             for (Object obj : ex.getObjectsThatFailedValidation()) {
-                if (sb.length() > 0)
+                if (!sb.isEmpty())
                     sb.append(",");
                 sb.append(obj.getClass().getName());
             }
@@ -94,7 +94,7 @@ public class ClientDataValidationErrorHandlerListener implements ApiExceptionHan
         if (ex.getValidationGroups() != null && ex.getValidationGroups().length > 0) {
             StringBuilder sb = new StringBuilder();
             for (Class<?> group : ex.getValidationGroups()) {
-                if (sb.length() > 0)
+                if (!sb.isEmpty())
                     sb.append(",");
                 sb.append(group.getName());
             }
@@ -108,7 +108,7 @@ public class ClientDataValidationErrorHandlerListener implements ApiExceptionHan
         // Add full details about the violations.
         StringBuilder sb = new StringBuilder();
         for (ConstraintViolation<Object> violation : ex.getViolations()) {
-            if (sb.length() > 0)
+            if (!sb.isEmpty())
                 sb.append(",");
 
             sb.append(violation.getRootBeanClass().getSimpleName())

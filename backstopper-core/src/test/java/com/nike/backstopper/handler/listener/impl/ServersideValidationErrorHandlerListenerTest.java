@@ -10,8 +10,6 @@ import com.nike.backstopper.handler.listener.ApiExceptionHandlerListenerResult;
 import com.nike.internal.util.Pair;
 
 import org.assertj.core.api.Assertions;
-import org.assertj.core.api.ThrowableAssert;
-import org.hibernate.validator.constraints.NotEmpty;
 import org.junit.Test;
 
 import java.lang.annotation.Annotation;
@@ -21,10 +19,11 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Path;
-import javax.validation.constraints.NotNull;
-import javax.validation.metadata.ConstraintDescriptor;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Path;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.metadata.ConstraintDescriptor;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -40,8 +39,8 @@ import static org.mockito.Mockito.when;
 public class ServersideValidationErrorHandlerListenerTest extends ListenerTestBase {
 
     private static final ProjectApiErrors testProjectApiErrors = ProjectApiErrorsForTesting.withProjectSpecificData(null, null);
-    private ServersideValidationErrorHandlerListener listener = new ServersideValidationErrorHandlerListener(testProjectApiErrors,
-                                                                                                             ApiExceptionHandlerUtils.DEFAULT_IMPL);
+    private final ServersideValidationErrorHandlerListener listener = new ServersideValidationErrorHandlerListener(testProjectApiErrors,
+                                                                                                                   ApiExceptionHandlerUtils.DEFAULT_IMPL);
 
     @Test
     public void constructor_sets_projectApiErrors_and_utils_to_passed_in_args() {
@@ -60,12 +59,9 @@ public class ServersideValidationErrorHandlerListenerTest extends ListenerTestBa
     @Test
     public void constructor_throws_IllegalArgumentException_if_passed_null_projectApiErrors() {
         // when
-        Throwable ex = Assertions.catchThrowable(new ThrowableAssert.ThrowingCallable() {
-            @Override
-            public void call() throws Throwable {
-                new ServersideValidationErrorHandlerListener(null, ApiExceptionHandlerUtils.DEFAULT_IMPL);
-            }
-        });
+        @SuppressWarnings("DataFlowIssue")
+        Throwable ex = Assertions.catchThrowable(
+            () -> new ServersideValidationErrorHandlerListener(null, ApiExceptionHandlerUtils.DEFAULT_IMPL));
 
         // then
         Assertions.assertThat(ex).isInstanceOf(IllegalArgumentException.class);
@@ -74,12 +70,9 @@ public class ServersideValidationErrorHandlerListenerTest extends ListenerTestBa
     @Test
     public void constructor_throws_IllegalArgumentException_if_passed_null_utils() {
         // when
-        Throwable ex = Assertions.catchThrowable(new ThrowableAssert.ThrowingCallable() {
-            @Override
-            public void call() throws Throwable {
-                new ServersideValidationErrorHandlerListener(mock(ProjectApiErrors.class), null);
-            }
-        });
+        @SuppressWarnings("DataFlowIssue")
+        Throwable ex = Assertions.catchThrowable(
+            () -> new ServersideValidationErrorHandlerListener(mock(ProjectApiErrors.class), null));
 
         // then
         Assertions.assertThat(ex).isInstanceOf(IllegalArgumentException.class);
@@ -113,6 +106,7 @@ public class ServersideValidationErrorHandlerListenerTest extends ListenerTestBa
     }
 
     private ConstraintViolation<Object> setupConstraintViolation(String path, Class<? extends Annotation> annotationClass, String message) {
+        @SuppressWarnings("unchecked")
         ConstraintViolation<Object> mockConstraintViolation = mock(ConstraintViolation.class);
 
         Path mockPath = mock(Path.class);
@@ -132,6 +126,7 @@ public class ServersideValidationErrorHandlerListenerTest extends ListenerTestBa
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void shouldAddExtraLoggingDetailsForServersideValidationError() {
         ConstraintViolation<Object> violation1 = setupConstraintViolation("path.to.violation1", NotNull.class, "Violation_1_Message");
         ConstraintViolation<Object> violation2 = setupConstraintViolation("path.to.violation2", NotEmpty.class, "Violation_2_Message");
@@ -139,24 +134,21 @@ public class ServersideValidationErrorHandlerListenerTest extends ListenerTestBa
 
         List<Pair<String, String>> extraLoggingDetails = new ArrayList<>();
         listener.processServersideValidationError(ex, extraLoggingDetails);
-        extraLoggingDetails.toString();
-        assertThat(extraLoggingDetails, containsInAnyOrder(Pair.of("serverside_validation_object", SomeValidatableObject.class.getName()),
-                Pair.of("serverside_validation_errors",
-                        "path.to.violation1|javax.validation.constraints.NotNull|Violation_1_Message, path.to.violation2|org.hibernate.validator.constraints" +
-                                ".NotEmpty|Violation_2_Message")));
+        assertThat(extraLoggingDetails, containsInAnyOrder(
+            Pair.of("serverside_validation_object", SomeValidatableObject.class.getName()),
+            Pair.of("serverside_validation_errors",
+                    "path.to.violation1|jakarta.validation.constraints.NotNull|Violation_1_Message, "
+                    + "path.to.violation2|jakarta.validation.constraints.NotEmpty|Violation_2_Message")));
     }
 
-    private static class SomeValidatableObject {
-
-        @NotEmpty(message = "INVALID_TRUSTED_HEADERS_ERROR")
-        private String arg1;
-        @NotEmpty(message = "INVALID_TRUSTED_HEADERS_ERROR")
-        private String arg2;
-
-        public SomeValidatableObject(String arg1, String arg2) {
-            this.arg1 = arg1;
-            this.arg2 = arg2;
+    private record SomeValidatableObject(
+        @NotEmpty(message = "INVALID_TRUSTED_HEADERS_ERROR") String arg1,
+        @NotEmpty(message = "INVALID_TRUSTED_HEADERS_ERROR") String arg2
+    ) {
+            private SomeValidatableObject(String arg1, String arg2) {
+                this.arg1 = arg1;
+                this.arg2 = arg2;
+            }
         }
-    }
 
 }

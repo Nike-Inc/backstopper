@@ -10,9 +10,10 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -31,20 +32,23 @@ public class FailFastServersideValidationServiceTest {
 
     @Before
     public void beforeMethod() {
-        MockitoAnnotations.initMocks(this);
+        //noinspection resource
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
     public void shouldNotThrowExceptionIfValidatorComesBackClean() {
         Object validateMe = new Object();
-        when(validator.validate(validateMe)).thenReturn(new HashSet<ConstraintViolation<Object>>());
+        when(validator.validate(validateMe)).thenReturn(new HashSet<>());
         validationService.validateObjectFailFast(validateMe);
     }
 
     @Test(expected = ServersideValidationError.class)
     public void shouldThrowExceptionIfValidatorFindsConstraintViolations() {
         Object validateMe = new Object();
-        when(validator.validate(validateMe)).thenReturn(Collections.<ConstraintViolation<Object>>singleton(mock(ConstraintViolation.class)));
+        @SuppressWarnings("unchecked")
+        Set<ConstraintViolation<Object>> mockReturnVal = Collections.singleton(mock(ConstraintViolation.class));
+        when(validator.validate(validateMe)).thenReturn(mockReturnVal);
         validationService.validateObjectFailFast(validateMe);
     }
 }

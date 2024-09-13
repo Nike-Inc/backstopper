@@ -3,7 +3,6 @@ package com.nike.backstopper.handler.spring;
 import com.nike.backstopper.apierror.projectspecificinfo.ProjectApiErrors;
 import com.nike.backstopper.handler.ApiExceptionHandlerUtils;
 import com.nike.backstopper.handler.UnexpectedMajorExceptionHandlingError;
-import com.nike.backstopper.handler.listener.ApiExceptionHandlerListener;
 import com.nike.backstopper.handler.spring.listener.ApiExceptionHandlerListenerList;
 
 import org.junit.Before;
@@ -13,11 +12,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Collections;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -40,7 +36,7 @@ public class SpringApiExceptionHandlerTest {
     @Before
     public void beforeMethod() {
         projectApiErrorsMock = mock(ProjectApiErrors.class);
-        listenerList = new ApiExceptionHandlerListenerList(Collections.<ApiExceptionHandlerListener>emptyList());
+        listenerList = new ApiExceptionHandlerListenerList(Collections.emptyList());
         generalUtils = ApiExceptionHandlerUtils.DEFAULT_IMPL;
         springUtils = SpringApiExceptionHandlerUtils.DEFAULT_IMPL;
         handlerSpy = spy(new SpringApiExceptionHandler(projectApiErrorsMock, listenerList, generalUtils, springUtils));
@@ -50,13 +46,14 @@ public class SpringApiExceptionHandlerTest {
     public void resolveException_returns_null_if_maybeHandleException_returns_null()
         throws UnexpectedMajorExceptionHandlingError {
         // given
-        doReturn(null).when(handlerSpy).maybeHandleException(any(Throwable.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
+        doReturn(null).when(handlerSpy).maybeHandleException(isNull(), isNull(), isNull());
 
         // when
+        @SuppressWarnings("DataFlowIssue")
         ModelAndView result = handlerSpy.resolveException(null, null, null, null);
 
         // then
-        verify(handlerSpy).maybeHandleException(any(Throwable.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
+        verify(handlerSpy).maybeHandleException(isNull(), isNull(), isNull());
         assertThat(result).isNull();
     }
 
@@ -65,13 +62,14 @@ public class SpringApiExceptionHandlerTest {
         throws UnexpectedMajorExceptionHandlingError {
         // given
         doThrow(new UnexpectedMajorExceptionHandlingError("foo", null))
-            .when(handlerSpy).maybeHandleException(any(Throwable.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
+            .when(handlerSpy).maybeHandleException(isNull(), isNull(), isNull());
 
         // when
+        @SuppressWarnings("DataFlowIssue")
         ModelAndView result = handlerSpy.resolveException(null, null, null, null);
 
         // then
-        verify(handlerSpy).maybeHandleException(any(Throwable.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
+        verify(handlerSpy).maybeHandleException(isNull(), isNull(), isNull());
         assertThat(result).isNull();
     }
 

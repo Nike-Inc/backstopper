@@ -50,14 +50,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyCollection;
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -74,7 +74,8 @@ public class ApiExceptionHandlerBaseTest {
     @Before
     public void setupMethod() {
         handler = new TestApiExceptionHandler();
-        MockitoAnnotations.initMocks(this);
+        //noinspection resource
+        MockitoAnnotations.openMocks(this);
     }
 
     private boolean containsApiError(Collection<DefaultErrorDTO> errorViews, ApiError error) {
@@ -118,11 +119,14 @@ public class ApiExceptionHandlerBaseTest {
     @Test(expected = IllegalArgumentException.class)
     public void constructor_throws_IllegalArgumentException_if_passed_null_projectApiErrors() {
         // expect
-        new ApiExceptionHandlerBase(null, singletonList(new GenericApiExceptionHandlerListener()), ApiExceptionHandlerUtils.DEFAULT_IMPL) {
+        new ApiExceptionHandlerBase<>(
+            null, singletonList(new GenericApiExceptionHandlerListener()), ApiExceptionHandlerUtils.DEFAULT_IMPL
+        ) {
             @Override
             protected Object prepareFrameworkRepresentation(
-                DefaultErrorContractDTO errorContractDTO, int httpStatusCode, Collection rawFilteredApiErrors,
-                Throwable originalException, RequestInfoForLogging request) {
+                DefaultErrorContractDTO errorContractDTO, int httpStatusCode, Collection<ApiError> rawFilteredApiErrors,
+                Throwable originalException, RequestInfoForLogging request
+            ) {
                 return null;
             }
         };
@@ -131,10 +135,12 @@ public class ApiExceptionHandlerBaseTest {
     @Test(expected = IllegalArgumentException.class)
     public void constructor_throws_IllegalArgumentException_if_passed_null_listener_list() {
         // expect
-        new ApiExceptionHandlerBase(mock(ProjectApiErrors.class), null, ApiExceptionHandlerUtils.DEFAULT_IMPL) {
+        new ApiExceptionHandlerBase<>(
+            mock(ProjectApiErrors.class), null, ApiExceptionHandlerUtils.DEFAULT_IMPL
+        ) {
             @Override
             protected Object prepareFrameworkRepresentation(
-                DefaultErrorContractDTO errorContractDTO, int httpStatusCode, Collection rawFilteredApiErrors,
+                DefaultErrorContractDTO errorContractDTO, int httpStatusCode, Collection<ApiError> rawFilteredApiErrors,
                 Throwable originalException, RequestInfoForLogging request) {
                 return null;
             }
@@ -144,10 +150,12 @@ public class ApiExceptionHandlerBaseTest {
     @Test(expected = IllegalArgumentException.class)
     public void constructor_throws_IllegalArgumentException_if_passed_null_apiExceptionHandlerUtils() {
         // expect
-        new ApiExceptionHandlerBase(mock(ProjectApiErrors.class), singletonList(new GenericApiExceptionHandlerListener()), null) {
+        new ApiExceptionHandlerBase<>(
+            mock(ProjectApiErrors.class), singletonList(new GenericApiExceptionHandlerListener()), null
+        ) {
             @Override
             protected Object prepareFrameworkRepresentation(
-                DefaultErrorContractDTO errorContractDTO, int httpStatusCode, Collection rawFilteredApiErrors,
+                DefaultErrorContractDTO errorContractDTO, int httpStatusCode, Collection<ApiError> rawFilteredApiErrors,
                 Throwable originalException, RequestInfoForLogging request) {
                 return null;
             }
@@ -164,7 +172,7 @@ public class ApiExceptionHandlerBaseTest {
     ) throws UnexpectedMajorExceptionHandlingError {
         // given
         Throwable ex = new RuntimeException("kaboom");
-        ApiExceptionHandlerBase handlerSpy = spy(new TestApiExceptionHandler());
+        ApiExceptionHandlerBase<?> handlerSpy = spy(new TestApiExceptionHandler());
 
         ApiExceptionHandlerListenerResult listenerResultMock =
             (shouldHandle)
@@ -176,14 +184,14 @@ public class ApiExceptionHandlerBaseTest {
             : ApiExceptionHandlerListenerResult.ignoreResponse();
         doReturn(listenerResultMock).when(handlerSpy).shouldHandleApiException(ex);
 
-        ErrorResponseInfo errorResponseInfoMock = mock(ErrorResponseInfo.class);
+        ErrorResponseInfo<?> errorResponseInfoMock = mock(ErrorResponseInfo.class);
         doReturn(errorResponseInfoMock).when(handlerSpy).doHandleApiException(
-            any(SortedApiErrorSet.class), any(List.class), any(List.class), any(Throwable.class),
+            any(SortedApiErrorSet.class), any(), any(), any(Throwable.class),
             any(RequestInfoForLogging.class)
         );
 
         // when
-        ErrorResponseInfo result = handlerSpy.maybeHandleException(ex, reqMock);
+        ErrorResponseInfo<?> result = handlerSpy.maybeHandleException(ex, reqMock);
 
         // then
         if (shouldHandle) {
@@ -229,7 +237,7 @@ public class ApiExceptionHandlerBaseTest {
         for (Integer httpStatusCode : testProjectApiErrors.getStatusCodePriorityOrder()) {
             List<ApiError> allErrorsForThisHttpStatusCode = findAllApiErrorsWithHttpStatusCode(httpStatusCode);
             // Skip if we have no errors for a status code in the default order list of status codes:
-            if (allErrorsForThisHttpStatusCode.size() > 0) {
+            if (!allErrorsForThisHttpStatusCode.isEmpty()) {
                 ErrorResponseInfo<TestDTO> result = handler.maybeHandleException(ApiException.newBuilder().withApiErrors(allErrorsForThisHttpStatusCode).build(), reqMock);
                 validateResponse(result, allErrorsForThisHttpStatusCode);
             }
@@ -262,9 +270,9 @@ public class ApiExceptionHandlerBaseTest {
 
     @Test
     public void shouldDeduplicateRepeatedErrors() throws UnexpectedMajorExceptionHandlingError {
-        List<ApiError> repeatedErrors = Arrays.<ApiError>asList(testProjectApiErrors.getGenericServiceError(), testProjectApiErrors.getGenericServiceError(), testProjectApiErrors.getGenericServiceError());
+        List<ApiError> repeatedErrors = Arrays.asList(testProjectApiErrors.getGenericServiceError(), testProjectApiErrors.getGenericServiceError(), testProjectApiErrors.getGenericServiceError());
         ErrorResponseInfo<TestDTO> result = handler.maybeHandleException(ApiException.newBuilder().withApiErrors(repeatedErrors).build(), reqMock);
-        validateResponse(result, Arrays.asList((ApiError)testProjectApiErrors.getGenericServiceError()));
+        validateResponse(result, singletonList(testProjectApiErrors.getGenericServiceError()));
     }
 
     @Test
@@ -275,7 +283,7 @@ public class ApiExceptionHandlerBaseTest {
 
     @Test(expected = UnexpectedMajorExceptionHandlingError.class)
     public void shouldThrowUnexpectedMajorExceptionHandlingErrorIfBizarroInnerExceptionOccurs() throws UnexpectedMajorExceptionHandlingError {
-        ErrorResponseInfo<TestDTO> result = handler.maybeHandleException(new ApiException(testProjectApiErrors.getGenericServiceError()) {
+        handler.maybeHandleException(new ApiException(testProjectApiErrors.getGenericServiceError()) {
             @Override
             public List<ApiError> getApiErrors() {
                 throw new RuntimeException("Bizarro inner exception");
@@ -335,9 +343,11 @@ public class ApiExceptionHandlerBaseTest {
     @Test
     public void handleExceptionShouldAddErrorIdToResponseHeader() {
         ApiExceptionHandlerBase<TestDTO> handler = new TestApiExceptionHandler();
-        ErrorResponseInfo<TestDTO> result = handler.doHandleApiException(singletonSortedSetOf(CUSTOM_API_ERROR), new ArrayList<Pair<String, String>>(),
+        ErrorResponseInfo<TestDTO> result = handler.doHandleApiException(singletonSortedSetOf(CUSTOM_API_ERROR),
+                                                                         new ArrayList<>(),
                                                                          null, new Exception(), reqMock);
-        assertThat(result.headersToAddToResponse.get("error_uid"), is(Arrays.asList(result.frameworkRepresentationObj.erv.error_id)));
+        assertThat(result.headersToAddToResponse.get("error_uid"), is(
+            singletonList(result.frameworkRepresentationObj.erv.error_id)));
     }
 
     @Test
@@ -358,7 +368,8 @@ public class ApiExceptionHandlerBaseTest {
         };
 
         // when
-        ErrorResponseInfo<TestDTO> result = handler.doHandleApiException(singletonSortedSetOf(CUSTOM_API_ERROR), new ArrayList<Pair<String, String>>(),
+        ErrorResponseInfo<TestDTO> result = handler.doHandleApiException(singletonSortedSetOf(CUSTOM_API_ERROR),
+                                                                         new ArrayList<>(),
                                                                          null, new Exception(), reqMock);
 
         // then
@@ -378,7 +389,7 @@ public class ApiExceptionHandlerBaseTest {
 
         // when
         ErrorResponseInfo<TestDTO> result = handler.doHandleApiException(
-            singletonSortedSetOf(CUSTOM_API_ERROR), new ArrayList<Pair<String, String>>(), extraHeadersArg,
+            singletonSortedSetOf(CUSTOM_API_ERROR), new ArrayList<>(), extraHeadersArg,
             new Exception(), reqMock
         );
 
@@ -417,7 +428,7 @@ public class ApiExceptionHandlerBaseTest {
 
         // when
         ErrorResponseInfo<TestDTO> result = handler.doHandleApiException(
-            singletonSortedSetOf(CUSTOM_API_ERROR), new ArrayList<Pair<String, String>>(), extraHeadersArg,
+            singletonSortedSetOf(CUSTOM_API_ERROR), new ArrayList<>(), extraHeadersArg,
             new Exception(), reqMock
         );
 
@@ -447,7 +458,8 @@ public class ApiExceptionHandlerBaseTest {
         };
 
         // when
-        ErrorResponseInfo<TestDTO> result = handler.doHandleApiException(singletonSortedSetOf(CUSTOM_API_ERROR), new ArrayList<Pair<String, String>>(),
+        ErrorResponseInfo<TestDTO> result = handler.doHandleApiException(singletonSortedSetOf(CUSTOM_API_ERROR),
+                                                                         new ArrayList<>(),
                                                                          null, new Exception(), reqMock);
 
         // then
@@ -466,7 +478,7 @@ public class ApiExceptionHandlerBaseTest {
 
         // when
         ErrorResponseInfo<TestDTO> result = handler.doHandleApiException(
-            singletonSortedSetOf(CUSTOM_API_ERROR), new ArrayList<Pair<String, String>>(), extraHeadersArg,
+            singletonSortedSetOf(CUSTOM_API_ERROR), new ArrayList<>(), extraHeadersArg,
             new Exception(), reqMock
         );
 
@@ -486,6 +498,7 @@ public class ApiExceptionHandlerBaseTest {
     @Test
     public void shouldLogStackTrace_has_expected_default_behavior(int statusCode, boolean expectedResult) {
         // given
+        @SuppressWarnings("unchecked")
         Collection<ApiError> errorsCollectionMock = mock(Collection.class);
         Throwable originalExceptionMock = mock(Throwable.class);
         Throwable coreExceptionMock = mock(Throwable.class);
@@ -497,7 +510,7 @@ public class ApiExceptionHandlerBaseTest {
 
         // then
         Assertions.assertThat(result).isEqualTo(expectedResult);
-        verifyZeroInteractions(errorsCollectionMock, originalExceptionMock, coreExceptionMock, reqMock);
+        verifyNoMoreInteractions(errorsCollectionMock, originalExceptionMock, coreExceptionMock, reqMock);
     }
 
     @DataProvider(value = {
@@ -527,6 +540,7 @@ public class ApiExceptionHandlerBaseTest {
         int statusCode, StackTraceLoggingBehavior stackTraceLoggingBehavior, boolean expectedResult
     ) {
         // given
+        @SuppressWarnings("unchecked")
         Collection<ApiError> errorsCollectionMock = mock(Collection.class);
         Throwable originalExceptionMock = mock(Throwable.class);
         ApiException coreException = ApiException
@@ -542,7 +556,7 @@ public class ApiExceptionHandlerBaseTest {
 
         // then
         Assertions.assertThat(result).isEqualTo(expectedResult);
-        verifyZeroInteractions(errorsCollectionMock, originalExceptionMock, reqMock);
+        verifyNoMoreInteractions(errorsCollectionMock, originalExceptionMock, reqMock);
     }
 
     // DEFAULT_WRAPPER_EXCEPTION_CLASS_NAMES should contain at least WrapperException, ExecutionException, CompletionException
@@ -629,7 +643,7 @@ public class ApiExceptionHandlerBaseTest {
     }
 
     private static class CustomExceptionOfDoom extends Exception { }
-    private static ApiError CUSTOM_API_ERROR = new ApiErrorBase("CUSTOM_API_ERROR", 99042, "some message", 400);
+    private static final ApiError CUSTOM_API_ERROR = new ApiErrorBase("CUSTOM_API_ERROR", 99042, "some message", 400);
     private static class CustomExceptionOfDoomHandlerListener implements ApiExceptionHandlerListener {
 
         @Override
@@ -652,7 +666,7 @@ public class ApiExceptionHandlerBaseTest {
     @Test
     public void shouldUseCustomHandlerListenersIfSet() throws UnexpectedMajorExceptionHandlingError {
         ErrorResponseInfo<TestDTO> result = handler.maybeHandleException(new CustomExceptionOfDoom(), reqMock);
-        validateResponse(result, Arrays.asList(CUSTOM_API_ERROR));
+        validateResponse(result, singletonList(CUSTOM_API_ERROR));
     }
 
     private static class TestApiExceptionHandler extends ApiExceptionHandlerBase<TestDTO> {
@@ -683,12 +697,7 @@ public class ApiExceptionHandlerBaseTest {
         ProjectSpecificErrorCodeRange.ALLOW_ALL_ERROR_CODES
     );
 
-    private static class TestDTO {
-        public final DefaultErrorContractDTO erv;
-
-        private TestDTO(DefaultErrorContractDTO erv) {
-            this.erv = erv;
-        }
+    private record TestDTO(DefaultErrorContractDTO erv) {
     }
 
 }

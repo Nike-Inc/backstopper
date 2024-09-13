@@ -1,9 +1,6 @@
 package com.nike.backstopper.model;
 
 import com.nike.backstopper.apierror.ApiError;
-import com.nike.backstopper.handler.ApiExceptionHandlerBase;
-import com.nike.backstopper.handler.RequestInfoForLogging;
-import com.nike.backstopper.handler.UnhandledExceptionHandlerBase;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -20,10 +17,8 @@ import java.util.List;
  * available in {@link ApiError}, making the errors your app throws and what shows up to the caller in the response
  * closely related and easy to reason about, but you are not required to use it - ultimately you control what gets
  * returned to the client based on what
- * {@link ApiExceptionHandlerBase#prepareFrameworkRepresentation(DefaultErrorContractDTO, int, Collection, Throwable,
- * RequestInfoForLogging)} or
- * {@link UnhandledExceptionHandlerBase#prepareFrameworkRepresentation(DefaultErrorContractDTO, int, Collection,
- * Throwable, RequestInfoForLogging)} returns.
+ * {@code ApiExceptionHandlerBase.prepareFrameworkRepresentation(...)} or
+ * {@code UnhandledExceptionHandlerBase.prepareFrameworkRepresentation(...)} returns.
  *
  * @author Nic Munroe
  */
@@ -76,13 +71,11 @@ public class DefaultErrorContractDTO implements Serializable {
      * compile.
      */
     public DefaultErrorContractDTO(String error_id, Collection<DefaultErrorDTO> errorsToCopy,
-                                   @SuppressWarnings("UnusedParameters") Void passInNullForThisArg) {
+                                   @SuppressWarnings("unused") Void passInNullForThisArg) {
         this.error_id = error_id;
         List<DefaultErrorDTO> errorsList = new ArrayList<>();
         if (errorsToCopy != null) {
-            for (DefaultErrorDTO apiError : errorsToCopy) {
-                errorsList.add(apiError);
-            }
+            errorsList.addAll(errorsToCopy);
         }
         this.errors = Collections.unmodifiableList(errorsList);
     }

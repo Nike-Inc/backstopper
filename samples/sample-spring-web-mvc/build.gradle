@@ -1,8 +1,5 @@
 evaluationDependsOn(':')
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
-
 test {
     useJUnitPlatform()
 }
@@ -11,9 +8,10 @@ dependencies {
     implementation(
             project(":backstopper-spring-web-mvc"),
             project(":backstopper-custom-validators"),
-            "org.springframework:spring-webmvc:$spring4Version",
+            "org.springframework:spring-webmvc:$spring6_0Version",
             "ch.qos.logback:logback-classic:$logbackVersion",
-            "org.hibernate:hibernate-validator:$hibernateValidatorVersion",
+            "org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion",
+            "org.glassfish.expressly:expressly:$glassfishExpresslyVersion",
             "org.eclipse.jetty:jetty-webapp:$jettyVersion"
     )
     compileOnly(
@@ -21,23 +19,20 @@ dependencies {
     )
     testImplementation(
             project(":backstopper-reusable-tests-junit5"),
-            "org.junit.jupiter:junit-jupiter-api:$junit5Version",
-            "org.junit.jupiter:junit-jupiter-engine:$junit5Version",
-            "org.junit.jupiter:junit-jupiter-params:$junit5Version",
+            "org.junit.jupiter:junit-jupiter:$junit5Version",
             "org.mockito:mockito-core:$mockitoVersion",
-            "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
-            "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
-            "ch.qos.logback:logback-classic:$logbackVersion",
             "org.assertj:assertj-core:$assertJVersion",
             "io.rest-assured:rest-assured:$restAssuredVersion",
-            // The jaxb-api is needed for building on the java 11 JDK as these classes were moved out of the Java SE libs.
-            "javax.xml.bind:jaxb-api:$jaxbApiVersion",
+            // Pulling in commons-codec manually to avoid vulnerability warning coming from RestAssured transitive dep.
+            "commons-codec:commons-codec:$commonsCodecVersion",
     )
 }
 
 apply plugin: "application"
-mainClassName = "com.nike.backstopper.springsample.Main"
+application {
+    setMainClass("com.nike.backstopper.springsample.Main")
+}
 
 run {
-    systemProperties = System.getProperties()
+    systemProperties(System.getProperties())
 }

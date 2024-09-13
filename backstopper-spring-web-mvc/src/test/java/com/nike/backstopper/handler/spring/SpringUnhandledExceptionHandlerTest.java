@@ -25,10 +25,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -44,6 +45,7 @@ public class SpringUnhandledExceptionHandlerTest {
 
     private SpringUnhandledExceptionHandler handlerSpy;
     private ProjectApiErrors testProjectApiErrors;
+    @SuppressWarnings("FieldCanBeLocal")
     private ApiExceptionHandlerUtils generalUtils;
     private SpringApiExceptionHandlerUtils springUtilsSpy;
 
@@ -78,7 +80,8 @@ public class SpringUnhandledExceptionHandlerTest {
         assertThat(response.httpStatusCode).isEqualTo(expectedHttpStatusCode);
         assertThat(response.headersToAddToResponse).isEqualTo(expectedHeadersMap);
         assertThat(response.frameworkRepresentationObj.getView()).isInstanceOf(MappingJackson2JsonView.class);
-        ObjectMapper objectMapperUsed = ((MappingJackson2JsonView)response.frameworkRepresentationObj.getView()).getObjectMapper();
+        ObjectMapper objectMapperUsed =
+            ((MappingJackson2JsonView) requireNonNull(response.frameworkRepresentationObj.getView())).getObjectMapper();
         assertThat(objectMapperUsed).isSameAs(JsonUtilWithDefaultErrorContractDTOSupport.DEFAULT_SMART_MAPPER);
         assertThat(response.frameworkRepresentationObj.getModel()).hasSize(1);
         Object modelObj = response.frameworkRepresentationObj.getModel().values().iterator().next();
@@ -116,7 +119,7 @@ public class SpringUnhandledExceptionHandlerTest {
         Exception originalEx = new RuntimeException("kaboom");
         ModelAndView modelAndViewMock = mock(ModelAndView.class);
         ErrorResponseInfo<ModelAndView> handleExceptionResult =
-            new ErrorResponseInfo<>(424, modelAndViewMock, Collections.<String, List<String>>emptyMap());
+            new ErrorResponseInfo<>(424, modelAndViewMock, Collections.emptyMap());
         doReturn(handleExceptionResult).when(handlerSpy).handleException(originalEx, reqMock, responseMock);
 
         // when

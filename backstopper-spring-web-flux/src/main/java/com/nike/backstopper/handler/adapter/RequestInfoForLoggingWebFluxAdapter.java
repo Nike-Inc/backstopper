@@ -3,6 +3,7 @@ package com.nike.backstopper.handler.adapter;
 import com.nike.backstopper.handler.RequestInfoForLogging;
 
 import org.jetbrains.annotations.NotNull;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.server.ServerRequest;
 
 import java.net.URI;
@@ -28,6 +29,7 @@ public class RequestInfoForLoggingWebFluxAdapter implements RequestInfoForLoggin
         this.request = request;
         this.requestUri = request.uri();
 
+        //noinspection ConstantValue
         if (requestUri == null) {
             throw new NullPointerException("request.uri() cannot be null");
         }
@@ -40,7 +42,12 @@ public class RequestInfoForLoggingWebFluxAdapter implements RequestInfoForLoggin
 
     @Override
     public String getRequestHttpMethod() {
-        return request.methodName();
+        HttpMethod method = request.method();
+        //noinspection ConstantValue
+        if (method == null) {
+            return null;
+        }
+        return method.name();
     }
 
     @Override
@@ -56,6 +63,7 @@ public class RequestInfoForLoggingWebFluxAdapter implements RequestInfoForLoggin
     @Override
     public String getHeader(String headerName) {
         List<String> result = request.headers().header(headerName);
+        //noinspection ConstantValue
         if (result == null || result.isEmpty()) {
             return null;
         }

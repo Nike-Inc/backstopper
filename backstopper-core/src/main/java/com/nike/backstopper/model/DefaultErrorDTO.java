@@ -2,14 +2,9 @@ package com.nike.backstopper.model;
 
 import com.nike.backstopper.apierror.ApiError;
 import com.nike.backstopper.apierror.ApiErrorWithMetadata;
-import com.nike.backstopper.handler.ApiExceptionHandlerBase;
-import com.nike.backstopper.handler.RequestInfoForLogging;
-import com.nike.backstopper.handler.UnhandledExceptionHandlerBase;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -18,10 +13,8 @@ import java.util.Map;
  * in {@link ApiError} making the errors your app throws and what shows up to the client in the response closely
  * related and easy to reason about, but you are not required to use it - ultimately you control what gets returned
  * to the client based on what
- * {@link ApiExceptionHandlerBase#prepareFrameworkRepresentation(DefaultErrorContractDTO, int, Collection, Throwable,
- * RequestInfoForLogging)} or
- * {@link UnhandledExceptionHandlerBase#prepareFrameworkRepresentation(DefaultErrorContractDTO, int, Collection,
- * Throwable, RequestInfoForLogging)} returns.
+ * {@code ApiExceptionHandlerBase.prepareFrameworkRepresentation()} or
+ * {@code UnhandledExceptionHandlerBase.prepareFrameworkRepresentation()} returns.
  *
  * @author Nic Munroe
  */
@@ -80,7 +73,7 @@ public class DefaultErrorDTO implements Serializable {
         if (metadata == null)
             metadata = Collections.emptyMap();
         this.metadata = (metadata.isEmpty())
-                        ? Collections.<String, Object>emptyMap()
-                        : Collections.unmodifiableMap(new HashMap<>(metadata));
+                        ? Collections.emptyMap()
+                        : Map.copyOf(metadata);
     }
 }

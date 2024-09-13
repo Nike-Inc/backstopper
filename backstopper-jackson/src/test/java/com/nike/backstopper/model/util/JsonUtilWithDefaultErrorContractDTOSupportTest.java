@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 
-import org.assertj.core.api.ThrowableAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -158,18 +157,12 @@ public class JsonUtilWithDefaultErrorContractDTOSupportTest {
         assertThat(resultString).isEqualTo(defaultSerialization);
     }
 
-    private static class NonErrorObject {
-        public final String someString;
-        public final Integer someInt;
-        public final Double someDouble;
-        public final Map<String, String> someMap;
-
-        private NonErrorObject(String someString, Integer someInt, Double someDouble, Map<String, String> someMap) {
-            this.someString = someString;
-            this.someInt = someInt;
-            this.someDouble = someDouble;
-            this.someMap = someMap;
-        }
+    private record NonErrorObject(
+        String someString,
+        Integer someInt,
+        Double someDouble,
+        Map<String, String> someMap
+    ) {
     }
 
     @DataProvider(value = {
@@ -254,17 +247,12 @@ public class JsonUtilWithDefaultErrorContractDTOSupportTest {
     }
 
     @Test
-    public void code_coverage_hoops() {
-        new JsonUtilWithDefaultErrorContractDTOSupport();
-    }
-
-    @Test
     public void ErrorContractSerializationFactory_findPropWriter_returns_null_if_it_cannot_find_() {
         // given
         ErrorContractSerializationFactory impl = new ErrorContractSerializationFactory(null, true, true);
 
         // when
-        BeanPropertyWriter result = impl.findPropWriter(Collections.<BeanPropertyWriter>emptyList(), UUID.randomUUID().toString());
+        BeanPropertyWriter result = impl.findPropWriter(Collections.emptyList(), UUID.randomUUID().toString());
 
         // then
         assertThat(result).isNull();
@@ -296,17 +284,13 @@ public class JsonUtilWithDefaultErrorContractDTOSupportTest {
     }
 
     @Test
-    public void MetadataPropertyWriter_serializeAsField_still_works_for_non_Error_objects() throws Exception {
+    public void MetadataPropertyWriter_serializeAsField_still_works_for_non_Error_objects() {
         // given
         final MetadataPropertyWriter mpw = new MetadataPropertyWriter(mock(BeanPropertyWriter.class));
 
         // when
-        Throwable ex = catchThrowable(new ThrowableAssert.ThrowingCallable() {
-            @Override
-            public void call() throws Throwable {
-                mpw.serializeAsField(new Object(), mock(JsonGenerator.class), mock(SerializerProvider.class));
-            }
-        });
+        Throwable ex = catchThrowable(
+            () -> mpw.serializeAsField(new Object(), mock(JsonGenerator.class), mock(SerializerProvider.class)));
 
         // then
         // We expect a NPE because mocking a base BeanPropertyWriter is incredibly difficult and not worth the effort.
@@ -314,23 +298,20 @@ public class JsonUtilWithDefaultErrorContractDTOSupportTest {
     }
 
     @Test
-    public void SmartErrorCodePropertyWriter_serializeAsField_still_works_for_non_Error_objects() throws Exception {
+    public void SmartErrorCodePropertyWriter_serializeAsField_still_works_for_non_Error_objects() {
         // given
         final SmartErrorCodePropertyWriter secpw = new SmartErrorCodePropertyWriter(mock(BeanPropertyWriter.class));
 
         // when
-        Throwable ex = catchThrowable(new ThrowableAssert.ThrowingCallable() {
-            @Override
-            public void call() throws Throwable {
-                secpw.serializeAsField(new Object(), mock(JsonGenerator.class), mock(SerializerProvider.class));
-            }
-        });
+        Throwable ex = catchThrowable(
+            () -> secpw.serializeAsField(new Object(), mock(JsonGenerator.class), mock(SerializerProvider.class)));
 
         // then
         // We expect a NPE because mocking a base BeanPropertyWriter is incredibly difficult and not worth the effort.
         assertThat(ex).isInstanceOf(NullPointerException.class);
     }
 
+    @SuppressWarnings("unused")
     public static class FooClass {
         public String metadata = "foo";
         public String code = "42";

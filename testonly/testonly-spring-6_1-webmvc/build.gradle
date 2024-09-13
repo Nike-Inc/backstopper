@@ -1,0 +1,29 @@
+evaluationDependsOn(':')
+
+test {
+    useJUnitPlatform()
+}
+
+dependencies {
+    implementation(
+            project(":backstopper-spring-web-mvc"),
+            project(":backstopper-custom-validators"),
+            "org.springframework:spring-webmvc:$spring6_1Version",
+            "ch.qos.logback:logback-classic:$logbackVersion",
+            "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
+            "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
+            "org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion",
+            "org.glassfish.expressly:expressly:$glassfishExpresslyVersion",
+            "org.eclipse.jetty:jetty-webapp:$jettyVersion",
+    )
+    testImplementation(
+            project(":backstopper-reusable-tests-junit5"),
+            project(":testonly:testonly-spring-webmvc-reusable-test-support"),
+            "org.junit.jupiter:junit-jupiter:$junit5Version",
+            "org.mockito:mockito-core:$mockitoVersion",
+            "org.assertj:assertj-core:$assertJVersion",
+            "io.rest-assured:rest-assured:$restAssuredVersion",
+            // Pulling in commons-codec manually to avoid vulnerability warning coming from RestAssured transitive dep.
+            "commons-codec:commons-codec:$commonsCodecVersion",
+    )
+}

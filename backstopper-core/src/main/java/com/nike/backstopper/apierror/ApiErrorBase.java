@@ -3,7 +3,6 @@ package com.nike.backstopper.apierror;
 import com.nike.backstopper.util.ApiErrorUtil;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -41,8 +40,8 @@ public class ApiErrorBase implements ApiError {
         }
 
         this.metadata = (metadata.isEmpty())
-                        ? Collections.<String, Object>emptyMap()
-                        : Collections.unmodifiableMap(new HashMap<>(metadata));
+                        ? Collections.emptyMap()
+                        : Map.copyOf(metadata);
     }
 
     public ApiErrorBase(String name, int errorCode, String message, int httpStatusCode, Map<String, Object> metadata) {
@@ -106,6 +105,7 @@ public class ApiErrorBase implements ApiError {
     }
 
     @Override
+    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
     public boolean equals(Object o) {
         return ApiErrorUtil.isApiErrorEqual(this, o);
     }

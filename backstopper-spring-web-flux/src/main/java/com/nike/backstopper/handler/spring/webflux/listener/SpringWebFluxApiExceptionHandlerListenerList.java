@@ -12,9 +12,9 @@ import com.nike.backstopper.handler.spring.webflux.listener.impl.OneOffSpringWeb
 import java.util.Arrays;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 
 /**
  * Specifies the list of {@link ApiExceptionHandlerListener}s that should be available to

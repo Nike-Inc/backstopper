@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 
 /**
  * A copy of the Mockito 1.x Whitebox class - they dropped this class in Mockito 2.x, but it's very handy.
- *
+ * <p>
  * NOTE: This is intended for use during testing, _not_ in production code! In particular there is no caching of
  * {@link Field} - it is extracted every time for the same class. This usually isn't noticeable for tests, but can
  * be much too slow for high volume low latency production purposes.

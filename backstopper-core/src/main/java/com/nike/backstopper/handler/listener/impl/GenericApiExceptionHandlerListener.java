@@ -10,13 +10,13 @@ import com.nike.internal.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 
 /**
  * Handles generic {@link ApiException} errors by simply setting {@link ApiExceptionHandlerListenerResult#errors} to
- * {@link ApiException#apiErrors} and adding any {@link ApiException#extraDetailsForLogging} and/or
- * {@link ApiException#extraResponseHeaders}.
+ * {@link ApiException#getApiErrors()} and adding any {@link ApiException#getExtraDetailsForLogging()} and/or
+ * {@link ApiException#getExtraResponseHeaders()}.
  */
 @Named
 @Singleton
@@ -24,22 +24,18 @@ public class GenericApiExceptionHandlerListener implements ApiExceptionHandlerLi
     @Override
     public ApiExceptionHandlerListenerResult shouldHandleException(Throwable ex) {
         // We only care about ApiExceptions.
-        if (!(ex instanceof ApiException))
+        if (!(ex instanceof ApiException apiException))
             return ApiExceptionHandlerListenerResult.ignoreResponse();
-
-        ApiException apiException = ((ApiException)ex);
 
         // Add all the ApiErrors from the exception.
         SortedApiErrorSet errors = new SortedApiErrorSet();
         errors.addAll(apiException.getApiErrors());
 
         // Add all the extra details for logging from the exception.
-        List<Pair<String, String>> messages = new ArrayList<>();
-        messages.addAll(apiException.getExtraDetailsForLogging());
+        List<Pair<String, String>> messages = new ArrayList<>(apiException.getExtraDetailsForLogging());
 
         // Add all the extra response headers from the exception.
-        List<Pair<String, List<String>>> headers = new ArrayList<>();
-        headers.addAll(apiException.getExtraResponseHeaders());
+        List<Pair<String, List<String>>> headers = new ArrayList<>(apiException.getExtraResponseHeaders());
 
         // Include the ApiException's message as a logged key/value pair.
         if (StringUtils.isNotBlank(ex.getMessage()))

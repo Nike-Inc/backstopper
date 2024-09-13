@@ -215,8 +215,8 @@ public class ApiException extends RuntimeException {
     }
 
     /**
-     * Extracts and joins all messages from the input List<{@link ApiError}> if the desired message is null.
-     *
+     * Extracts and joins all messages from the input List&lt;{@link ApiError}> if the desired message is null.
+     * <p>
      * Will return null if the input error List is null
      */
     protected static String extractMessage(List<ApiError> apiErrors, String desiredMessage) {
@@ -253,9 +253,9 @@ public class ApiException extends RuntimeException {
      */
     @SuppressWarnings("WeakerAccess")
     public static class Builder {
-        private List<ApiError> apiErrors = new ArrayList<>();
-        private List<Pair<String, String>> extraDetailsForLogging = new ArrayList<>();
-        private List<Pair<String, List<String>>> extraResponseHeaders = new ArrayList<>();
+        private final List<ApiError> apiErrors = new ArrayList<>();
+        private final List<Pair<String, String>> extraDetailsForLogging = new ArrayList<>();
+        private final List<Pair<String, List<String>>> extraResponseHeaders = new ArrayList<>();
         private String message;
         private Throwable cause;
         private StackTraceLoggingBehavior stackTraceLoggingBehavior;

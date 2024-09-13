@@ -13,10 +13,10 @@ import com.nike.internal.util.Pair;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.validation.ConstraintViolation;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
+import jakarta.validation.ConstraintViolation;
 
 import static com.nike.backstopper.apierror.SortedApiErrorSet.singletonSortedSetOf;
 
@@ -96,7 +96,7 @@ public class ServersideValidationErrorHandlerListener implements ApiExceptionHan
         if (ex.getViolations() != null) {
             StringBuilder sb = new StringBuilder();
             for (ConstraintViolation<Object> violation : ex.getViolations()) {
-                if (sb.length() > 0)
+                if (!sb.isEmpty())
                     sb.append(", ");
 
                 sb.append(violation.getPropertyPath().toString())

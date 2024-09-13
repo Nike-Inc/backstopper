@@ -13,9 +13,9 @@ import java.util.Collection;
 public class StringUtils {
 
     /**
-     * Intentionally protected - use the static methods.
+     * Intentionally private - use the static methods.
      */
-    protected StringUtils() {
+    private StringUtils() {
         // do nothing
     }
 
@@ -64,7 +64,7 @@ public class StringUtils {
         for (Object obj : iterable) {
             if (!firstItem)
                 sb.append(delimiter);
-            sb.append(String.valueOf(obj));
+            sb.append(obj);
             firstItem = false;
         }
 
@@ -96,7 +96,7 @@ public class StringUtils {
      * @since 3.0 Changed signature from isEmpty(String) to isEmpty(CharSequence)
      */
     public static boolean isEmpty(final CharSequence cs) {
-        return cs == null || cs.length() == 0;
+        return cs == null || cs.isEmpty();
     }
 
     /**
@@ -140,7 +140,7 @@ public class StringUtils {
             return true;
         }
         for (int i = 0; i < strLen; i++) {
-            if (Character.isWhitespace(cs.charAt(i)) == false) {
+            if (!Character.isWhitespace(cs.charAt(i))) {
                 return false;
             }
         }

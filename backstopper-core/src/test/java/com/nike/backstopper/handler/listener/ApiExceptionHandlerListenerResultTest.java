@@ -52,7 +52,7 @@ public class ApiExceptionHandlerListenerResultTest {
     @Test
     public void handleResponse_one_arg_should_work_as_expected(boolean useNull) {
         // given
-        SortedApiErrorSet errors = (useNull) ? null : new SortedApiErrorSet(Arrays.<ApiError>asList(
+        SortedApiErrorSet errors = (useNull) ? null : new SortedApiErrorSet(Arrays.asList(
             BarebonesCoreApiErrorForTesting.GENERIC_SERVICE_ERROR, BarebonesCoreApiErrorForTesting.MALFORMED_REQUEST
         ));
 
@@ -90,7 +90,7 @@ public class ApiExceptionHandlerListenerResultTest {
     @Test
     public void handleResponse_two_args_should_work_as_expected(boolean useNullErrors, boolean useNullExtraLogging) {
         // given
-        SortedApiErrorSet errors = (useNullErrors) ? null : new SortedApiErrorSet(Arrays.<ApiError>asList(
+        SortedApiErrorSet errors = (useNullErrors) ? null : new SortedApiErrorSet(Arrays.asList(
             BarebonesCoreApiErrorForTesting.GENERIC_SERVICE_ERROR, BarebonesCoreApiErrorForTesting.MALFORMED_REQUEST
         ));
         List<Pair<String, String>> extraDetailsForLogging = (useNullExtraLogging) ? null : Arrays.asList(
@@ -142,7 +142,7 @@ public class ApiExceptionHandlerListenerResultTest {
         boolean useNullErrors, boolean useNullExtraLogging, boolean useNullResponseHeaders
     ) {
         // given
-        SortedApiErrorSet errors = (useNullErrors) ? null : new SortedApiErrorSet(Arrays.<ApiError>asList(
+        SortedApiErrorSet errors = (useNullErrors) ? null : new SortedApiErrorSet(Arrays.asList(
             BarebonesCoreApiErrorForTesting.GENERIC_SERVICE_ERROR, BarebonesCoreApiErrorForTesting.MALFORMED_REQUEST
         ));
         List<Pair<String, String>> extraDetailsForLogging = (useNullExtraLogging) ? null : Arrays.asList(

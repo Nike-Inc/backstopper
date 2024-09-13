@@ -6,7 +6,7 @@ import com.nike.backstopper.servletapi.UnhandledServletContainerErrorHelper;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -47,6 +47,7 @@ public class SpringContainerErrorControllerTest {
     @Test
     public void constructor_throws_NPE_if_passed_null_ProjectApiErrors() {
         // when
+        @SuppressWarnings("DataFlowIssue")
         Throwable ex = catchThrowable(
             () -> new SpringContainerErrorController(null, unhandledContainerErrorHelperMock)
         );
@@ -60,6 +61,7 @@ public class SpringContainerErrorControllerTest {
     @Test
     public void constructor_throws_NPE_if_passed_null_UnhandledServletContainerErrorHelper() {
         // when
+        @SuppressWarnings("DataFlowIssue")
         Throwable ex = catchThrowable(
             () -> new SpringContainerErrorController(projectApiErrorsMock, null)
         );
@@ -71,6 +73,7 @@ public class SpringContainerErrorControllerTest {
     }
 
     @Test
+    @SuppressWarnings("ThrowableNotThrown")
     public void error_method_throws_result_of_calling_UnhandledServletContainerErrorHelper() {
         // given
         SpringContainerErrorController impl = new SpringContainerErrorController(

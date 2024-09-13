@@ -19,16 +19,18 @@ import static org.mockito.Mockito.verify;
  * Tests the functionality of {@link com.nike.backstopper.apierror.ApiErrorComparator}
  */
 public class ApiErrorComparatorTest {
-    private ApiErrorComparator comparator = new ApiErrorComparator();
+    private final ApiErrorComparator comparator = new ApiErrorComparator();
 
     @Test
     public void should_return_0_for_reference_equality() {
         ApiError mockApiError = mock(ApiError.class);
+        //noinspection EqualsWithItself
         assertThat(comparator.compare(mockApiError, mockApiError)).isEqualTo(0);
     }
 
     @Test
     public void should_return_0_for_both_null() {
+        //noinspection EqualsWithItself
         assertThat(comparator.compare(null, null)).isEqualTo(0);
     }
 
@@ -109,7 +111,7 @@ public class ApiErrorComparatorTest {
     public void should_use_hashCode_comparison_when_names_are_equal_and_metadata_is_different() {
         // given
         ApiError apiError = new ApiErrorBase(UUID.randomUUID().toString(), 42, "foo", 400);
-        ApiError errorWithMetadata = new ApiErrorWithMetadata(apiError, Pair.of("bar", (Object)UUID.randomUUID().toString()));
+        ApiError errorWithMetadata = new ApiErrorWithMetadata(apiError, Pair.of("bar", UUID.randomUUID().toString()));
         assertThat(apiError.hashCode()).isNotEqualTo(errorWithMetadata.hashCode());
 
         // when

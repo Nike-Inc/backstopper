@@ -15,8 +15,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 
 /**
  * Set of reusable utility methods used by the API exception handling chain
@@ -211,21 +211,21 @@ public class ApiExceptionHandlerUtils {
     }
 
     protected @Nullable Object extractOrigErrorRequestUriAttr(@NotNull RequestInfoForLogging request) {
-        // Corresponds to javax.servlet.RequestDispatcher.ERROR_REQUEST_URI.
-        return request.getAttribute("javax.servlet.error.request_uri");
+        // Corresponds to jakarta.servlet.RequestDispatcher.ERROR_REQUEST_URI.
+        return request.getAttribute("jakarta.servlet.error.request_uri");
     }
 
     protected @Nullable Object extractOrigForwardedRequestUriAttr(@NotNull RequestInfoForLogging request) {
-        // Corresponds to javax.servlet.RequestDispatcher.FORWARD_REQUEST_URI.
-        Object forwardedRequestUriAttr = request.getAttribute("javax.servlet.forward.request_uri");
+        // Corresponds to jakarta.servlet.RequestDispatcher.FORWARD_REQUEST_URI.
+        Object forwardedRequestUriAttr = request.getAttribute("jakarta.servlet.forward.request_uri");
 
         if (forwardedRequestUriAttr != null) {
             return forwardedRequestUriAttr;
         }
 
         // The forwarded request URI attr was null. Try the path info attr as a last resort.
-        //      Corresponds to javax.servlet.RequestDispatcher.FORWARD_PATH_INFO.
-        return request.getAttribute("javax.servlet.forward.path_info");
+        //      Corresponds to jakarta.servlet.RequestDispatcher.FORWARD_PATH_INFO.
+        return request.getAttribute("jakarta.servlet.forward.path_info");
     }
 
     /**
@@ -299,8 +299,8 @@ public class ApiExceptionHandlerUtils {
 
 
     /**
-     * @param sensitiveHeaders
-     * @param headerName
+     * @param sensitiveHeaders The set of sensitive headers names.
+     * @param headerName The header name in question.
      * @return Returns true if the header name is one of the sensitive headers in lower, upper or camel case.
      */
     private static boolean containsCaseInSensitive(Set<String> sensitiveHeaders, String headerName) {

@@ -41,7 +41,7 @@ public class SortedApiErrorSetTest {
         assertThat(set).isEmpty();
     }
 
-    private Random random = new Random();
+    private final Random random = new Random();
     private ApiError generateRandomApiError() {
         return new ApiErrorBase(UUID.randomUUID().toString(), random.nextInt(),
                                 UUID.randomUUID().toString(), random.nextInt());
@@ -68,6 +68,7 @@ public class SortedApiErrorSetTest {
     @Test
     public void one_arg_constructor_with_comparator_uses_supplied_comparator() {
         // given
+        @SuppressWarnings("unchecked")
         Comparator<ApiError> customComparator = mock(Comparator.class);
 
         // when
@@ -128,8 +129,8 @@ public class SortedApiErrorSetTest {
     public void default_config_supports_multiple_errors_that_differ_only_by_metadata() {
         // given
         ApiError baseError = new ApiErrorBase(UUID.randomUUID().toString(), 42, "foo", 400);
-        ApiError errorWithMetadata1 = new ApiErrorWithMetadata(baseError, Pair.of("foo", (Object)"bar"));
-        ApiError errorWithMetadata2 = new ApiErrorWithMetadata(baseError, Pair.of("foo", (Object)"notbar"));
+        ApiError errorWithMetadata1 = new ApiErrorWithMetadata(baseError, Pair.of("foo", "bar"));
+        ApiError errorWithMetadata2 = new ApiErrorWithMetadata(baseError, Pair.of("foo", "notbar"));
 
         SortedApiErrorSet set = new SortedApiErrorSet();
         assertThat(set).isEmpty();

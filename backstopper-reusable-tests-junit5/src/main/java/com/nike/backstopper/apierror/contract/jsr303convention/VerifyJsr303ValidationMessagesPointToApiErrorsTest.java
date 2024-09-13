@@ -66,7 +66,7 @@ public abstract class VerifyJsr303ValidationMessagesPointToApiErrorsTest {
             }
         }
 
-        if (invalidAnnotations.size() > 0) {
+        if (!invalidAnnotations.isEmpty()) {
             // We have at least one invalid annotation, so this unit test will need to fail.
             // Sort our invalid-annotations list to make it easier to fix errors for the developer looking at the error output.
             invalidAnnotations.sort(
@@ -108,17 +108,11 @@ public abstract class VerifyJsr303ValidationMessagesPointToApiErrorsTest {
     /**
      * DTO class describing the context of an invalid annotation.
      */
-    @SuppressWarnings("WeakerAccess")
-    private static class InvalidAnnotationDescription {
-
-        public final Annotation annotation;
-        public final AnnotatedElement annotatedElement;
-        public final String message;
-
-        private InvalidAnnotationDescription(Annotation annotation, AnnotatedElement annotatedElement, String message) {
-            this.annotation = annotation;
-            this.annotatedElement = annotatedElement;
-            this.message = message;
-        }
+    private record InvalidAnnotationDescription(
+        Annotation annotation,
+        AnnotatedElement annotatedElement,
+        String message
+    ) {
+        // Nothing here.
     }
 }

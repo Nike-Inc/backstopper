@@ -8,9 +8,11 @@ import com.nike.backstopper.handler.listener.ApiExceptionHandlerListenerResult;
 import com.nike.internal.util.Pair;
 
 import org.jetbrains.annotations.NotNull;
+import org.springframework.core.MethodParameter;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
@@ -18,9 +20,9 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 
 /**
  * An extension and concrete implementation of {@link OneOffSpringCommonFrameworkExceptionHandlerListener} that
@@ -68,12 +70,11 @@ public class OneOffSpringWebMvcFrameworkExceptionHandlerListener
             return handleError(projectApiErrors.getMethodNotAllowedApiError(), extraDetailsForLogging);
         }
 
-        if (ex instanceof MissingServletRequestPartException) {
-            MissingServletRequestPartException detailsEx = (MissingServletRequestPartException)ex;
+        if (ex instanceof MissingServletRequestPartException detailsEx) {
             return handleError(
                 new ApiErrorWithMetadata(
                     projectApiErrors.getMalformedRequestApiError(),
-                    Pair.of("missing_required_part", (Object)detailsEx.getRequestPartName())
+                    Pair.of("missing_required_part", detailsEx.getRequestPartName())
                 ),
                 extraDetailsForLogging
             );
@@ -93,13 +94,26 @@ public class OneOffSpringWebMvcFrameworkExceptionHandlerListener
         ApiError errorToUse = projectApiErrors.getMalformedRequestApiError();
 
         // Add some extra context metadata if it's a MissingServletRequestParameterException.
-        if (ex instanceof MissingServletRequestParameterException) {
-            MissingServletRequestParameterException detailsEx = (MissingServletRequestParameterException)ex;
-            
+        if (ex instanceof MissingServletRequestParameterException detailsEx) {
+
             errorToUse = new ApiErrorWithMetadata(
                 errorToUse,
-                Pair.of("missing_param_name", (Object)detailsEx.getParameterName()),
-                Pair.of("missing_param_type", (Object)detailsEx.getParameterType())
+                Pair.of("missing_param_name", detailsEx.getParameterName()),
+                Pair.of("missing_param_type", detailsEx.getParameterType()),
+                Pair.of("required_location", "query_param")
+            );
+        }
+        else if (ex instanceof MissingRequestHeaderException mrhEx) {
+            MethodParameter methodParam = mrhEx.getParameter();
+            String requiredTypeNoInfoLeak = extractRequiredTypeNoInfoLeak(methodParam.getParameterType());
+            if (requiredTypeNoInfoLeak == null) {
+                requiredTypeNoInfoLeak = "unknown";
+            }
+            errorToUse = new ApiErrorWithMetadata(
+                errorToUse,
+                Pair.of("missing_param_name", mrhEx.getHeaderName()),
+                Pair.of("missing_param_type", requiredTypeNoInfoLeak),
+                Pair.of("required_location", "header")
             );
         }
 

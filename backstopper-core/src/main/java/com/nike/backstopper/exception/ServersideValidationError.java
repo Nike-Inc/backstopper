@@ -4,7 +4,7 @@ import com.nike.backstopper.apierror.projectspecificinfo.ProjectApiErrors;
 
 import java.util.Set;
 
-import javax.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolation;
 
 /**
  * A runtime exception representing a <b>SERVERSIDE</b> JSR 303 validation failure (i.e. a validation error with

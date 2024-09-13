@@ -6,13 +6,13 @@ import com.nike.backstopper.handler.adapter.RequestInfoForLoggingServletApiAdapt
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Simple extension of {@link com.nike.backstopper.handler.UnhandledExceptionHandlerBase} that provides some convenience
  * when working in a Servlet API based framework. Implementors can call {@link #handleException(Throwable,
- * javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)} instead of {@link
+ * jakarta.servlet.http.HttpServletRequest, jakarta.servlet.http.HttpServletResponse)} instead of {@link
  * #handleException(Throwable, RequestInfoForLogging)} to populate the servlet response's headers and status code
  * automatically.
  *
@@ -36,7 +36,7 @@ public abstract class UnhandledExceptionHandlerServletApiBase<T> extends Unhandl
      * and servlet response. The request will be wrapped in a {@link RequestInfoForLoggingServletApiAdapter} so that it
      * can be passed along to the method that does the work. If there are any headers in the returned {@link
      * ErrorResponseInfo#headersToAddToResponse} then they will be automatically added to the given servlet response,
-     * and {@link javax.servlet.http.HttpServletResponse#setStatus(int)} will be automatically set with {@link
+     * and {@link jakarta.servlet.http.HttpServletResponse#setStatus(int)} will be automatically set with {@link
      * ErrorResponseInfo#httpStatusCode} as well.
      */
     public ErrorResponseInfo<T> handleException(Throwable ex, HttpServletRequest servletRequest,

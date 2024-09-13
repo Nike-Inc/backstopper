@@ -8,8 +8,6 @@ import com.nike.backstopper.apierror.testing.base.BaseSpringEnabledValidationTes
 import com.nike.backstopper.apierror.testutil.ProjectApiErrorsForTesting;
 import com.nike.backstopper.exception.ServersideValidationError;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.junit.Test;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -22,9 +20,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import javax.inject.Inject;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import jakarta.inject.Inject;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -37,9 +35,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Nic Munroe
  */
 public class FailFastServersideValidationServiceITest extends BaseSpringEnabledValidationTestCase {
-
-    @Inject
-    private ObjectMapper objectMapper;
 
     private static final ApiError SOME_STRING_ERROR = new ApiErrorBase("SOME_STRING_ERROR", 99042, "some string error", 400, null);
     private static final ApiError SUB_OBJECT_ERROR = new ApiErrorBase("SUB_OBJECT_ERROR", 99043, "sub object error", 400, null);
@@ -82,6 +77,7 @@ public class FailFastServersideValidationServiceITest extends BaseSpringEnabledV
         @NotNull(message = "SUB_OBJECT_ERROR")
         public final ValidateMeSubobject subObject;
 
+        @SuppressWarnings("unused") // Needed for deserialization.
         private ValidateMe() {
             this(null, null);
         }
@@ -96,6 +92,7 @@ public class FailFastServersideValidationServiceITest extends BaseSpringEnabledV
         @NotNull(message = "SUBOBJECT_FIELD_ERROR")
         public final String someSubObjectField;
 
+        @SuppressWarnings("unused") // Needed for deserialization.
         private ValidateMeSubobject() {
             this(null);
         }
@@ -107,6 +104,7 @@ public class FailFastServersideValidationServiceITest extends BaseSpringEnabledV
 
     @Controller
     @RequestMapping("/ffsvsControllerDummy")
+    @SuppressWarnings({"unused", "ClassEscapesDefinedScope"})
     public static class DummyController {
 
         @Inject

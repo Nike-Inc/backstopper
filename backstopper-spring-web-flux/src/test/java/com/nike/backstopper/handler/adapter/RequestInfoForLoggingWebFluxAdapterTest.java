@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.server.ServerRequest;
 
 import java.net.URI;
@@ -34,10 +35,12 @@ import static org.mockito.Mockito.verify;
  * @author Nic Munroe
  */
 @RunWith(DataProviderRunner.class)
+@SuppressWarnings("ClassEscapesDefinedScope")
 public class RequestInfoForLoggingWebFluxAdapterTest {
 
     private ServerRequest requestMock;
     private URI requestUri;
+    HttpMethod httpMethod;
     private String httpMethodName;
     private ServerRequest.Headers serverRequestHeadersMock;
     private HttpHeaders headers;
@@ -51,12 +54,14 @@ public class RequestInfoForLoggingWebFluxAdapterTest {
         requestMock = mock(ServerRequest.class);
         requestUri = URI.create(String.format("http://localhost:8080%s?%s", REQUEST_PATH, QUERY_STRING));
         httpMethodName = UUID.randomUUID().toString();
+        httpMethod = mock(HttpMethod.class);
         headers = new HttpHeaders();
 
         serverRequestHeadersMock = mock(ServerRequest.Headers.class);
 
         doReturn(requestUri).when(requestMock).uri();
-        doReturn(httpMethodName).when(requestMock).methodName();
+        doReturn(httpMethod).when(requestMock).method();
+        doReturn(httpMethodName).when(httpMethod).name();
         doReturn(serverRequestHeadersMock).when(requestMock).headers();
 
         doReturn(headers).when(serverRequestHeadersMock).asHttpHeaders();
@@ -82,6 +87,7 @@ public class RequestInfoForLoggingWebFluxAdapterTest {
     @Test
     public void constructor_throws_NullPointerException_if_passed_null_ServerRequest() {
         // when
+        @SuppressWarnings("DataFlowIssue")
         Throwable ex = catchThrowable(() -> new RequestInfoForLoggingWebFluxAdapter(null));
 
         // then
@@ -120,6 +126,18 @@ public class RequestInfoForLoggingWebFluxAdapterTest {
 
         // then
         assertThat(result).isEqualTo(httpMethodName);
+    }
+
+    @Test
+    public void getRequestHttpMethod_returns_null_if_request_method_is_null() {
+        // given
+        doReturn(null).when(requestMock).method();
+
+        // when
+        String result = adapter.getRequestHttpMethod();
+
+        // then
+        assertThat(result).isNull();
     }
 
     @Test

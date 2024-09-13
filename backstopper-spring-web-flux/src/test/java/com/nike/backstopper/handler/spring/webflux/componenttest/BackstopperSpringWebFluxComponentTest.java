@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -55,6 +56,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -82,13 +84,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.inject.Singleton;
-import javax.validation.Valid;
-import javax.validation.Validation;
-import javax.validation.Validator;
-
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
+import jakarta.inject.Singleton;
+import jakarta.validation.Valid;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -97,6 +98,7 @@ import static com.nike.backstopper.handler.spring.webflux.componenttest.Backstop
 import static com.nike.backstopper.handler.spring.webflux.componenttest.BackstopperSpringWebFluxComponentTest.ComponentTestController.FLUX_ENDPOINT_PATH;
 import static com.nike.backstopper.handler.spring.webflux.componenttest.BackstopperSpringWebFluxComponentTest.ComponentTestController.FLUX_RESPONSE_PAYLOAD;
 import static com.nike.backstopper.handler.spring.webflux.componenttest.BackstopperSpringWebFluxComponentTest.ComponentTestController.GET_SAMPLE_MODEL_ENDPOINT;
+import static com.nike.backstopper.handler.spring.webflux.componenttest.BackstopperSpringWebFluxComponentTest.ComponentTestController.INT_HEADER_REQUIRED_ENDPOINT;
 import static com.nike.backstopper.handler.spring.webflux.componenttest.BackstopperSpringWebFluxComponentTest.ComponentTestController.INT_QUERY_PARAM_REQUIRED_ENDPOINT;
 import static com.nike.backstopper.handler.spring.webflux.componenttest.BackstopperSpringWebFluxComponentTest.ComponentTestController.MONO_ENDPOINT_PATH;
 import static com.nike.backstopper.handler.spring.webflux.componenttest.BackstopperSpringWebFluxComponentTest.ComponentTestController.MONO_RESPONSE_PAYLOAD;
@@ -127,6 +129,7 @@ import static com.nike.backstopper.handler.spring.webflux.componenttest.Backstop
 import static com.nike.internal.util.testing.TestUtils.findFreePort;
 import static io.restassured.RestAssured.given;
 import static java.util.Collections.singleton;
+import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
 
@@ -136,6 +139,7 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
  * @author Nic Munroe
  */
 @RunWith(DataProviderRunner.class)
+@SuppressWarnings("ClassEscapesDefinedScope")
 public class BackstopperSpringWebFluxComponentTest {
 
     private static final int SERVER_PORT = findFreePort();
@@ -176,11 +180,12 @@ public class BackstopperSpringWebFluxComponentTest {
 
     @After
     public void afterMethod() {
+        // Do nothing.
     }
 
     @Test
     public void verify_non_error_endpoint_responds_without_error() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -197,7 +202,7 @@ public class BackstopperSpringWebFluxComponentTest {
 
     @Test
     public void verify_ENDPOINT_ERROR_returned_if_error_endpoint_is_called() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -213,7 +218,7 @@ public class BackstopperSpringWebFluxComponentTest {
 
     @Test
     public void verify_NOT_FOUND_returned_if_unknown_path_is_requested() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -237,7 +242,7 @@ public class BackstopperSpringWebFluxComponentTest {
     public void verify_mono_endpoint(
         String specialHeader, ComponentTestProjectApiError expectedError
     ) {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -267,7 +272,7 @@ public class BackstopperSpringWebFluxComponentTest {
     public void verify_flux_endpoint(
         String specialHeader, ComponentTestProjectApiError expectedError
     ) {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -297,7 +302,7 @@ public class BackstopperSpringWebFluxComponentTest {
     public void verify_router_function_endpoint(
         String specialHeader, ComponentTestProjectApiError expectedError
     ) {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -328,7 +333,7 @@ public class BackstopperSpringWebFluxComponentTest {
     public void verify_exploding_filter_behavior(
         String specialHeader, ComponentTestProjectApiError expectedError
     ) {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -345,7 +350,7 @@ public class BackstopperSpringWebFluxComponentTest {
 
     @Test
     public void verify_METHOD_NOT_ALLOWED_returned_if_known_path_is_requested_with_invalid_http_method() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -361,7 +366,7 @@ public class BackstopperSpringWebFluxComponentTest {
 
     @Test
     public void verify_sample_get_fails_with_NO_ACCEPTABLE_REPRESENTATION_if_passed_invalid_accept_header() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -381,7 +386,7 @@ public class BackstopperSpringWebFluxComponentTest {
         SampleModel requestPayload = randomizedSampleModel();
         String requestPayloadAsString = objectMapper.writeValueAsString(requestPayload);
 
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -398,8 +403,8 @@ public class BackstopperSpringWebFluxComponentTest {
     }
     
     @Test
-    public void verify_TYPE_CONVERSION_ERROR_is_thrown_when_framework_cannot_convert_type() {
-        ExtractableResponse response =
+    public void verify_TYPE_CONVERSION_ERROR_is_thrown_when_framework_cannot_convert_type_for_query_param() {
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -415,7 +420,9 @@ public class BackstopperSpringWebFluxComponentTest {
             SampleCoreApiError.TYPE_CONVERSION_ERROR,
             // We can't expect the bad_property_name=requiredQueryParamValue metadata like we do in Spring Web MVC,
             //      because Spring WebFlux doesn't add it to the TypeMismatchException cause.
-            MapBuilder.builder("bad_property_value", (Object) "not-an-integer")
+            MapBuilder.builder("bad_property_name", (Object) "requiredQueryParamValue")
+                      .put("bad_property_value", "not-an-integer")
+                      .put("required_location", "query_param")
                       .put("required_type", "int")
                       .build()
         );
@@ -428,16 +435,56 @@ public class BackstopperSpringWebFluxComponentTest {
         verifyHandlingResult(
             expectedApiError,
             Pair.of("exception_message", quotesToApostrophes(ex.getMessage())),
-            Pair.of("method_parameter", ex.getMethodParameter().toString()),
+            Pair.of("method_parameter", requireNonNull(ex.getMethodParameter()).toString()),
             Pair.of("bad_property_name", tme.getPropertyName()),
-            Pair.of("bad_property_value", tme.getValue().toString()),
-            Pair.of("required_type", tme.getRequiredType().toString())
+            Pair.of("bad_property_value", requireNonNull(tme.getValue()).toString()),
+            Pair.of("required_type", requireNonNull(tme.getRequiredType()).toString())
+        );
+    }
+
+    @Test
+    public void verify_TYPE_CONVERSION_ERROR_is_thrown_when_framework_cannot_convert_type_for_header() {
+        ExtractableResponse<?> response =
+            given()
+                .baseUri("http://localhost")
+                .port(SERVER_PORT)
+                .log().all()
+                .when()
+                .header("requiredHeaderValue", "not-an-integer")
+                .get(INT_HEADER_REQUIRED_ENDPOINT)
+                .then()
+                .log().all()
+                .extract();
+
+        ApiError expectedApiError = new ApiErrorWithMetadata(
+            SampleCoreApiError.TYPE_CONVERSION_ERROR,
+            // We can't expect the bad_property_name=requiredQueryParamValue metadata like we do in Spring Web MVC,
+            //      because Spring WebFlux doesn't add it to the TypeMismatchException cause.
+            MapBuilder.builder("bad_property_name", (Object) "requiredHeaderValue")
+                      .put("bad_property_value", "not-an-integer")
+                      .put("required_location", "header")
+                      .put("required_type", "int")
+                      .build()
+        );
+
+        verifyErrorReceived(response, expectedApiError);
+        ServerWebInputException ex = verifyResponseStatusExceptionSeenByBackstopper(
+            ServerWebInputException.class, 400
+        );
+        TypeMismatchException tme = verifyExceptionHasCauseOfType(ex, TypeMismatchException.class);
+        verifyHandlingResult(
+            expectedApiError,
+            Pair.of("exception_message", quotesToApostrophes(ex.getMessage())),
+            Pair.of("method_parameter", requireNonNull(ex.getMethodParameter()).toString()),
+            Pair.of("bad_property_name", tme.getPropertyName()),
+            Pair.of("bad_property_value", requireNonNull(tme.getValue()).toString()),
+            Pair.of("required_type", requireNonNull(tme.getRequiredType()).toString())
         );
     }
 
     @Test
     public void verify_ResponseStatusException_with_TypeMismatchException_is_handled_generically_when_status_code_is_unexpected() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -455,7 +502,7 @@ public class BackstopperSpringWebFluxComponentTest {
         ResponseStatusException ex = verifyResponseStatusExceptionSeenByBackstopper(
             ResponseStatusException.class, 403
         );
-        TypeMismatchException tme = verifyExceptionHasCauseOfType(ex, TypeMismatchException.class);
+        verifyExceptionHasCauseOfType(ex, TypeMismatchException.class);
         verifyHandlingResult(
             SampleCoreApiError.FORBIDDEN,
             Pair.of("exception_message", quotesToApostrophes(ex.getMessage()))
@@ -463,8 +510,8 @@ public class BackstopperSpringWebFluxComponentTest {
     }
 
     @Test
-    public void verify_MALFORMED_REQUEST_is_thrown_when_required_data_is_missing_and_error_metadata_must_be_extracted_from_ex_reason() {
-        ExtractableResponse response =
+    public void verify_MALFORMED_REQUEST_is_thrown_when_required_query_param_is_missing_and_error_metadata_must_be_extracted_from_ex_reason() {
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -478,7 +525,8 @@ public class BackstopperSpringWebFluxComponentTest {
         ApiError expectedApiError = new ApiErrorWithMetadata(
             SampleCoreApiError.MALFORMED_REQUEST,
             Pair.of("missing_param_type", "int"),
-            Pair.of("missing_param_name", "requiredQueryParamValue")
+            Pair.of("missing_param_name", "requiredQueryParamValue"),
+            Pair.of("required_location", "query_param")
         );
 
         verifyErrorReceived(response, expectedApiError);
@@ -488,16 +536,50 @@ public class BackstopperSpringWebFluxComponentTest {
         verifyHandlingResult(
             expectedApiError,
             Pair.of("exception_message", quotesToApostrophes(ex.getMessage())),
-            Pair.of("method_parameter", ex.getMethodParameter().toString())
+            Pair.of("method_parameter", requireNonNull(ex.getMethodParameter()).toString())
         );
         // Verify no cause, leaving the exception `reason` as the only way we could have gotten the metadata.
         assertThat(ex).hasNoCause();
-        assertThat(ex.getReason()).isEqualTo("Required int parameter 'requiredQueryParamValue' is not present");
+        assertThat(ex.getReason()).isEqualTo("Required query parameter 'requiredQueryParamValue' is not present.");
+    }
+
+    @Test
+    public void verify_MALFORMED_REQUEST_is_thrown_when_required_header_is_missing_and_error_metadata_must_be_extracted_from_ex_reason() {
+        ExtractableResponse<?> response =
+            given()
+                .baseUri("http://localhost")
+                .port(SERVER_PORT)
+                .log().all()
+                .when()
+                .get(INT_HEADER_REQUIRED_ENDPOINT)
+                .then()
+                .log().all()
+                .extract();
+
+        ApiError expectedApiError = new ApiErrorWithMetadata(
+            SampleCoreApiError.MALFORMED_REQUEST,
+            Pair.of("missing_param_type", "int"),
+            Pair.of("missing_param_name", "requiredHeaderValue"),
+            Pair.of("required_location", "header")
+        );
+
+        verifyErrorReceived(response, expectedApiError);
+        ServerWebInputException ex = verifyResponseStatusExceptionSeenByBackstopper(
+            ServerWebInputException.class, 400
+        );
+        verifyHandlingResult(
+            expectedApiError,
+            Pair.of("exception_message", quotesToApostrophes(ex.getMessage())),
+            Pair.of("method_parameter", requireNonNull(ex.getMethodParameter()).toString())
+        );
+        // Verify no cause, leaving the exception `reason` as the only way we could have gotten the metadata.
+        assertThat(ex).hasNoCause();
+        assertThat(ex.getReason()).isEqualTo("Required header 'requiredHeaderValue' is not present.");
     }
 
     @Test
     public void verify_GENERIC_SERVICE_ERROR_returned_if_ServerErrorException_is_thrown() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -513,14 +595,14 @@ public class BackstopperSpringWebFluxComponentTest {
         verifyHandlingResult(
             SampleCoreApiError.GENERIC_SERVICE_ERROR,
             Pair.of("exception_message", quotesToApostrophes(ex.getMessage())),
-            Pair.of("method_parameter", ex.getMethodParameter().toString()),
-            Pair.of("handler_method", ex.getHandlerMethod().toString())
+            Pair.of("method_parameter", requireNonNull(ex.getMethodParameter()).toString()),
+            Pair.of("handler_method", requireNonNull(ex.getHandlerMethod()).toString())
         );
     }
 
     @Test
     public void verify_GENERIC_SERVICE_ERROR_returned_if_ResponseStatusException_with_ConversionNotSupportedException_cause_is_thrown() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -538,14 +620,14 @@ public class BackstopperSpringWebFluxComponentTest {
             SampleCoreApiError.GENERIC_SERVICE_ERROR,
             Pair.of("exception_message", quotesToApostrophes(ex.getMessage())),
             Pair.of("bad_property_name", cnse.getPropertyName()),
-            Pair.of("bad_property_value", cnse.getValue().toString()),
-            Pair.of("required_type", cnse.getRequiredType().toString())
+            Pair.of("bad_property_value", requireNonNull(cnse.getValue()).toString()),
+            Pair.of("required_type", requireNonNull(cnse.getRequiredType()).toString())
         );
     }
 
     @Test
     public void verify_sample_post_fails_with_MISSING_EXPECTED_CONTENT_if_passed_empty_body() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -565,11 +647,11 @@ public class BackstopperSpringWebFluxComponentTest {
         verifyHandlingResult(
             SampleCoreApiError.MISSING_EXPECTED_CONTENT,
             Pair.of("exception_message", quotesToApostrophes(ex.getMessage())),
-            Pair.of("method_parameter", ex.getMethodParameter().toString())
+            Pair.of("method_parameter", requireNonNull(ex.getMethodParameter()).toString())
         );
-        // Verify no cause, leaving the exception `reason` as the only way we could have determined this case.
-        assertThat(ex).hasNoCause();
-        assertThat(ex.getReason()).startsWith("Request body is missing");
+        // Verify DecodingException as the cause, leaving the exception `reason` as the only way we could have determined this case.
+        assertThat(ex).hasCauseInstanceOf(DecodingException.class);
+        assertThat(ex.getReason()).isEqualTo("No request body");
     }
 
     @Test
@@ -581,7 +663,7 @@ public class BackstopperSpringWebFluxComponentTest {
         badRequestPayloadAsMap.put("throw_manual_error", "not-a-boolean");
         String badJsonPayloadAsString = objectMapper.writeValueAsString(badRequestPayloadAsMap);
 
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -602,7 +684,7 @@ public class BackstopperSpringWebFluxComponentTest {
         verifyHandlingResult(
             SampleCoreApiError.MALFORMED_REQUEST,
             Pair.of("exception_message", quotesToApostrophes(ex.getMessage())),
-            Pair.of("method_parameter", ex.getMethodParameter().toString())
+            Pair.of("method_parameter", requireNonNull(ex.getMethodParameter()).toString())
         );
     }
 
@@ -610,7 +692,7 @@ public class BackstopperSpringWebFluxComponentTest {
         return new SampleModel(UUID.randomUUID().toString(), String.valueOf(nextRangeInt(0, 42)), nextRandomColor().name(), false);
     }
 
-    static int nextRangeInt(int lowerBound, int upperBound) {
+    static int nextRangeInt(@SuppressWarnings("SameParameterValue") int lowerBound, int upperBound) {
         return (int)Math.round(Math.random() * upperBound) + lowerBound;
     }
 
@@ -636,7 +718,7 @@ public class BackstopperSpringWebFluxComponentTest {
         SampleModel requestPayload = new SampleModel(fooString, rangeString, rgbColorString, false);
         String requestPayloadAsString = objectMapper.writeValueAsString(requestPayload);
 
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -678,7 +760,7 @@ public class BackstopperSpringWebFluxComponentTest {
 
     @Test
     public void verify_GENERIC_SERVICE_ERROR_returned_if_unhandled_exception_is_thrown() {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -713,7 +795,7 @@ public class BackstopperSpringWebFluxComponentTest {
     public void verify_generic_ResponseStatusCode_exceptions_result_in_ApiError_from_project_if_status_code_is_known(
         int desiredStatusCode, SampleCoreApiError expectedError
     ) {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -740,10 +822,11 @@ public class BackstopperSpringWebFluxComponentTest {
         "506"
     }, splitBy = "\\|")
     @Test
+    @SuppressWarnings("ExtractMethodRecommender")
     public void verify_generic_ResponseStatusCode_exception_with_unknown_status_code_results_in_synthetic_ApiError(
         int unknownStatusCode
     ) {
-        ExtractableResponse response =
+        ExtractableResponse<?> response =
             given()
                 .baseUri("http://localhost")
                 .port(SERVER_PORT)
@@ -776,7 +859,7 @@ public class BackstopperSpringWebFluxComponentTest {
         );
     }
 
-    private void verifyErrorReceived(ExtractableResponse response, ApiError expectedError) {
+    private void verifyErrorReceived(ExtractableResponse<?> response, ApiError expectedError) {
         verifyErrorReceived(response, singleton(expectedError), expectedError.getHttpStatusCode());
     }
 
@@ -789,7 +872,7 @@ public class BackstopperSpringWebFluxComponentTest {
         return null;
     }
 
-    private void verifyErrorReceived(ExtractableResponse response, Collection<ApiError> expectedErrors, int expectedHttpStatusCode) {
+    private void verifyErrorReceived(ExtractableResponse<?> response, Collection<ApiError> expectedErrors, int expectedHttpStatusCode) {
         assertThat(response.statusCode()).isEqualTo(expectedHttpStatusCode);
         try {
             DefaultErrorContractDTO errorContract = objectMapper.readValue(response.asString(), DefaultErrorContractDTO.class);
@@ -815,7 +898,9 @@ public class BackstopperSpringWebFluxComponentTest {
 
         assertThat(exceptionSeenByUnhandledBackstopperHandler).isNull();
 
-        return (T) ex;
+        @SuppressWarnings("unchecked")
+        T asT = (T) ex;
+        return asT;
     }
 
     private <T extends ResponseStatusException> T verifyResponseStatusExceptionSeenByBackstopper(
@@ -824,7 +909,7 @@ public class BackstopperSpringWebFluxComponentTest {
     ) {
         T ex = verifyExceptionSeenByBackstopper(expectedClassType);
 
-        int actualStatusCode = ex.getStatus().value();
+        int actualStatusCode = ex.getStatusCode().value();
         assertThat(actualStatusCode).isEqualTo(expectedStatusCode);
 
         return ex;
@@ -832,7 +917,9 @@ public class BackstopperSpringWebFluxComponentTest {
 
     private <T extends Throwable> T verifyExceptionHasCauseOfType(Throwable origEx, Class<T> expectedCauseType) {
         assertThat(origEx.getCause()).isInstanceOf(expectedCauseType);
-        return (T) origEx.getCause();
+        @SuppressWarnings("unchecked")
+        T asT = (T) origEx.getCause();
+        return asT;
     }
 
     private String quotesToApostrophes(String str) {
@@ -840,8 +927,8 @@ public class BackstopperSpringWebFluxComponentTest {
     }
 
     @SafeVarargs
-    private final void verifyHandlingResult(
-        ApiError expectedApiError, Pair<String, String> ... expectedExtraLoggingPairs
+    private void verifyHandlingResult(
+        ApiError expectedApiError, Pair<String, String>... expectedExtraLoggingPairs
     ) {
         ApiExceptionHandlerListenerResult result = normalBackstopperHandlingResult;
         assertThat(result.shouldHandleResponse).isTrue();
@@ -852,6 +939,7 @@ public class BackstopperSpringWebFluxComponentTest {
     @SpringBootApplication
     @Configuration
     @Import({BackstopperSpringWebFluxConfig.class, ComponentTestController.class })
+    @SuppressWarnings("unused")
     static class ComponentTestWebFluxApp {
         @Bean
         public ProjectApiErrors getProjectApiErrors() {
@@ -860,6 +948,7 @@ public class BackstopperSpringWebFluxComponentTest {
 
         @Bean
         public Validator getJsr303Validator() {
+            //noinspection resource
             return Validation.buildDefaultValidatorFactory().getValidator();
         }
 
@@ -914,7 +1003,7 @@ public class BackstopperSpringWebFluxComponentTest {
                 projectApiErrors, generalUtils, springUtils, viewResolversProvider, serverCodecConfigurer
             ) {
                 @Override
-                public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
+                public @NotNull Mono<Void> handle(@NotNull ServerWebExchange exchange, @NotNull Throwable ex) {
                     exceptionSeenByUnhandledBackstopperHandler = ex;
                     return super.handle(exchange, ex);
                 }
@@ -923,6 +1012,7 @@ public class BackstopperSpringWebFluxComponentTest {
     }
 
     @Controller
+    @SuppressWarnings("unused")
     static class ComponentTestController {
         static final String NON_ERROR_ENDPOINT_PATH = "/nonErrorEndpoint";
         static final String ERROR_THROWING_ENDPOINT_PATH = "/throwErrorEndpoint";
@@ -934,6 +1024,7 @@ public class BackstopperSpringWebFluxComponentTest {
         static final String CONVERSION_NOT_SUPPORTED_EXCEPTION_ENDPOINT_PATH =
             "/triggerConversionNotSupportedException";
         static final String INT_QUERY_PARAM_REQUIRED_ENDPOINT = "/intQueryParamRequiredEndpoint";
+        static final String INT_HEADER_REQUIRED_ENDPOINT = "/intHeaderRequiredEndpoint";
         static final String TYPE_MISMATCH_WITH_UNEXPECTED_STATUS_ENDPOINT = "/typeMismatchWithUnexpectedStatusEndpoint";
         static final String GET_SAMPLE_MODEL_ENDPOINT = "/getSampleModel";
         static final String POST_SAMPLE_MODEL_ENDPOINT_WITH_JSR_303_VALIDATION =
@@ -1035,7 +1126,7 @@ public class BackstopperSpringWebFluxComponentTest {
                 );
             }
 
-            return ServerResponse.ok().syncBody(ROUTER_FUNCTION_ENDPOINT_RESPONSE_PAYLOAD);
+            return ServerResponse.ok().bodyValue(ROUTER_FUNCTION_ENDPOINT_RESPONSE_PAYLOAD);
         }
 
         @GetMapping(path = INT_QUERY_PARAM_REQUIRED_ENDPOINT)
@@ -1046,6 +1137,14 @@ public class BackstopperSpringWebFluxComponentTest {
             return "You passed in " + someRequiredQueryParam + " for the required query param value";
         }
 
+        @GetMapping(path = INT_HEADER_REQUIRED_ENDPOINT)
+        @ResponseBody
+        public String intHeaderRequiredEndpoint(
+            @RequestHeader(name = "requiredHeaderValue") int someRequiredHeader
+        ) {
+            return "You passed in " + someRequiredHeader + " for the required header value";
+        }
+
         // Mismatch between the path param {foo} and the name we gave the @PathVariable triggers a ServerErrorException.
         @GetMapping(path = SERVER_ERROR_EXCEPTION_ENDPOINT_PATH)
         @ResponseBody
@@ -1053,7 +1152,7 @@ public class BackstopperSpringWebFluxComponentTest {
             return "we should never reach here";
         }
 
-        // Can't figure out how to get springboot 2 to trigger a ConversionNotSupportedException naturally, so
+        // Can't figure out how to get springboot to trigger a ConversionNotSupportedException naturally, so
         //      we'll just throw one ourselves.
         @GetMapping(path = CONVERSION_NOT_SUPPORTED_EXCEPTION_ENDPOINT_PATH)
         @ResponseBody
@@ -1083,10 +1182,10 @@ public class BackstopperSpringWebFluxComponentTest {
         @ResponseBody
         public String responseStatusExForSpecificStatusCodeEndpoint(ServerHttpRequest request) {
             int desiredStatusCode = Integer.parseInt(
-                request.getHeaders().getFirst("desired-status-code")
+                requireNonNull(request.getHeaders().getFirst("desired-status-code"))
             );
             throw new ResponseStatusException(
-                HttpStatus.resolve(desiredStatusCode),
+                HttpStatus.valueOf(desiredStatusCode),
                 "Synthetic ResponseStatusException with specific desired status code: " + desiredStatusCode
             );
         }
@@ -1141,7 +1240,7 @@ public class BackstopperSpringWebFluxComponentTest {
 
         ComponentTestProjectApiError(int errorCode, String message, int httpStatusCode) {
             this(new ApiErrorBase(
-                "delegated-to-enum-wrapper-" + UUID.randomUUID().toString(), errorCode, message, httpStatusCode
+                "delegated-to-enum-wrapper-" + UUID.randomUUID(), errorCode, message, httpStatusCode
             ));
         }
 
@@ -1201,8 +1300,8 @@ public class BackstopperSpringWebFluxComponentTest {
     public static class ExplodingWebFilter implements WebFilter {
 
         @Override
-        public Mono<Void> filter(
-            ServerWebExchange exchange, WebFilterChain chain
+        public @NotNull Mono<Void> filter(
+            ServerWebExchange exchange, @NotNull WebFilterChain chain
         ) {
             HttpHeaders httpHeaders = exchange.getRequest().getHeaders();
 
@@ -1232,9 +1331,9 @@ public class BackstopperSpringWebFluxComponentTest {
         implements HandlerFilterFunction<ServerResponse, ServerResponse> {
 
         @Override
-        public Mono<ServerResponse> filter(
+        public @NotNull Mono<ServerResponse> filter(
             ServerRequest serverRequest,
-            HandlerFunction<ServerResponse> handlerFunction
+            @NotNull HandlerFunction<ServerResponse> handlerFunction
         ) {
             HttpHeaders httpHeaders = serverRequest.headers().asHttpHeaders();
 

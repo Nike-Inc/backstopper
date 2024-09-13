@@ -16,7 +16,7 @@ import java.util.List;
  */
 public abstract class ProjectApiErrorsForTesting extends ProjectApiErrors {
 
-    private static final List<ApiError> BAREBONES_CORE_API_ERRORS_AS_LIST = Arrays.<ApiError>asList(BarebonesCoreApiErrorForTesting.values());
+    private static final List<ApiError> BAREBONES_CORE_API_ERRORS_AS_LIST = Arrays.asList(BarebonesCoreApiErrorForTesting.values());
 
     public static ProjectApiErrorsForTesting withProjectSpecificData(final List<ApiError> projectSpecificErrors,
                                                                      final ProjectSpecificErrorCodeRange projectSpecificErrorCodeRange) {

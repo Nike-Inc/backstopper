@@ -1,5 +1,8 @@
 package com.nike.internal.util;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
@@ -28,6 +31,7 @@ import java.util.Objects;
 public abstract class Pair<L, R> implements Map.Entry<L, R>, Comparable<Pair<L, R>>, Serializable {
 
     /** Serialization version */
+    @Serial
     private static final long serialVersionUID = 4954918890077093841L;
 
     /**
@@ -43,7 +47,7 @@ public abstract class Pair<L, R> implements Map.Entry<L, R>, Comparable<Pair<L, 
      * @return a pair formed from the two parameters, not null
      */
     public static <L, R> Pair<L, R> of(final L left, final R right) {
-        return new ImmutablePair<L, R>(left, right);
+        return new ImmutablePair<>(left, right);
     }
 
     //-----------------------------------------------------------------------
@@ -100,7 +104,7 @@ public abstract class Pair<L, R> implements Map.Entry<L, R>, Comparable<Pair<L, 
      * @return negative if this is less, zero if equal, positive if greater
      */
     @Override
-    public int compareTo(final Pair<L, R> other) {
+    public int compareTo(final @NotNull Pair<L, R> other) {
 
         if (this == other)
             return 0;
@@ -134,14 +138,12 @@ public abstract class Pair<L, R> implements Map.Entry<L, R>, Comparable<Pair<L, 
      * @param obj  the object to compare to, null returns false
      * @return true if the elements of the pair are equal
      */
-    @SuppressWarnings( "deprecation" ) // ObjectUtils.equals(Object, Object) has been deprecated in 3.2
     @Override
     public boolean equals(final Object obj) {
         if (obj == this) {
             return true;
         }
-        if (obj instanceof Map.Entry<?, ?>) {
-            final Map.Entry<?, ?> other = (Map.Entry<?, ?>) obj;
+        if (obj instanceof Map.Entry<?, ?> other) {
             return Objects.equals(getKey(), other.getKey())
                    && Objects.equals(getValue(), other.getValue());
         }
@@ -168,7 +170,7 @@ public abstract class Pair<L, R> implements Map.Entry<L, R>, Comparable<Pair<L, 
      */
     @Override
     public String toString() {
-        return new StringBuilder().append('(').append(getLeft()).append(',').append(getRight()).append(')').toString();
+        return "(" + getLeft() + ',' + getRight() + ')';
     }
 
     /**

@@ -4,7 +4,6 @@ import com.nike.internal.util.MapBuilder;
 
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +20,11 @@ public class ErrorResponseInfoTest {
     @Test
     public void constructorSetsValues() {
         Object frameworkObj = new Object();
-        Map<String, List<String>> headersMap = MapBuilder.<String, List<String>>builder().put("header1", Arrays.asList("val1")).put("header2", Arrays.asList("h2val1, h2val2")).build();
+        Map<String, List<String>> headersMap = MapBuilder
+            .<String, List<String>>builder()
+            .put("header1", List.of("val1"))
+            .put("header2", List.of("h2val1, h2val2"))
+            .build();
         ErrorResponseInfo<Object> responseInfo = new ErrorResponseInfo<>(42, frameworkObj, headersMap);
         assertThat(responseInfo.frameworkRepresentationObj, is(frameworkObj));
         assertThat(responseInfo.headersToAddToResponse, is(headersMap));

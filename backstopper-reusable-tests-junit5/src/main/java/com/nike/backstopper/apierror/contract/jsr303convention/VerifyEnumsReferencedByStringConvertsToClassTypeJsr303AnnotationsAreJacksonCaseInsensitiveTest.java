@@ -59,6 +59,7 @@ public abstract class VerifyEnumsReferencedByStringConvertsToClassTypeJsr303Anno
      * {@link StringConvertsToClassType} for more info on why this is required and how to do it.
      */
     @Test
+    @SuppressWarnings("ExtractMethodRecommender")
     public void verifyEnumsReferencedByStringConvertsToClassTypeJsr303AnnotationsAreCaseInsensitive()
         throws IOException {
         ReflectionBasedJsr303AnnotationTrollerBase troller = getAnnotationTroller();
