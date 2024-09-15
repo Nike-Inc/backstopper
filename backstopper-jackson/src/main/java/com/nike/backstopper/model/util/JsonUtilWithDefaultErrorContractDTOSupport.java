@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
+import com.fasterxml.jackson.databind.ser.SerializerFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,6 +93,15 @@ public class JsonUtilWithDefaultErrorContractDTOSupport {
             super(config);
             this.excludeEmptyMetadataFromJson = excludeEmptyMetadataFromJson;
             this.serializeErrorCodeFieldAsIntegerIfPossible = serializeErrorCodeFieldAsIntegerIfPossible;
+        }
+
+        @Override
+        public SerializerFactory withConfig(SerializerFactoryConfig config) {
+            return new ErrorContractSerializationFactory(
+                config,
+                excludeEmptyMetadataFromJson,
+                serializeErrorCodeFieldAsIntegerIfPossible
+            );
         }
 
         @Override
