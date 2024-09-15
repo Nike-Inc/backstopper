@@ -9,9 +9,12 @@ import com.nike.internal.util.MapBuilder;
 import com.nike.internal.util.testing.Glassbox;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 
@@ -22,6 +25,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -315,6 +319,68 @@ public class JsonUtilWithDefaultErrorContractDTOSupportTest {
     public static class FooClass {
         public String metadata = "foo";
         public String code = "42";
+    }
+
+    // Essentially a duplicate of DefaultErrorContractDTO, but with the error ID named `someAltErrorIdForContract` instead of `error_id`.
+    private record AlternateErrorContract(String someAltErrorIdForContract, List<DefaultErrorDTO> errors) {
+    }
+
+    private static class AltErrorContractSerializer extends StdSerializer<DefaultErrorContractDTO> {
+        public AltErrorContractSerializer() {
+            super(DefaultErrorContractDTO.class);
+        }
+
+        @Override
+        public void serialize(DefaultErrorContractDTO value, JsonGenerator gen, SerializerProvider provider)
+            throws IOException {
+            AlternateErrorContract altContract = new AlternateErrorContract(value.error_id, value.errors);
+            provider.defaultSerializeValue(altContract, gen);
+        }
+    }
+
+    @Test
+    public void withConfig_override_works_as_expected() throws JsonProcessingException {
+        // given
+        boolean excludeEmptyMetadataFromJson = true;
+        boolean serializeErrorCodeFieldAsIntegerIfPossible = true;
+        ObjectMapper mapper = new ObjectMapper().setSerializerFactory(
+            new ErrorContractSerializationFactory(
+                null,
+                excludeEmptyMetadataFromJson,
+                serializeErrorCodeFieldAsIntegerIfPossible
+            ));
+
+        SimpleModule module = new SimpleModule();
+        module.addSerializer(DefaultErrorContractDTO.class, new AltErrorContractSerializer());
+
+        Map<String, Object> origContract43Metadata = Map.of("metafoo", "metabar", "meta42", 43);
+        DefaultErrorContractDTO origContract = new DefaultErrorContractDTO(UUID.randomUUID().toString(), Arrays.asList(
+            new DefaultErrorDTO(42, "foo", null),
+            new DefaultErrorDTO("43", "bar", origContract43Metadata)
+        ), null);
+
+        // when
+        Throwable ex = catchThrowable(() -> mapper.registerModule(module));
+
+        // then
+        assertThat(ex).isNull();
+
+        // and when
+        String resultJsonStr = JsonUtilWithDefaultErrorContractDTOSupport.writeValueAsString(origContract, mapper);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> resultJsonMap = objectMapper.readValue(resultJsonStr, Map.class);
+
+        // then
+        // Note that the error_id field is renamed to someAltErrorIdForContract, the metadata is missing entirely from
+        //      the first error, and and string code "43" was converted to an int. Therefore we know both the original
+        //      error contract serializer is working, and the additional AltErrorContractSerializer is also working.
+        assertThat(resultJsonMap).isEqualTo(Map.of(
+            "someAltErrorIdForContract", origContract.error_id,
+            "errors", Arrays.asList(
+                Map.of("code", 42, "message", "foo"),
+                Map.of("code", 43, "message", "bar", "metadata", origContract43Metadata)
+            )
+        ));
     }
 
 }
